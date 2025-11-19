@@ -1730,7 +1730,7 @@
                             const tenantHouseNumber = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
                             if (tenantHouseNumber === houseNumber) {
                                 tenantId = child.key;
-                                tenantEmail = tenant.email;
+                                tenantEmail = tenant.email || tenant.info?.email || tenant.auth?.email || '';
                                 tenantName = tenant.name || tenant.info?.fullName || tenant.info?.name || hostName;
                             }
                         });
@@ -1740,13 +1740,18 @@
                             return;
                         }
 
+                        // Ensure tenantEmail is not undefined
+                        if (!tenantEmail) {
+                            console.warn('Tenant email not found for house number:', houseNumber);
+                            tenantEmail = ''; // Use empty string instead of undefined
+                        }
+
                         // Create visitor request - status is 'pending-verification' until tenant verifies
                         const visitorRequest = {
                             visitorName: visitorName,
                             visitorContact: visitorPhone,
                             tenantName: tenantName || hostName,
                             tenantId: tenantId,
-                            tenantEmail: tenantEmail,
                             roomNumber: houseNumber,
                             apartment: houseNumber,
                             carPlate: carReg || null,
@@ -1759,6 +1764,11 @@
                             registeredBy: auth.currentUser ? auth.currentUser.email : 'Security',
                             numberOfVisitors: 1
                         };
+
+                        // Only add tenantEmail if it exists (Firebase doesn't allow undefined values)
+                        if (tenantEmail) {
+                            visitorRequest.tenantEmail = tenantEmail;
+                        }
 
                         // Save visitor request
                         const visitorRef = database.ref('visitorRequests').push(visitorRequest);
