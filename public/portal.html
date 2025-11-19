@@ -1234,17 +1234,30 @@
                                 document.body.appendChild(newScript);
                             });
                             
-                            // Set current user apartment for parking map
-                            if (typeof auth !== 'undefined' && auth.currentUser) {
+                            // Set current user apartment for parking map and initialize Firebase parking data
+                            if (typeof auth !== 'undefined' && auth.currentUser && typeof database !== 'undefined') {
                                 const userRef = database.ref('tenants').orderByChild('email').equalTo(auth.currentUser.email);
                                 userRef.once('value', snapshot => {
                                     if (snapshot.exists()) {
                                         const tenantData = Object.values(snapshot.val())[0];
-                                        if (tenantData && tenantData.houseNumber) {
-                                            window.currentUserApartment = tenantData.houseNumber;
+                                        const houseNumber = tenantData.houseNumber || tenantData.info?.houseNumber || tenantData.info?.house;
+                                        if (houseNumber) {
+                                            window.currentUserApartment = houseNumber;
                                         }
                                     }
                                 });
+                                
+                                // Load parking data from Firebase
+                                if (typeof loadParkingDataFromFirebase === 'function') {
+                                    loadParkingDataFromFirebase();
+                                } else {
+                                    // Wait for function to be available
+                                    setTimeout(() => {
+                                        if (typeof loadParkingDataFromFirebase === 'function') {
+                                            loadParkingDataFromFirebase();
+                                        }
+                                    }, 500);
+                                }
                             }
                         }, 50);
                     }

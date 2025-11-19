@@ -52,51 +52,60 @@
 </div>
 
 <script>
-// Parking map data structure
-const parkingBlocks = {
-    A: {
-        name: 'Block A',
-        spaces: [
-            { id: 'A-01', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCA 123A', tenant: 'A101', owner: 'John Doe' },
-            { id: 'A-02', block: 'A', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'A-03', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCB 456B', tenant: 'A102', owner: 'Jane Smith' },
-            { id: 'A-04', block: 'A', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'A-05', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCC 789C', tenant: 'A103', owner: 'Mike Johnson' },
-            { id: 'A-06', block: 'A', floor: 'Ground', status: 'visitor', vehicle: 'KCD 012D', tenant: null, owner: 'Visitor' },
-            { id: 'A-07', block: 'A', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'A-08', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCE 345E', tenant: 'A104', owner: 'Sarah Williams' },
-        ]
-    },
-    B: {
-        name: 'Block B',
-        spaces: [
-            { id: 'B-01', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCF 678F', tenant: 'B201', owner: 'David Brown' },
-            { id: 'B-02', block: 'B', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'B-03', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCG 901G', tenant: 'B202', owner: 'Emily Davis' },
-            { id: 'B-04', block: 'B', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'B-05', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCH 234H', tenant: 'B203', owner: 'Robert Miller' },
-            { id: 'B-06', block: 'B', floor: 'Ground', status: 'visitor', vehicle: 'KCI 567I', tenant: null, owner: 'Visitor' },
-            { id: 'B-07', block: 'B', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'B-08', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCJ 890J', tenant: 'B204', owner: 'Lisa Wilson' },
-        ]
-    },
-    C: {
-        name: 'Block C',
-        spaces: [
-            { id: 'C-01', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCK 123K', tenant: 'C301', owner: 'James Moore' },
-            { id: 'C-02', block: 'C', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'C-03', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCL 456L', tenant: 'C302', owner: 'Patricia Taylor' },
-            { id: 'C-04', block: 'C', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'C-05', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCM 789M', tenant: 'C303', owner: 'Michael Anderson' },
-            { id: 'C-06', block: 'C', floor: 'Ground', status: 'visitor', vehicle: 'KCN 012N', tenant: null, owner: 'Visitor' },
-            { id: 'C-07', block: 'C', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
-            { id: 'C-08', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCO 345O', tenant: 'C304', owner: 'Jennifer Thomas' },
-        ]
-    }
-};
-
+// Parking map data structure - will be loaded from Firebase
+let parkingData = {};
 let currentBlock = 'A';
 let currentUserApartment = null; // Will be set from Firebase
+
+// Load parking data from Firebase
+function loadParkingDataFromFirebase() {
+    if (typeof database === 'undefined') {
+        console.warn('Firebase database not available');
+        return;
+    }
+    
+    database.ref('parkingSpaces').on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            parkingData = snapshot.val();
+        } else {
+            // Initialize with default data if none exists
+            initializeDefaultParkingData();
+        }
+        renderParkingMap(currentBlock);
+    });
+}
+
+function initializeDefaultParkingData() {
+    const defaultData = {};
+    ['A', 'B', 'C'].forEach(block => {
+        for (let i = 1; i <= 8; i++) {
+            const spaceId = `${block}-${String(i).padStart(2, '0')}`;
+            defaultData[spaceId] = {
+                id: spaceId,
+                block: block,
+                floor: 'Ground',
+                status: 'available',
+                vehicle: null,
+                tenant: null,
+                owner: null
+            };
+        }
+    });
+    database.ref('parkingSpaces').set(defaultData);
+    parkingData = defaultData;
+}
+
+// Initialize parking data when page loads
+if (typeof database !== 'undefined') {
+    loadParkingDataFromFirebase();
+} else {
+    // Wait for Firebase to load
+    setTimeout(() => {
+        if (typeof database !== 'undefined') {
+            loadParkingDataFromFirebase();
+        }
+    }, 1000);
+}
 
 function showParkingBlock(block) {
     currentBlock = block;
@@ -122,8 +131,13 @@ function renderParkingMap(block) {
     const mapContainer = document.getElementById('parking-map');
     if (!mapContainer) return;
     
-    const blockData = parkingBlocks[block];
-    if (!blockData) return;
+    // Get spaces for this block from Firebase data
+    const spaces = Object.values(parkingData).filter(s => s.block === block);
+    
+    if (spaces.length === 0) {
+        mapContainer.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">No parking spaces found for Block ${block}.</p>`;
+        return;
+    }
     
     // Create responsive grid layout
     const isMobile = window.innerWidth < 768;
@@ -140,9 +154,9 @@ function renderParkingMap(block) {
     `;
     
     mapContainer.innerHTML = `
-        <h3 style="color: #667eea; margin-bottom: 20px; text-align: center;">${blockData.name} - Ground Floor Parking</h3>
+        <h3 style="color: #667eea; margin-bottom: 20px; text-align: center;">Block ${block} - Ground Floor Parking</h3>
         <div style="${gridStyle}">
-            ${blockData.spaces.map(space => {
+            ${spaces.map(space => {
                 let bgColor = '#28a745'; // Available - Green
                 let textColor = 'white';
                 let border = 'none';
@@ -189,7 +203,7 @@ function renderParkingMap(block) {
 }
 
 function showParkingDetails(spaceId, block) {
-    const space = parkingBlocks[block].spaces.find(s => s.id === spaceId);
+    const space = parkingData[spaceId];
     if (!space) return;
     
     const modal = document.getElementById('parking-details-modal');

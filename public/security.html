@@ -540,12 +540,13 @@
             </div>
 
             <div class="dashboard-section">
-                <h3><i class="fa-solid fa-list-check"></i> Registered Visitors (Awaiting Check-In)</h3>
+                <h3><i class="fa-solid fa-list-check"></i> Visitors Awaiting Approval/Check-In</h3>
+                <p class="text-muted" style="margin-bottom: 15px;">Visitors waiting for tenant approval or ready to check in</p>
                 <div class="table-header">
                     <div>Visitor</div>
                     <div>Tenant / Room</div>
                     <div>Visit</div>
-                    <div>Status</div>
+                    <div>Approval Status</div>
                     <div>Actions</div>
                 </div>
                 <div id="pending-requests"></div>
@@ -579,7 +580,9 @@
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Host Name *</label>
-                            <input type="text" id="gate-host-name" required placeholder="Tenant name" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <select id="gate-host-name" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                                <option value="">Select host name...</option>
+                            </select>
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">House Number *</label>
@@ -872,18 +875,24 @@
             let checkedInCount = 0;
             let totalVisitorCount = 0;
 
-            const registeredRequests = [];
+            const pendingRequests = []; // Visitors awaiting approval or check-in
             const allRequests = [];
 
             requests.forEach((req) => {
-                if (req.status === 'registered' || req.status === 'pending') registeredCount++;
+                // Count pending-verification and registered visitors
+                if (req.status === 'pending-verification' || req.status === 'registered' || req.status === 'pending') {
+                    registeredCount++;
+                }
                 if (req.visitDate === today) todayCount++;
                 if (req.status === 'checked-in') {
                     checkedInCount++;
                     totalVisitorCount += (req.numberOfVisitors || 1);
                 }
 
-                if (req.status === 'registered' || req.status === 'pending') registeredRequests.push(req);
+                // Show pending-verification and registered visitors in pending section
+                if (req.status === 'pending-verification' || req.status === 'registered' || req.status === 'pending') {
+                    pendingRequests.push(req);
+                }
                 allRequests.push(req);
             });
 
@@ -892,8 +901,8 @@
             if (checkedInCountEl) checkedInCountEl.textContent = totalVisitorCount;
 
             if (pendingContainer) {
-                pendingContainer.innerHTML = registeredRequests.length ? registeredRequests.map(renderVisitorRow).join('') :
-                    '<p class="text-muted" style="padding: 15px;">No registered visitors today.</p>';
+                pendingContainer.innerHTML = pendingRequests.length ? pendingRequests.map(renderVisitorRow).join('') :
+                    '<p class="text-muted" style="padding: 15px;">No visitors awaiting approval or check-in.</p>';
             }
 
             if (allRequestsContainer) {
@@ -913,9 +922,23 @@
 
             const mediaHtml = request.idPhoto ? `
                 <div class="visitor-media">
-                    <img src="${request.idPhoto}" alt="ID Photo">
+                    <img src="${request.idPhoto}" alt="ID Photo" style="cursor: pointer;" onclick="showIdImage('${request.idPhoto}', '${request.idPhotoBack || ''}')">
                 </div>
             ` : '';
+
+            // Determine approval status
+            let approvalStatus = '';
+            if (request.status === 'pending-verification') {
+                approvalStatus = '<span class="status-badge pending" style="background: #fff3cd; color: #856404;"><i class="fa-solid fa-clock"></i> Awaiting Approval</span>';
+            } else if (request.status === 'checked-in') {
+                approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724;"><i class="fa-solid fa-check-circle"></i> Approved & Checked In</span>';
+            } else if (request.status === 'rejected') {
+                approvalStatus = '<span class="status-badge rejected" style="background: #f8d7da; color: #721c24;"><i class="fa-solid fa-times-circle"></i> Rejected</span>';
+            } else if (request.status === 'registered') {
+                approvalStatus = '<span class="status-badge registered" style="background: #d1ecf1; color: #0c5460;"><i class="fa-solid fa-user-check"></i> Registered</span>';
+            } else {
+                approvalStatus = `<span class="${statusClass}">${(request.status || 'registered').replace('-', ' ')}</span>`;
+            }
 
             return `
                 <div class="visitor-row">
@@ -933,7 +956,7 @@
                         ${request.roomNumber ? `<div style="color:#999; font-size:12px;">Room: ${request.roomNumber}</div>` : ''}
                     </div>
                     <div>${visitInfo}</div>
-                    <div><span class="${statusClass}">${(request.status || 'registered').replace('-', ' ')}</span></div>
+                    <div>${approvalStatus}</div>
                     <div>
                         ${renderActionButtons(request)}
                     </div>
@@ -941,15 +964,52 @@
             `;
         }
 
+        function showIdImage(frontImage, backImage) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+            modal.innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: 10px; max-width: 90%; max-height: 90%; overflow: auto; position: relative;">
+                    <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px;">&times;</button>
+                    <h3 style="margin-bottom: 15px;">ID Photos</h3>
+                    <div style="display: grid; grid-template-columns: ${backImage ? '1fr 1fr' : '1fr'}; gap: 15px;">
+                        <div>
+                            <p style="font-weight: 600; margin-bottom: 10px;">Front</p>
+                            <img src="${frontImage}" style="max-width: 100%; border-radius: 8px; border: 2px solid #667eea;">
+                        </div>
+                        ${backImage ? `
+                            <div>
+                                <p style="font-weight: 600; margin-bottom: 10px;">Back</p>
+                                <img src="${backImage}" style="max-width: 100%; border-radius: 8px; border: 2px solid #667eea;">
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = function(e) {
+                if (e.target === modal) modal.remove();
+            };
+        }
+
         function renderActionButtons(request) {
             const buttons = [];
             const requestKey = request.id || request.requestId;
             if (!requestKey) return '<span style="color:#999; font-size:12px;">No actions</span>';
 
-            if (request.status === 'registered') {
-                buttons.push(`<button class="btn btn-sm btn-primary" onclick="checkInVisitor('${requestKey}')"><i class="fa-solid fa-door-open"></i> Check-In</button>`);
-            } else if (request.status === 'checked-in') {
-                buttons.push(`<button class="btn btn-sm btn-secondary" onclick="updateVisitorStatus('${requestKey}', 'checked-out')"><i class="fa-solid fa-door-closed"></i> Check-Out</button>`);
+            // Show check-in button only if tenant has approved (status is checked-in means tenant verified)
+            if (request.status === 'checked-in' && !request.checkedInAt) {
+                // Tenant approved, now security can check in
+                buttons.push(`<button class="btn btn-sm btn-success" onclick="securityCheckInVisitor('${requestKey}')"><i class="fa-solid fa-door-open"></i> Check-In</button>`);
+            } else if (request.status === 'checked-in' && request.checkedInAt) {
+                // Already checked in, show check-out
+                buttons.push(`<button class="btn btn-sm btn-secondary" onclick="checkOutVisitor('${requestKey}')"><i class="fa-solid fa-door-closed"></i> Check-Out</button>`);
+                if (request.checkedInAt) {
+                    buttons.push(`<div style="color:#28a745; font-size:11px; margin-top:5px;"><i class="fa-solid fa-clock"></i> Checked in: ${formatDateTime(request.checkedInAt)}</div>`);
+                }
+            } else if (request.status === 'pending-verification') {
+                buttons.push(`<span style="color:#ffc107; font-size:12px;"><i class="fa-solid fa-hourglass-half"></i> Waiting for tenant approval</span>`);
+            } else if (request.status === 'rejected') {
+                buttons.push(`<span style="color:#dc3545; font-size:12px;"><i class="fa-solid fa-ban"></i> Rejected by tenant</span>`);
             }
 
             if (buttons.length === 0) {
@@ -959,19 +1019,113 @@
             return buttons.join('&nbsp;');
         }
 
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('en-KE', {
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         let currentCheckInRequestId = null;
         let idCaptureStream = null;
 
-        window.checkInVisitor = function(requestId) {
-            currentCheckInRequestId = requestId;
+        // Security check-in after tenant approval
+        window.securityCheckInVisitor = function(requestId) {
+            if (!confirm('Check in this visitor? They have been approved by the tenant.')) return;
+            
             database.ref(`visitorRequests/${requestId}`).once('value')
                 .then((snapshot) => {
                     if (!snapshot.exists()) throw new Error('Visitor request not found');
                     const request = snapshot.val();
-                    showIdCaptureModal(request);
+                    
+                    if (request.status !== 'checked-in') {
+                        alert('Visitor must be approved by tenant first.');
+                        return;
+                    }
+                    
+                    const now = new Date();
+                    const updates = {
+                        checkedInAt: now.toISOString(),
+                        checkedInBy: auth.currentUser ? auth.currentUser.email : 'Security',
+                        checkInTime: now.toTimeString().split(' ')[0].substring(0, 5),
+                        checkInDate: now.toISOString().split('T')[0],
+                        updatedAt: now.toISOString()
+                    };
+                    
+                    return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
+                        // Notify tenant
+                        if (window.createNotification && request.tenantId) {
+                            window.createNotification(database, request.tenantId, {
+                                type: 'visitor',
+                                title: 'Visitor Checked In',
+                                message: `${request.visitorName || 'Visitor'} has been checked in at ${updates.checkInTime} on ${updates.checkInDate}.`,
+                                link: '#visitors'
+                            });
+                        }
+                        alert(`Visitor checked in successfully at ${updates.checkInTime}!`);
+                    });
                 })
                 .catch((error) => {
-                    alert('Error loading visitor data: ' + error.message);
+                    alert('Error checking in visitor: ' + error.message);
+                });
+        };
+        
+        // Check-out visitor
+        window.checkOutVisitor = function(requestId) {
+            if (!confirm('Check out this visitor?')) return;
+            
+            database.ref(`visitorRequests/${requestId}`).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) throw new Error('Visitor request not found');
+                    const request = snapshot.val();
+                    
+                    const now = new Date();
+                    const updates = {
+                        status: 'checked-out',
+                        checkedOutAt: now.toISOString(),
+                        checkedOutBy: auth.currentUser ? auth.currentUser.email : 'Security',
+                        checkOutTime: now.toTimeString().split(' ')[0].substring(0, 5),
+                        checkOutDate: now.toISOString().split('T')[0],
+                        updatedAt: now.toISOString()
+                    };
+                    
+                    // Free up parking if assigned
+                    if (request.carPlate) {
+                        database.ref('parkingSpaces').once('value').then(parkingSnapshot => {
+                            parkingSnapshot.forEach((child) => {
+                                const space = child.val();
+                                if (space.visitorId === requestId || (space.vehicle === request.carPlate && space.status === 'visitor')) {
+                                    database.ref(`parkingSpaces/${child.key}`).update({
+                                        status: 'available',
+                                        vehicle: null,
+                                        owner: null,
+                                        tenant: null,
+                                        visitorId: null
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    
+                    return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
+                        // Notify tenant
+                        if (window.createNotification && request.tenantId) {
+                            window.createNotification(database, request.tenantId, {
+                                type: 'visitor',
+                                title: 'Visitor Checked Out',
+                                message: `${request.visitorName || 'Visitor'} has checked out at ${updates.checkOutTime}.`,
+                                link: '#visitors'
+                            });
+                        }
+                        alert(`Visitor checked out successfully at ${updates.checkOutTime}!`);
+                    });
+                })
+                .catch((error) => {
+                    alert('Error checking out visitor: ' + error.message);
                 });
         };
 
@@ -1814,10 +1968,12 @@
 
         function loadHouseNumbers() {
             const houseNumberSelect = document.getElementById('gate-house-number');
+            const hostNameSelect = document.getElementById('gate-host-name');
             if (!houseNumberSelect) return;
 
             database.ref('tenants').once('value').then(snapshot => {
                 const houseNumbers = [];
+                const hostNames = [];
                 snapshot.forEach((child) => {
                     const tenant = child.val();
                     const houseNumber = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
@@ -1827,6 +1983,14 @@
                         houseNumbers.push({
                             number: houseNumber,
                             name: tenantName
+                        });
+                    }
+                    
+                    // Add to host names list
+                    if (tenantName && tenantName !== 'Unknown') {
+                        hostNames.push({
+                            name: tenantName,
+                            houseNumber: houseNumber
                         });
                     }
                 });
@@ -1844,6 +2008,7 @@
                     return numA - numB;
                 });
 
+                // Populate house number dropdown
                 houseNumberSelect.innerHTML = '<option value="">Select house number...</option>';
                 houseNumbers.forEach(house => {
                     const option = document.createElement('option');
@@ -1851,6 +2016,27 @@
                     option.textContent = `${house.number} - ${house.name}`;
                     houseNumberSelect.appendChild(option);
                 });
+
+                // Populate host name dropdown
+                if (hostNameSelect) {
+                    hostNames.sort((a, b) => a.name.localeCompare(b.name));
+                    hostNameSelect.innerHTML = '<option value="">Select host name...</option>';
+                    hostNames.forEach(host => {
+                        const option = document.createElement('option');
+                        option.value = host.name;
+                        option.textContent = `${host.name} (${host.houseNumber || 'N/A'})`;
+                        option.dataset.houseNumber = host.houseNumber || '';
+                        hostNameSelect.appendChild(option);
+                    });
+                    
+                    // Auto-fill house number when host is selected
+                    hostNameSelect.addEventListener('change', function() {
+                        const selectedOption = this.options[this.selectedIndex];
+                        if (selectedOption.dataset.houseNumber && houseNumberSelect) {
+                            houseNumberSelect.value = selectedOption.dataset.houseNumber;
+                        }
+                    });
+                }
             });
         }
 
