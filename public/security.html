@@ -856,8 +856,24 @@
             visitorRefListener = database.ref('visitorRequests');
             visitorRefListener.on('value', (snapshot) => {
                 const requests = [];
-                snapshot.forEach((child) => requests.push({ id: child.key, ...child.val() }));
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const data = child.val();
+                        if (data) {
+                            requests.push({ id: child.key, requestId: child.key, ...data });
+                        }
+                    });
+                }
+                // Sort by registeredAt or createdAt (most recent first)
+                requests.sort((a, b) => {
+                    const dateA = new Date(a.registeredAt || a.createdAt || 0);
+                    const dateB = new Date(b.registeredAt || b.createdAt || 0);
+                    return dateB - dateA; // Most recent first
+                });
                 renderVisitorData(requests);
+            }, (error) => {
+                console.error('Error loading visitors:', error);
+                alert('Error loading visitors: ' + error.message);
             });
         }
 
@@ -879,21 +895,31 @@
             const allRequests = [];
 
             requests.forEach((req) => {
-                // Count pending-verification and registered visitors
-                if (req.status === 'pending-verification' || req.status === 'registered' || req.status === 'pending') {
+                // Normalize status (handle null/undefined)
+                const status = req.status || 'pending';
+                
+                // Count pending-verification, registered, and approved (awaiting check-in) visitors
+                if (status === 'pending-verification' || status === 'registered' || status === 'pending' || (status === 'checked-in' && !req.checkedInAt)) {
                     registeredCount++;
                 }
                 if (req.visitDate === today) todayCount++;
-                if (req.status === 'checked-in' && req.checkedInAt) {
+                if (status === 'checked-in' && req.checkedInAt) {
                     checkedInCount++;
                     totalVisitorCount += (req.numberOfVisitors || 1);
                 }
 
                 // Show pending-verification, registered, and approved (awaiting security check-in) visitors in pending section
-                if (req.status === 'pending-verification' || req.status === 'registered' || req.status === 'pending' || (req.status === 'checked-in' && !req.checkedInAt)) {
+                if (status === 'pending-verification' || status === 'registered' || status === 'pending' || (status === 'checked-in' && !req.checkedInAt)) {
                     pendingRequests.push(req);
                 }
                 allRequests.push(req);
+            });
+            
+            // Sort pending requests by date (most recent first)
+            pendingRequests.sort((a, b) => {
+                const dateA = new Date(a.registeredAt || a.createdAt || 0);
+                const dateB = new Date(b.registeredAt || b.createdAt || 0);
+                return dateB - dateA;
             });
 
             if (pendingCountEl) pendingCountEl.textContent = registeredCount;
@@ -902,7 +928,7 @@
 
             if (pendingContainer) {
                 pendingContainer.innerHTML = pendingRequests.length ? pendingRequests.map(renderVisitorRow).join('') :
-                    '<p class="text-muted" style="padding: 15px;">No visitors awaiting approval or check-in.</p>';
+                    '<p class="text-muted" style="padding: 15px; text-align: center;">No visitors awaiting approval or check-in.</p>';
             }
 
             if (allRequestsContainer) {
@@ -1135,6 +1161,21 @@
                             });
                         }
                         alert(`Visitor checked out successfully!\nTime: ${checkOutTime}\nDate: ${checkOutDate}`);
+                        // The listener will automatically update the UI, but force a refresh to be sure
+                        setTimeout(() => {
+                            database.ref('visitorRequests').once('value').then(snapshot => {
+                                const requests = [];
+                                if (snapshot.exists()) {
+                                    snapshot.forEach((child) => {
+                                        const data = child.val();
+                                        if (data) {
+                                            requests.push({ id: child.key, ...data });
+                                        }
+                                    });
+                                }
+                                renderVisitorData(requests);
+                            });
+                        }, 300);
                     });
                 })
                 .catch((error) => {
@@ -1995,6 +2036,22 @@
                         idFrontPreview.style.display = 'none';
                         idBackPreview.style.display = 'none';
                         parkingAssignment.style.display = 'none';
+                        
+                        // Force refresh visitor list
+                        setTimeout(() => {
+                            database.ref('visitorRequests').once('value').then(snapshot => {
+                                const requests = [];
+                                if (snapshot.exists()) {
+                                    snapshot.forEach((child) => {
+                                        const data = child.val();
+                                        if (data) {
+                                            requests.push({ id: child.key, ...data });
+                                        }
+                                    });
+                                }
+                                renderVisitorData(requests);
+                            });
+                        }, 500);
 
                     } catch (error) {
                         console.error('Error checking in visitor:', error);
