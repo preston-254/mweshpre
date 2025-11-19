@@ -941,8 +941,10 @@
         }
 
         function renderVisitorRow(request) {
+            // Normalize status
+            const status = request.status || 'pending';
             const visitInfo = `${request.visitDate || '-'} ${request.visitTime || ''}`;
-            const statusClass = `status-badge ${request.status || 'registered'}`;
+            const statusClass = `status-badge ${status}`;
             const carInfo = request.carPlate ? `<div style="color:#777; font-size:12px;"><i class="fa-solid fa-car-side"></i> ${request.carPlate}</div>` : '';
             const visitorCount = request.numberOfVisitors ? `<div style="color:#777; font-size:12px;"><i class="fa-solid fa-users"></i> ${request.numberOfVisitors} visitor(s)</div>` : '';
 
@@ -954,18 +956,18 @@
 
             // Determine approval status - show "Approved" or "Not Approved" clearly
             let approvalStatus = '';
-            if (request.status === 'pending-verification') {
+            if (status === 'pending-verification') {
                 approvalStatus = '<span class="status-badge pending" style="background: #fff3cd; color: #856404; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-clock"></i> Not Approved - Awaiting Tenant</span>';
-            } else if (request.status === 'checked-in' && !request.checkedInAt) {
+            } else if (status === 'checked-in' && !request.checkedInAt) {
                 approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-check-circle"></i> Approved - Ready for Check-In</span>';
-            } else if (request.status === 'checked-in' && request.checkedInAt) {
+            } else if (status === 'checked-in' && request.checkedInAt) {
                 approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-check-circle"></i> Approved & Checked In</span>';
-            } else if (request.status === 'rejected') {
+            } else if (status === 'rejected') {
                 approvalStatus = '<span class="status-badge rejected" style="background: #f8d7da; color: #721c24; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-times-circle"></i> Not Approved - Rejected</span>';
-            } else if (request.status === 'registered') {
+            } else if (status === 'registered') {
                 approvalStatus = '<span class="status-badge registered" style="background: #d1ecf1; color: #0c5460; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-user-check"></i> Registered</span>';
             } else {
-                approvalStatus = `<span class="${statusClass}" style="padding: 6px 12px; border-radius: 6px; display: inline-block;">${(request.status || 'registered').replace('-', ' ')}</span>`;
+                approvalStatus = `<span class="${statusClass}" style="padding: 6px 12px; border-radius: 6px; display: inline-block;">${status.replace('-', ' ')}</span>`;
             }
 
             return `
@@ -1024,20 +1026,23 @@
             const requestKey = request.id || request.requestId;
             if (!requestKey) return '<span style="color:#999; font-size:12px;">No actions</span>';
 
+            // Normalize status
+            const status = request.status || 'pending';
+
             // Show check-in button only if tenant has approved (status is checked-in means tenant verified)
-            if (request.status === 'checked-in' && !request.checkedInAt) {
+            if (status === 'checked-in' && !request.checkedInAt) {
                 // Tenant approved, now security can check in
-                buttons.push(`<button class="btn btn-sm btn-success" onclick="securityCheckInVisitor('${requestKey}')"><i class="fa-solid fa-door-open"></i> Check-In</button>`);
-            } else if (request.status === 'checked-in' && request.checkedInAt) {
+                buttons.push(`<button class="btn btn-sm btn-success" onclick="securityCheckInVisitor('${requestKey}')" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i class="fa-solid fa-door-open"></i> Check-In</button>`);
+            } else if (status === 'checked-in' && request.checkedInAt) {
                 // Already checked in, show check-out
-                buttons.push(`<button class="btn btn-sm btn-secondary" onclick="checkOutVisitor('${requestKey}')"><i class="fa-solid fa-door-closed"></i> Check-Out</button>`);
+                buttons.push(`<button class="btn btn-sm btn-secondary" onclick="checkOutVisitor('${requestKey}')" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i class="fa-solid fa-door-closed"></i> Check-Out</button>`);
                 if (request.checkedInAt) {
-                    buttons.push(`<div style="color:#28a745; font-size:11px; margin-top:5px;"><i class="fa-solid fa-clock"></i> Checked in: ${formatDateTime(request.checkedInAt)}</div>`);
+                    buttons.push(`<div style="color:#28a745; font-size:11px; margin-top:5px; font-weight: 600;"><i class="fa-solid fa-clock"></i> Checked in: ${formatDateTime(request.checkedInAt)}</div>`);
                 }
-            } else if (request.status === 'pending-verification') {
-                buttons.push(`<span style="color:#ffc107; font-size:12px;"><i class="fa-solid fa-hourglass-half"></i> Waiting for tenant approval</span>`);
-            } else if (request.status === 'rejected') {
-                buttons.push(`<span style="color:#dc3545; font-size:12px;"><i class="fa-solid fa-ban"></i> Rejected by tenant</span>`);
+            } else if (status === 'pending-verification') {
+                buttons.push(`<span style="color:#ffc107; font-size:12px; font-weight: 600;"><i class="fa-solid fa-hourglass-half"></i> Waiting for tenant approval</span>`);
+            } else if (status === 'rejected') {
+                buttons.push(`<span style="color:#dc3545; font-size:12px; font-weight: 600;"><i class="fa-solid fa-ban"></i> Rejected by tenant</span>`);
             }
 
             if (buttons.length === 0) {
