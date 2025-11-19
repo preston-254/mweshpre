@@ -158,8 +158,8 @@
             <div class="header-top-left">
                 <i class="fas fa-map-marker-alt"></i>
                 <span>Kinoru Stadium, Meru, Kenya</span>
-            </div>
-            <div class="header-top-right">
+                </div>
+                <div class="header-top-right">
                 <a href="login.html">
                     <i class="fas fa-sign-in-alt"></i>
                     Login
@@ -170,11 +170,11 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="container">
+                <div class="container">
             <a href="index.html" class="navbar-brand">
                 <h1>Mweshpra</h1>
                 <span class="tagline">Apartments</span>
-            </a>
+                        </a>
             <button class="menu-toggle" id="menuToggle" aria-label="Toggle mobile menu">
                 <i class="fas fa-bars"></i>
             </button>
@@ -184,9 +184,9 @@
                 <li class="active"><a href="join.html">Available Houses</a></li>
                 <li><a href="gallery.html">Gallery</a></li>
                 <li><a href="contact.html" class="btn-contact">Contact Us</a></li>
-            </ul>
-        </div>
-    </nav>
+                            </ul>
+                </div>
+            </nav>
 
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
@@ -306,15 +306,15 @@
                             <button onclick="load3DModel('video')" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 30px; border: 2px solid white; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
                                 <i class="fas fa-video"></i> Watch Video Tour
                             </button>
-                        </div>
+                </div>
                         
                         <!-- Video/Model will load here -->
                         <div id="3d-content" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
                             <iframe id="3d-iframe" style="width: 100%; height: 100%; border: none; border-radius: 15px;" allowfullscreen allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share></iframe>
-                        </div>
-                    </div>
                 </div>
-                
+                </div>
+            </div>
+            
                 <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                     <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 15px;">
                         <i class="fas fa-rotate" style="font-size: 32px; color: #667eea; margin-bottom: 10px;"></i>
@@ -331,9 +331,9 @@
                         <h4 style="color: #333; margin-bottom: 5px;">Virtual Walkthrough</h4>
                         <p style="color: #666; font-size: 14px;">Take a virtual tour inside</p>
                     </div>
-                </div>
             </div>
         </div>
+    </div>
     </section>
 
     <!-- Parking Information Section -->
@@ -384,8 +384,8 @@
                 <div class="stat-item">
                     <h3 id="occupiedHouses">0</h3>
                     <p>Occupied</p>
-                </div>
-            </div>
+        </div>
+    </div>
 
             <!-- Houses Grid -->
             <div class="card-grid" id="housesGrid">
@@ -453,20 +453,20 @@
         document.addEventListener('DOMContentLoaded', function() {
             try {
                 // Sample houses data - In production, this would come from Firebase
-                const houses = [
+        const houses = [
                     { number: 'A101', block: 'A', bedrooms: 2, bathrooms: 3, price: 35000, status: 'available', image: 'images/A1.jpg' },
                     { number: 'A102', block: 'A', bedrooms: 2, bathrooms: 3, price: 35000, status: 'available', image: 'images/A2.jpg' },
                     { number: 'A103', block: 'A', bedrooms: 2, bathrooms: 3, price: 35000, status: 'available', image: 'images/A3.jpg' },
                     { number: 'B201', block: 'B', bedrooms: 2, bathrooms: 3, price: 35000, status: 'available', image: 'images/A4.jpg' },
                     { number: 'B202', block: 'B', bedrooms: 2, bathrooms: 3, price: 35000, status: 'available', image: 'images/g5.jpg' },
                     { number: 'B203', block: 'B', bedrooms: 2, bathrooms: 3, price: 35000, status: 'available', image: 'images/g6.jpg' },
-                ];
-
+        ];
+        
                 function loadHouses() {
                     const grid = document.getElementById('housesGrid');
                     if (!grid) return;
                     
-                    const availableHouses = houses.filter(h => h.status === 'available');
+            const availableHouses = houses.filter(h => h.status === 'available');
                     
                     // Update stats
                     const totalHousesEl = document.getElementById('totalHouses');
@@ -485,8 +485,8 @@
                                 <div class="house-header">
                                     <div class="house-number">${house.number}</div>
                                     <span class="house-status status-available">Available</span>
-                                </div>
-                                <div class="house-details">
+                        </div>
+                            <div class="house-details">
                                     <div class="house-detail-item">
                                         <i class="fas fa-building"></i>
                                         <span>Block ${house.block}</span>
@@ -499,14 +499,14 @@
                                         <i class="fas fa-bath"></i>
                                         <span>${house.bathrooms} Bathroom${house.bathrooms > 1 ? 's' : ''}</span>
                                     </div>
-                                </div>
+                            </div>
                                 <div class="house-price">Ksh ${house.price.toLocaleString()}/month</div>
                                 <a href="contact.html" class="house-btn">Inquire Now</a>
-                            </div>
                         </div>
+                    </div>
                     `).join('');
-                }
-
+        }
+        
                 loadHouses();
             } catch (error) {
                 // Silently fail if there's an error

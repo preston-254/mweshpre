@@ -1,0 +1,275 @@
+<!-- Parking Map Component -->
+<div class="parking-map-container" style="padding: 20px;">
+    <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-map"></i> Parking Map</h2>
+    
+    <!-- Legend -->
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px; display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 30px; height: 30px; background: #28a745; border-radius: 5px;"></div>
+            <span style="color: #333; font-weight: 600;">Available</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 30px; height: 30px; background: #dc3545; border-radius: 5px;"></div>
+            <span style="color: #333; font-weight: 600;">Occupied</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 30px; height: 30px; background: #ffc107; border-radius: 5px; border: 2px solid #333;"></div>
+            <span style="color: #333; font-weight: 600;">Your Space</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 30px; height: 30px; background: #17a2b8; border-radius: 5px;"></div>
+            <span style="color: #333; font-weight: 600;">Visitor</span>
+        </div>
+    </div>
+
+    <!-- Block Selector -->
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px;">
+        <h3 style="color: #667eea; margin-bottom: 15px;">Select Block</h3>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <button onclick="showParkingBlock('A')" id="block-btn-A" style="padding: 12px 30px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">Block A</button>
+            <button onclick="showParkingBlock('B')" id="block-btn-B" style="padding: 12px 30px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">Block B</button>
+            <button onclick="showParkingBlock('C')" id="block-btn-C" style="padding: 12px 30px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">Block C</button>
+        </div>
+    </div>
+
+    <!-- Parking Map -->
+    <div id="parking-map" style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow-x: auto;">
+        <!-- Map will be generated here -->
+    </div>
+
+    <!-- Parking Details Modal -->
+    <div id="parking-details-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #333; margin: 0;">Parking Space Details</h3>
+                <button onclick="closeParkingModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            <div id="parking-details-content">
+                <!-- Details will be shown here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Parking map data structure
+const parkingBlocks = {
+    A: {
+        name: 'Block A',
+        spaces: [
+            { id: 'A-01', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCA 123A', tenant: 'A101', owner: 'John Doe' },
+            { id: 'A-02', block: 'A', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'A-03', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCB 456B', tenant: 'A102', owner: 'Jane Smith' },
+            { id: 'A-04', block: 'A', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'A-05', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCC 789C', tenant: 'A103', owner: 'Mike Johnson' },
+            { id: 'A-06', block: 'A', floor: 'Ground', status: 'visitor', vehicle: 'KCD 012D', tenant: null, owner: 'Visitor' },
+            { id: 'A-07', block: 'A', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'A-08', block: 'A', floor: 'Ground', status: 'occupied', vehicle: 'KCE 345E', tenant: 'A104', owner: 'Sarah Williams' },
+        ]
+    },
+    B: {
+        name: 'Block B',
+        spaces: [
+            { id: 'B-01', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCF 678F', tenant: 'B201', owner: 'David Brown' },
+            { id: 'B-02', block: 'B', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'B-03', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCG 901G', tenant: 'B202', owner: 'Emily Davis' },
+            { id: 'B-04', block: 'B', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'B-05', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCH 234H', tenant: 'B203', owner: 'Robert Miller' },
+            { id: 'B-06', block: 'B', floor: 'Ground', status: 'visitor', vehicle: 'KCI 567I', tenant: null, owner: 'Visitor' },
+            { id: 'B-07', block: 'B', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'B-08', block: 'B', floor: 'Ground', status: 'occupied', vehicle: 'KCJ 890J', tenant: 'B204', owner: 'Lisa Wilson' },
+        ]
+    },
+    C: {
+        name: 'Block C',
+        spaces: [
+            { id: 'C-01', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCK 123K', tenant: 'C301', owner: 'James Moore' },
+            { id: 'C-02', block: 'C', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'C-03', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCL 456L', tenant: 'C302', owner: 'Patricia Taylor' },
+            { id: 'C-04', block: 'C', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'C-05', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCM 789M', tenant: 'C303', owner: 'Michael Anderson' },
+            { id: 'C-06', block: 'C', floor: 'Ground', status: 'visitor', vehicle: 'KCN 012N', tenant: null, owner: 'Visitor' },
+            { id: 'C-07', block: 'C', floor: 'Ground', status: 'available', vehicle: null, tenant: null, owner: null },
+            { id: 'C-08', block: 'C', floor: 'Ground', status: 'occupied', vehicle: 'KCO 345O', tenant: 'C304', owner: 'Jennifer Thomas' },
+        ]
+    }
+};
+
+let currentBlock = 'A';
+let currentUserApartment = null; // Will be set from Firebase
+
+function showParkingBlock(block) {
+    currentBlock = block;
+    
+    // Update button styles
+    ['A', 'B', 'C'].forEach(b => {
+        const btn = document.getElementById(`block-btn-${b}`);
+        if (btn) {
+            if (b === block) {
+                btn.style.background = '#667eea';
+                btn.style.color = 'white';
+            } else {
+                btn.style.background = '#e0e0e0';
+                btn.style.color = '#333';
+            }
+        }
+    });
+    
+    renderParkingMap(block);
+}
+
+function renderParkingMap(block) {
+    const mapContainer = document.getElementById('parking-map');
+    if (!mapContainer) return;
+    
+    const blockData = parkingBlocks[block];
+    if (!blockData) return;
+    
+    // Create grid layout
+    const gridStyle = `
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        min-width: 600px;
+    `;
+    
+    mapContainer.innerHTML = `
+        <h3 style="color: #667eea; margin-bottom: 20px; text-align: center;">${blockData.name} - Ground Floor Parking</h3>
+        <div style="${gridStyle}">
+            ${blockData.spaces.map(space => {
+                let bgColor = '#28a745'; // Available - Green
+                let textColor = 'white';
+                let border = 'none';
+                
+                if (space.status === 'occupied') {
+                    bgColor = '#dc3545'; // Occupied - Red
+                } else if (space.status === 'visitor') {
+                    bgColor = '#17a2b8'; // Visitor - Blue
+                }
+                
+                // Highlight user's space
+                if (currentUserApartment && space.tenant === currentUserApartment) {
+                    border = '3px solid #ffc107';
+                }
+                
+                return `
+                    <div onclick="showParkingDetails('${space.id}', '${block}')" 
+                         style="
+                             background: ${bgColor};
+                             color: ${textColor};
+                             padding: 20px 15px;
+                             border-radius: 10px;
+                             text-align: center;
+                             cursor: pointer;
+                             transition: all 0.3s ease;
+                             border: ${border};
+                             min-height: 100px;
+                             display: flex;
+                             flex-direction: column;
+                             justify-content: center;
+                             align-items: center;
+                         " 
+                         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)'"
+                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+                        <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">${space.id}</div>
+                        ${space.vehicle ? `<div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">${space.vehicle}</div>` : ''}
+                        ${space.owner ? `<div style="font-size: 11px; opacity: 0.8;">${space.owner}</div>` : '<div style="font-size: 11px; opacity: 0.8;">Available</div>'}
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+function showParkingDetails(spaceId, block) {
+    const space = parkingBlocks[block].spaces.find(s => s.id === spaceId);
+    if (!space) return;
+    
+    const modal = document.getElementById('parking-details-modal');
+    const content = document.getElementById('parking-details-content');
+    
+    if (!modal || !content) return;
+    
+    content.innerHTML = `
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #667eea; margin-bottom: 15px;">${space.id}</h4>
+            <div style="display: grid; gap: 10px;">
+                <div>
+                    <strong>Status:</strong> 
+                    <span style="padding: 4px 12px; border-radius: 15px; background: ${space.status === 'occupied' ? '#dc3545' : space.status === 'visitor' ? '#17a2b8' : '#28a745'}; color: white; font-size: 12px; font-weight: 600;">
+                        ${space.status.charAt(0).toUpperCase() + space.status.slice(1)}
+                    </span>
+                </div>
+                ${space.vehicle ? `<div><strong>Vehicle:</strong> ${space.vehicle}</div>` : ''}
+                ${space.tenant ? `<div><strong>Apartment:</strong> ${space.tenant}</div>` : ''}
+                ${space.owner ? `<div><strong>Owner:</strong> ${space.owner}</div>` : ''}
+                <div><strong>Block:</strong> ${space.block}</div>
+                <div><strong>Floor:</strong> ${space.floor}</div>
+            </div>
+        </div>
+        ${space.status === 'occupied' && space.tenant !== currentUserApartment ? `
+            <div style="background: #fff3cd; padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107;">
+                <strong>Note:</strong> This space is occupied. If this vehicle is blocking your space, contact security.
+            </div>
+        ` : ''}
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+function closeParkingModal() {
+    const modal = document.getElementById('parking-details-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('parking-details-modal');
+    if (modal && e.target === modal) {
+        closeParkingModal();
+    }
+});
+
+// Initialize map on load
+if (typeof window !== 'undefined') {
+    window.showParkingBlock = showParkingBlock;
+    window.showParkingDetails = showParkingDetails;
+    window.closeParkingModal = closeParkingModal;
+    
+    // Load user apartment from Firebase if available
+    if (typeof auth !== 'undefined' && auth.currentUser) {
+        // This will be set from the portal
+    }
+}
+
+// Render initial map
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => renderParkingMap('A'), 100);
+    });
+} else {
+    setTimeout(() => renderParkingMap('A'), 100);
+}
+</script>
+
+<style>
+@media (max-width: 768px) {
+    .parking-map-container {
+        padding: 15px !important;
+    }
+    
+    #parking-map > div {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        min-width: auto !important;
+    }
+    
+    #parking-details-modal > div {
+        width: 95% !important;
+        padding: 20px !important;
+    }
+}
+</style>
+

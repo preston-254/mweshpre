@@ -1015,62 +1015,123 @@
                     </div>
                 `,
                 'packages': `
-                    <div style="padding: 20px;">
-                        <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-box"></i> Package Delivery</h2>
-                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                            <h3 style="color: #667eea; margin-bottom: 20px;">Pending Pickups</h3>
-                            <div id="packages-list" style="display: grid; gap: 15px;">
-                                <div style="padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107; display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-box-open"></i> Package from Jumia</h4>
-                                        <p style="color: #666; font-size: 14px;">Received: March 10, 2024</p>
-                                        <p style="color: #666; font-size: 14px;">Location: Security Office</p>
-                                    </div>
-                                    <span style="background: #ffc107; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600;">Pending</span>
+                    <div style="padding: 15px;">
+                        <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;"><i class="fa-solid fa-box"></i> Package Delivery</h2>
+                        
+                        <!-- Schedule Package Collection -->
+                        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-calendar-plus"></i> Schedule Package Collection</h3>
+                            <form id="package-collection-form" style="display: grid; gap: 15px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;">Package Description</label>
+                                    <input type="text" id="package-description" placeholder="e.g., Package from Jumia" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
                                 </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;">Expected Delivery Date</label>
+                                    <input type="date" id="package-date" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;">Preferred Collection Time</label>
+                                    <input type="time" id="package-time" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                                </div>
+                                <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                    <i class="fa-solid fa-paper-plane"></i> Notify Security
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Pending Pickups -->
+                        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-box-open"></i> Pending Pickups</h3>
+                            <div id="packages-list" style="display: grid; gap: 15px;">
+                                <p style="text-align: center; color: #666; padding: 20px;">No pending packages</p>
                             </div>
                         </div>
-                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
-                            <h3 style="color: #667eea; margin-bottom: 20px;">Package History</h3>
-                            <div style="display: grid; gap: 15px;">
-                                <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-box"></i> Package from Amazon</h4>
-                                        <p style="color: #666; font-size: 14px;">Picked up: March 5, 2024</p>
-                                    </div>
-                                    <span style="background: #28a745; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600;">Collected</span>
-                                </div>
+                        
+                        <!-- Package History -->
+                        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-history"></i> Package History</h3>
+                            <div id="package-history" style="display: grid; gap: 15px;">
+                                <p style="text-align: center; color: #666; padding: 20px;">No package history</p>
                             </div>
                         </div>
                     </div>
+                    <script>
+                        (function() {
+                            const form = document.getElementById('package-collection-form');
+                            if (form) {
+                                form.addEventListener('submit', function(e) {
+                                    e.preventDefault();
+                                    const description = document.getElementById('package-description').value;
+                                    const expectedDate = document.getElementById('package-date').value;
+                                    const preferredTime = document.getElementById('package-time').value;
+                                    
+                                    if (typeof database !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser) {
+                                        const userRef = database.ref('tenants').orderByChild('email').equalTo(auth.currentUser.email);
+                                        userRef.once('value', snapshot => {
+                                            if (snapshot.exists()) {
+                                                const tenantData = Object.values(snapshot.val())[0];
+                                                const tenantId = Object.keys(snapshot.val())[0];
+                                                
+                                                const packageRequest = {
+                                                    tenantId: tenantId,
+                                                    tenantName: tenantData.name || 'Tenant',
+                                                    apartment: tenantData.houseNumber || 'N/A',
+                                                    description: description,
+                                                    expectedDate: expectedDate,
+                                                    preferredTime: preferredTime,
+                                                    status: 'pending',
+                                                    createdAt: new Date().toISOString()
+                                                };
+                                                
+                                                database.ref('packageRequests').push(packageRequest)
+                                                    .then(() => {
+                                                        alert('Package collection request submitted! Security will be notified when your package arrives.');
+                                                        form.reset();
+                                                    })
+                                                    .catch(error => {
+                                                        alert('Error submitting request. Please try again.');
+                                                        console.error(error);
+                                                    });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        })();
+                    </script>
                 `,
                 'parking': `
-                    <div style="padding: 20px;">
-                        <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-parking"></i> Parking Management</h2>
+                    <div style="padding: 15px;">
+                        <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;"><i class="fa-solid fa-parking"></i> Parking Management</h2>
+                        
+                        <!-- Parking Map -->
+                        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-map"></i> Parking Map</h3>
+                            <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 20px; height: 20px; background: #28a745; border-radius: 4px;"></div>
+                                    <span style="font-size: 14px; color: #666;">Available</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 20px; height: 20px; background: #dc3545; border-radius: 4px;"></div>
+                                    <span style="font-size: 14px; color: #666;">Occupied</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 20px; height: 20px; background: #ffc107; border-radius: 4px;"></div>
+                                    <span style="font-size: 14px; color: #666;">Your Space</span>
+                                </div>
+                            </div>
+                            <div id="parking-map" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; min-height: 300px;">
+                                <!-- Parking spaces will be generated here -->
+                            </div>
+                        </div>
                         
                         <!-- My Parking Spaces -->
-                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px;">
-                            <h3 style="color: #667eea; margin-bottom: 25px;"><i class="fa-solid fa-car"></i> My Assigned Parking</h3>
-                            <div style="display: grid; gap: 20px;">
-                                <div style="padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                        <div>
-                                            <h4 style="color: white; margin-bottom: 5px; font-size: 20px;">Parking Space P-01</h4>
-                                            <p style="color: rgba(255,255,255,0.9); font-size: 14px;">Block A - Ground Floor</p>
-                                        </div>
-                                        <span style="background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600;">Active</span>
-                                    </div>
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
-                                        <div>
-                                            <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 5px;">Registered Vehicle</p>
-                                            <p style="color: white; font-weight: 600;">KCA 123A</p>
-                                        </div>
-                                        <div>
-                                            <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 5px;">Vehicle Type</p>
-                                            <p style="color: white; font-weight: 600;">Sedan</p>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-car"></i> My Assigned Parking</h3>
+                            <div id="my-parking-spaces" style="display: grid; gap: 15px;">
+                                <!-- Will be populated from Firebase -->
                             </div>
                         </div>
 
@@ -1133,6 +1194,71 @@
                 `
             };
             container.innerHTML = pages[page] || '<div class="text-center"><h3>Page not found</h3></div>';
+            
+            // Load parking map if parking page is loaded
+            if (page === 'parking') {
+                loadParkingMap();
+            }
+        }
+        
+        function loadParkingMap() {
+            setTimeout(() => {
+                fetch('parking-map.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        const container = document.getElementById('content-area');
+                        if (container) {
+                            // Extract and execute scripts
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const scripts = doc.querySelectorAll('script');
+                            
+                            container.innerHTML = html;
+                            
+                            // Execute scripts
+                            scripts.forEach(script => {
+                                const newScript = document.createElement('script');
+                                if (script.src) {
+                                    newScript.src = script.src;
+                                } else {
+                                    newScript.textContent = script.textContent;
+                                }
+                                document.body.appendChild(newScript);
+                            });
+                            
+                            // Set current user apartment for parking map
+                            if (typeof auth !== 'undefined' && auth.currentUser) {
+                                const userRef = database.ref('tenants').orderByChild('email').equalTo(auth.currentUser.email);
+                                userRef.once('value', snapshot => {
+                                    if (snapshot.exists()) {
+                                        const tenantData = Object.values(snapshot.val())[0];
+                                        if (tenantData && tenantData.houseNumber) {
+                                            if (typeof window.currentUserApartment !== 'undefined') {
+                                                window.currentUserApartment = tenantData.houseNumber;
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        // Fallback to inline parking map
+                        initializeParkingMapInline();
+                    });
+            }, 100);
+        }
+        
+        function initializeParkingMapInline() {
+            const container = document.getElementById('content-area');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div style="padding: 20px;">
+                    <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-map"></i> Parking Map</h2>
+                    <p style="color: #666; text-align: center; padding: 40px;">Parking map loading... Please refresh the page.</p>
+                </div>
+            `;
         }
     </script>
 </head>
