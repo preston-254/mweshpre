@@ -1952,7 +1952,21 @@
                             });
                         }
 
-                        alert('Visitor registered successfully! Waiting for tenant verification before check-in.');
+                        // Also create a direct notification entry
+                        try {
+                            database.ref(`notifications/${tenantId}`).push({
+                                type: 'visitor',
+                                title: 'Visitor Arrived - Verification Required',
+                                message: `${visitorName} has arrived at the gate. Please verify this visitor.`,
+                                link: '#visitors',
+                                read: false,
+                                createdAt: new Date().toISOString()
+                            });
+                        } catch (notifError) {
+                            console.warn('Could not create notification entry:', notifError);
+                        }
+
+                        alert('Visitor registered successfully! Notification sent to tenant. Waiting for tenant verification before check-in.');
                         form.reset();
                         idFrontPreview.style.display = 'none';
                         idBackPreview.style.display = 'none';
