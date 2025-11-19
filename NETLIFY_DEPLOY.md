@@ -5,18 +5,21 @@
 2. Drag your entire `public` folder onto the page
 3. Your site will be live in seconds!
 
-## Option 2: Connect to GitHub (Automatic Deployments)
+## Option 2: Connect to GitHub (Automatic Deployments) - RECOMMENDED
 1. Go to https://app.netlify.com
 2. Sign up/login with GitHub
 3. Click "Add new site" → "Import an existing project"
 4. Select your GitHub repository: `preston-254/mweshpre`
-5. Build settings:
+5. Build settings (IMPORTANT - Set these correctly):
    - **Base directory:** (leave empty)
    - **Publish directory:** `public`
    - **Build command:** (leave empty - no build needed)
 6. Click "Deploy site"
-7. Your site will be live at: `https://random-name.netlify.app`
-8. You can customize the domain name in site settings
+7. Wait 1-2 minutes for deployment
+8. Your site will be live at: `https://random-name.netlify.app`
+9. You can customize the domain name in site settings
+
+**Note:** The `netlify.toml` and `_redirects` files are already configured, so routing will work correctly!
 
 ## If you see "Page not found" (404 error):
 The `netlify.toml` file has been created to fix this. You need to:

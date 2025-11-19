@@ -578,7 +578,11 @@
                 'maintenance': 'Maintenance',
                 'community': 'Community',
                 'notifications': 'Notifications',
-                'visitors': 'Visitors'
+                'visitors': 'Visitors',
+                'documents': 'Documents',
+                'calendar': 'Events Calendar',
+                'packages': 'Package Delivery',
+                'parking': 'Parking Management'
             };
             pageTitle.textContent = titles[page] || 'Portal';
             
@@ -953,7 +957,180 @@
                 'profile': '<div class="text-center"><h2>Profile</h2><p>Profile page coming soon</p></div>',
                 'announcements': '<div class="text-center"><h2>Announcements</h2><p>No announcements yet</p></div>',
                 'maintenance': '<div class="text-center"><h2>Maintenance</h2><p>Maintenance page coming soon</p></div>',
-                'community': '<div class="text-center"><h2>Community</h2><p>Community page coming soon</p></div>'
+                'community': '<div class="text-center"><h2>Community</h2><p>Community page coming soon</p></div>',
+                'documents': `
+                    <div style="padding: 20px;">
+                        <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-file-alt"></i> My Documents</h2>
+                        <div style="display: grid; gap: 20px;">
+                            <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-file-contract" style="color: #667eea; margin-right: 10px;"></i>Lease Agreement</h4>
+                                    <p style="color: #666; font-size: 14px;">Signed on: January 15, 2024</p>
+                                </div>
+                                <button style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-download"></i> Download</button>
+                            </div>
+                            <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-receipt" style="color: #667eea; margin-right: 10px;"></i>Payment Receipts</h4>
+                                    <p style="color: #666; font-size: 14px;">View all payment receipts</p>
+                                </div>
+                                <button onclick="loadPage('finance', event)" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">View</button>
+                            </div>
+                            <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-id-card" style="color: #667eea; margin-right: 10px;"></i>ID Copy</h4>
+                                    <p style="color: #666; font-size: 14px;">Uploaded: January 10, 2024</p>
+                                </div>
+                                <button style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-download"></i> Download</button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'calendar': `
+                    <div style="padding: 20px;">
+                        <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-calendar"></i> Events Calendar</h2>
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                            <div style="margin-bottom: 30px;">
+                                <h3 style="color: #667eea; margin-bottom: 20px;">Upcoming Events</h3>
+                                <div style="display: grid; gap: 15px;">
+                                    <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                                        <h4 style="color: #333; margin-bottom: 5px;">Community Meeting</h4>
+                                        <p style="color: #666; font-size: 14px; margin-bottom: 5px;"><i class="fa-solid fa-calendar-day"></i> March 15, 2024 at 6:00 PM</p>
+                                        <p style="color: #666; font-size: 14px;"><i class="fa-solid fa-map-marker-alt"></i> Community Hall</p>
+                                    </div>
+                                    <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #4ecdc4;">
+                                        <h4 style="color: #333; margin-bottom: 5px;">Maintenance Day</h4>
+                                        <p style="color: #666; font-size: 14px; margin-bottom: 5px;"><i class="fa-solid fa-calendar-day"></i> March 20, 2024</p>
+                                        <p style="color: #666; font-size: 14px;">Building-wide maintenance scheduled</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="color: #667eea; margin-bottom: 20px;">Monthly Schedule</h3>
+                                <div id="calendar-view" style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; color: #666;">
+                                    <p>Calendar view coming soon. Check back for interactive calendar!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'packages': `
+                    <div style="padding: 20px;">
+                        <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-box"></i> Package Delivery</h2>
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 20px;">Pending Pickups</h3>
+                            <div id="packages-list" style="display: grid; gap: 15px;">
+                                <div style="padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-box-open"></i> Package from Jumia</h4>
+                                        <p style="color: #666; font-size: 14px;">Received: March 10, 2024</p>
+                                        <p style="color: #666; font-size: 14px;">Location: Security Office</p>
+                                    </div>
+                                    <span style="background: #ffc107; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600;">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                            <h3 style="color: #667eea; margin-bottom: 20px;">Package History</h3>
+                            <div style="display: grid; gap: 15px;">
+                                <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-box"></i> Package from Amazon</h4>
+                                        <p style="color: #666; font-size: 14px;">Picked up: March 5, 2024</p>
+                                    </div>
+                                    <span style="background: #28a745; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600;">Collected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'parking': `
+                    <div style="padding: 20px;">
+                        <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-parking"></i> Parking Management</h2>
+                        
+                        <!-- My Parking Spaces -->
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                            <h3 style="color: #667eea; margin-bottom: 25px;"><i class="fa-solid fa-car"></i> My Assigned Parking</h3>
+                            <div style="display: grid; gap: 20px;">
+                                <div style="padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div>
+                                            <h4 style="color: white; margin-bottom: 5px; font-size: 20px;">Parking Space P-01</h4>
+                                            <p style="color: rgba(255,255,255,0.9); font-size: 14px;">Block A - Ground Floor</p>
+                                        </div>
+                                        <span style="background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600;">Active</span>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
+                                        <div>
+                                            <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 5px;">Registered Vehicle</p>
+                                            <p style="color: white; font-weight: 600;">KCA 123A</p>
+                                        </div>
+                                        <div>
+                                            <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 5px;">Vehicle Type</p>
+                                            <p style="color: white; font-weight: 600;">Sedan</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Register Vehicle -->
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                            <h3 style="color: #667eea; margin-bottom: 25px;"><i class="fa-solid fa-car-side"></i> Register Vehicle</h3>
+                            <form id="vehicle-registration-form" style="display: grid; gap: 20px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Registration Number</label>
+                                    <input type="text" placeholder="e.g., KCA 123A" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Type</label>
+                                    <select required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                                        <option value="">Select vehicle type</option>
+                                        <option value="sedan">Sedan</option>
+                                        <option value="suv">SUV</option>
+                                        <option value="hatchback">Hatchback</option>
+                                        <option value="pickup">Pickup Truck</option>
+                                        <option value="motorcycle">Motorcycle</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Color</label>
+                                    <input type="text" placeholder="e.g., White" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Make & Model</label>
+                                    <input type="text" placeholder="e.g., Toyota Corolla" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                                </div>
+                                <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                    <i class="fa-solid fa-check"></i> Register Vehicle
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Parking Rules -->
+                        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                            <h3 style="color: #667eea; margin-bottom: 25px;"><i class="fa-solid fa-info-circle"></i> Parking Rules & Guidelines</h3>
+                            <div style="display: grid; gap: 15px;">
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                                    <p style="color: #333; margin: 0;"><strong>1.</strong> Park only in your assigned parking space</p>
+                                </div>
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                                    <p style="color: #333; margin: 0;"><strong>2.</strong> Visitor parking is available for guests (max 2 hours)</p>
+                                </div>
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                                    <p style="color: #333; margin: 0;"><strong>3.</strong> All vehicles must be registered with management</p>
+                                </div>
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                                    <p style="color: #333; margin: 0;"><strong>4.</strong> Report any parking violations to security</p>
+                                </div>
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                                    <p style="color: #333; margin: 0;"><strong>5.</strong> Do not block access roads or fire lanes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
             };
             container.innerHTML = pages[page] || '<div class="text-center"><h3>Page not found</h3></div>';
         }
@@ -1016,6 +1193,22 @@
                 <a href="#" class="menu-item" onclick="loadPage('visitors', event); return false;">
                     <i class="fa-solid fa-id-card"></i>
                     <span>Visitors</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('documents', event); return false;">
+                    <i class="fa-solid fa-file-alt"></i>
+                    <span>Documents</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('calendar', event); return false;">
+                    <i class="fa-solid fa-calendar"></i>
+                    <span>Events</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('packages', event); return false;">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Packages</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('parking', event); return false;">
+                    <i class="fa-solid fa-parking"></i>
+                    <span>Parking</span>
                 </a>
             </div>
         </div>
