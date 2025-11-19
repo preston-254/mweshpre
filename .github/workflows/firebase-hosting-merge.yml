@@ -17,3 +17,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MWESHPRA_APARTMENTS }}
           channelId: live
           projectId: mweshpra-apartments
+          target: mweshpre
