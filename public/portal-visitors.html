@@ -1,71 +1,5 @@
 <div class="visitors-page">
     <div class="row">
-        <div class="col-md-6">
-            <div class="dashboard-section">
-                <h3><i class="fa-solid fa-id-card"></i> Register Visitor</h3>
-                <p class="text-muted">Register your visitor and generate a QR code pass. Share the QR code with your visitor for easy check-in at the gate.</p>
-                <form id="visitor-request-form">
-                    <div class="form-group">
-                        <label for="visitorName">Visitor Full Name <span style="color: #dc3545">*</span></label>
-                        <input type="text" id="visitorName" placeholder="Enter visitor's full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="visitorContact">Visitor Contact <span style="color: #dc3545">*</span></label>
-                        <input type="text" id="visitorContact" placeholder="Phone or Email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="numberOfVisitors">Number of Visitors <span style="color: #dc3545">*</span></label>
-                        <input type="number" id="numberOfVisitors" min="1" max="20" value="1" required>
-                        <small class="text-muted">How many people are visiting?</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="visitDate">Visit Date <span style="color: #dc3545">*</span></label>
-                        <input type="date" id="visitDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="visitTime">Visit Time <span style="color: #dc3545">*</span></label>
-                        <input type="time" id="visitTime" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="visitorCarPlate">Car Number Plate (optional)</label>
-                        <input type="text" id="visitorCarPlate" placeholder="KAA 123A">
-                        <small class="text-muted">Only if the visitor is driving.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="visitReason">Reason / Notes</label>
-                        <textarea id="visitReason" rows="3" placeholder="Reason for visit (optional)"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; background: #667eea; border: none;">
-                        <i class="fa-solid fa-qrcode"></i> Generate Visitor Pass
-                    </button>
-                    <div id="visitor-form-message" style="margin-top: 10px; display: none;"></div>
-                </form>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="dashboard-section">
-                <h3><i class="fa-solid fa-shield-halved"></i> Visitor Pass & QR Code</h3>
-                <p class="text-muted">Each registered visitor receives a secure pass containing:</p>
-                <ul style="padding-left: 20px; color: #555; line-height: 1.7;">
-                    <li>A unique QR code that security will scan at the gate.</li>
-                    <li>A security code for manual verification if needed.</li>
-                    <li>Your house/room number for easy guidance.</li>
-                    <li>Car plate details for parking management.</li>
-                    <li>Visitor count for accurate tracking.</li>
-                </ul>
-                <div class="visitor-qr-info">
-                    <h4><i class="fa-solid fa-qrcode"></i> How It Works</h4>
-                    <p><strong>1.</strong> Register your visitor and a QR code is generated instantly.</p>
-                    <p><strong>2.</strong> Share the QR code with your visitor (screenshot or print).</p>
-                    <p><strong>3.</strong> At the gate, security scans the QR code to view visitor details.</p>
-                    <p><strong>4.</strong> Security captures the visitor's ID photo during check-in.</p>
-                    <p><strong>5.</strong> Visitor is checked in and the count is recorded.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row" style="margin-top: 30px;">
         <div class="col-md-12">
             <div class="dashboard-section">
                 <h3><i class="fa-solid fa-calendar-check"></i> Upcoming Visitors</h3>
@@ -256,10 +190,7 @@
             return;
         }
         
-        const form = document.getElementById('visitor-request-form');
-        if (form) {
-            form.addEventListener('submit', submitVisitorRequest);
-        }
+        // Visitor registration form removed - visitors are now registered at the gate by security
         
         // Load tenant info first
         firebaseDatabase.ref(`tenants/${currentUser.uid}/info`).once('value')
@@ -270,72 +201,7 @@
             .catch(() => loadVisitorRequests());
     }
     
-    function submitVisitorRequest(event) {
-        event.preventDefault();
-        
-        const visitorName = document.getElementById('visitorName').value.trim();
-        const visitorContact = document.getElementById('visitorContact').value.trim();
-        const numberOfVisitors = parseInt(document.getElementById('numberOfVisitors').value) || 1;
-        const visitDate = document.getElementById('visitDate').value;
-        const visitTime = document.getElementById('visitTime').value;
-        const visitReason = document.getElementById('visitReason').value.trim();
-        const visitorCarPlate = document.getElementById('visitorCarPlate').value.trim();
-        const messageEl = document.getElementById('visitor-form-message');
-        
-        if (!visitorName || !visitorContact || !visitDate || !visitTime || !numberOfVisitors) {
-            showFormMessage('Please fill in all required fields.', 'danger');
-            return;
-        }
-        
-        if (!currentUser || !firebaseDatabase) {
-            showFormMessage('Authentication error. Please reload the page.', 'danger');
-            return;
-        }
-        
-        const securityCode = generateSecurityCode();
-        const requestRef = firebaseDatabase.ref('visitorRequests').push();
-        const qrPayload = JSON.stringify({
-            requestId: requestRef.key,
-            securityCode,
-        });
-        
-        const now = new Date();
-        const requestData = {
-            tenantId: currentUser.uid,
-            tenantName: (tenantInfo && tenantInfo.fullName) || currentUser.displayName || tenantInfo?.email || currentUser.email || 'Tenant',
-            tenantEmail: currentUser.email,
-            roomNumber: tenantInfo?.houseNumber || tenantInfo?.house || '',
-            visitorName,
-            visitorContact,
-            numberOfVisitors: numberOfVisitors,
-            visitDate,
-            visitTime,
-            reason: visitReason,
-            carPlate: visitorCarPlate || '',
-            status: 'registered',
-            securityCode,
-            qrCodeData: qrPayload,
-            createdAt: now.toISOString(),
-            createdYear: now.getFullYear(),
-            createdMonth: now.getMonth() + 1,
-            createdDay: now.getDate(),
-            createdHour: now.getHours(),
-            createdMinute: now.getMinutes(),
-            updatedAt: now.toISOString(),
-            requestId: requestRef.key
-        };
-        
-        requestRef.set(requestData)
-            .then(() => {
-                showFormMessage('Visitor pass generated successfully! Share the QR code with your visitor.', 'success');
-                document.getElementById('visitor-request-form').reset();
-                document.getElementById('numberOfVisitors').value = 1;
-            })
-            .catch((error) => {
-                console.error('Error submitting visitor request:', error);
-                showFormMessage('Error generating pass: ' + error.message, 'danger');
-            });
-    }
+    // Visitor registration form submission removed - visitors are now registered at the gate by security
     
     function loadVisitorRequests() {
         if (!firebaseDatabase || !currentUser) return;
