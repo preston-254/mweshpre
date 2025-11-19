@@ -1056,50 +1056,6 @@
                             </div>
                         </div>
                     </div>
-                    <script>
-                        (function() {
-                            const form = document.getElementById('package-collection-form');
-                            if (form) {
-                                form.addEventListener('submit', function(e) {
-                                    e.preventDefault();
-                                    const description = document.getElementById('package-description').value;
-                                    const expectedDate = document.getElementById('package-date').value;
-                                    const preferredTime = document.getElementById('package-time').value;
-                                    
-                                    if (typeof database !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser) {
-                                        const userRef = database.ref('tenants').orderByChild('email').equalTo(auth.currentUser.email);
-                                        userRef.once('value', snapshot => {
-                                            if (snapshot.exists()) {
-                                                const tenantData = Object.values(snapshot.val())[0];
-                                                const tenantId = Object.keys(snapshot.val())[0];
-                                                
-                                                const packageRequest = {
-                                                    tenantId: tenantId,
-                                                    tenantName: tenantData.name || 'Tenant',
-                                                    apartment: tenantData.houseNumber || 'N/A',
-                                                    description: description,
-                                                    expectedDate: expectedDate,
-                                                    preferredTime: preferredTime,
-                                                    status: 'pending',
-                                                    createdAt: new Date().toISOString()
-                                                };
-                                                
-                                                database.ref('packageRequests').push(packageRequest)
-                                                    .then(() => {
-                                                        alert('Package collection request submitted! Security will be notified when your package arrives.');
-                                                        form.reset();
-                                                    })
-                                                    .catch(error => {
-                                                        alert('Error submitting request. Please try again.');
-                                                        console.error(error);
-                                                    });
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        })();
-                    </script>
                 `,
                 'parking': `
                     <div style="padding: 15px;">
@@ -1195,27 +1151,79 @@
             };
             container.innerHTML = pages[page] || '<div class="text-center"><h3>Page not found</h3></div>';
             
-            // Load parking map if parking page is loaded
-            if (page === 'parking') {
-                loadParkingMap();
+            // Initialize page-specific functionality after content is loaded
+            setTimeout(() => {
+                if (page === 'packages') {
+                    initializePackageForm();
+                } else if (page === 'parking') {
+                    loadParkingMap();
+                }
+            }, 100);
+        }
+        
+        function initializePackageForm() {
+            const form = document.getElementById('package-collection-form');
+            if (form) {
+                // Remove existing listeners
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
+                
+                newForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const description = document.getElementById('package-description').value;
+                    const expectedDate = document.getElementById('package-date').value;
+                    const preferredTime = document.getElementById('package-time').value;
+                    
+                    if (typeof database !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser) {
+                        const userRef = database.ref('tenants').orderByChild('email').equalTo(auth.currentUser.email);
+                        userRef.once('value', snapshot => {
+                            if (snapshot.exists()) {
+                                const tenantData = Object.values(snapshot.val())[0];
+                                const tenantId = Object.keys(snapshot.val())[0];
+                                
+                                const packageRequest = {
+                                    tenantId: tenantId,
+                                    tenantName: tenantData.name || 'Tenant',
+                                    apartment: tenantData.houseNumber || 'N/A',
+                                    description: description,
+                                    expectedDate: expectedDate,
+                                    preferredTime: preferredTime,
+                                    status: 'pending',
+                                    createdAt: new Date().toISOString()
+                                };
+                                
+                                database.ref('packageRequests').push(packageRequest)
+                                    .then(() => {
+                                        alert('Package collection request submitted! Security will be notified when your package arrives.');
+                                        newForm.reset();
+                                    })
+                                    .catch(error => {
+                                        alert('Error submitting request. Please try again.');
+                                        console.error(error);
+                                    });
+                            }
+                        });
+                    }
+                });
             }
         }
         
         function loadParkingMap() {
-            setTimeout(() => {
-                fetch('parking-map.html')
-                    .then(response => response.text())
-                    .then(html => {
-                        const container = document.getElementById('content-area');
-                        if (container) {
-                            // Extract and execute scripts
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const scripts = doc.querySelectorAll('script');
-                            
-                            container.innerHTML = html;
-                            
-                            // Execute scripts
+            fetch('parking-map.html')
+                .then(response => response.text())
+                .then(html => {
+                    const container = document.getElementById('content-area');
+                    if (container) {
+                        // Extract scripts before setting innerHTML
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const scripts = doc.querySelectorAll('script');
+                        const htmlWithoutScripts = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+                        
+                        container.innerHTML = htmlWithoutScripts;
+                        
+                        // Execute scripts after a short delay
+                        setTimeout(() => {
                             scripts.forEach(script => {
                                 const newScript = document.createElement('script');
                                 if (script.src) {
@@ -1233,32 +1241,26 @@
                                     if (snapshot.exists()) {
                                         const tenantData = Object.values(snapshot.val())[0];
                                         if (tenantData && tenantData.houseNumber) {
-                                            if (typeof window.currentUserApartment !== 'undefined') {
-                                                window.currentUserApartment = tenantData.houseNumber;
-                                            }
+                                            window.currentUserApartment = tenantData.houseNumber;
                                         }
                                     }
                                 });
                             }
-                        }
-                    })
-                    .catch(() => {
-                        // Fallback to inline parking map
-                        initializeParkingMapInline();
-                    });
-            }, 100);
-        }
-        
-        function initializeParkingMapInline() {
-            const container = document.getElementById('content-area');
-            if (!container) return;
-            
-            container.innerHTML = `
-                <div style="padding: 20px;">
-                    <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-map"></i> Parking Map</h2>
-                    <p style="color: #666; text-align: center; padding: 40px;">Parking map loading... Please refresh the page.</p>
-                </div>
-            `;
+                        }, 50);
+                    }
+                })
+                .catch(() => {
+                    // Fallback: show inline parking content
+                    const container = document.getElementById('content-area');
+                    if (container) {
+                        container.innerHTML = `
+                            <div style="padding: 20px;">
+                                <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-map"></i> Parking Map</h2>
+                                <p style="color: #666; text-align: center; padding: 40px;">Parking map will be available soon. Please contact management for parking information.</p>
+                            </div>
+                        `;
+                    }
+                });
         }
     </script>
 </head>
