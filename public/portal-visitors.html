@@ -293,39 +293,53 @@
             
             const qrElementId = `visitor-qr-${request.requestId}-${allowActions ? 'up' : 'history'}`;
             
+            // Determine approval status text
+            let approvalStatusText = '';
+            if (visitorStatus === 'checked-in' && !request.checkedInAt) {
+                approvalStatusText = 'Approved';
+            } else if (visitorStatus === 'checked-in' && request.checkedInAt) {
+                approvalStatusText = 'Approved & Checked In';
+            } else if (visitorStatus === 'rejected') {
+                approvalStatusText = 'Not Approved';
+            } else if (visitorStatus === 'pending-verification') {
+                approvalStatusText = 'Awaiting Approval';
+            } else {
+                approvalStatusText = visitorStatus.replace('-', ' ');
+            }
+            
+            // Compact styling for history
+            const isCompact = isHistory;
+            const cardPadding = isCompact ? '12px' : '20px';
+            const fontSize = isCompact ? '13px' : '14px';
+            const titleSize = isCompact ? '16px' : '18px';
+            const marginTop = isCompact ? '6px' : '10px';
+            const marginItem = isCompact ? '2px' : '4px';
+            
             html += `
-                <div class="visitor-card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <h4 style="margin: 0; color: #333;">${request.visitorName}</h4>
-                            <p style="margin: 5px 0; color: #666;">
+                <div class="visitor-card" data-request-id="${request.requestId || request.id}" style="padding: ${cardPadding};">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${marginTop};">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0; color: #333; font-size: ${titleSize}; font-weight: 600;">${request.visitorName}</h4>
+                            <p style="margin: ${marginItem} 0; color: #666; font-size: ${fontSize};">
                                 <i class="fa-solid fa-phone"></i> ${request.visitorContact || 'N/A'}
                             </p>
-                            ${request.carPlate ? `<p style="margin: 4px 0; color: #666;"><i class="fa-solid fa-car-side"></i> Car: ${request.carPlate}</p>` : ''}
-                            ${request.roomNumber ? `<p style="margin: 4px 0; color: #666;"><i class="fa-solid fa-door-open"></i> Room: ${request.roomNumber}</p>` : ''}
+                            ${request.carPlate ? `<p style="margin: ${marginItem} 0; color: #666; font-size: ${fontSize};"><i class="fa-solid fa-car-side"></i> ${request.carPlate}</p>` : ''}
                         </div>
-                        <div class="${statusClass}">
-                            <i class="fa-solid fa-circle"></i> ${visitorStatus.replace('-', ' ')}
+                        <div class="${statusClass}" style="font-size: ${isCompact ? '11px' : '12px'}; padding: ${isCompact ? '4px 8px' : '6px 12px'};">
+                            <i class="fa-solid fa-circle"></i> ${approvalStatusText}
                         </div>
                     </div>
-                    <div style="margin-top: 10px; color: #555;">
-                        <p style="margin: 4px 0;">
+                    <div style="color: #555; font-size: ${fontSize};">
+                        <p style="margin: ${marginItem} 0;">
                             <i class="fa-solid fa-calendar"></i> ${visitorDate} at ${request.visitTime || 'N/A'}
                         </p>
-                        ${request.reason ? `<p style="margin: 4px 0;"><i class="fa-solid fa-note-sticky"></i> ${request.reason}</p>` : ''}
-                        <p style="margin: 4px 0;">
-                            <i class="fa-solid fa-users"></i> Number of Visitors: 
-                            <strong>${request.numberOfVisitors || 1}</strong>
-                        </p>
-                        <p style="margin: 4px 0;">
-                            <i class="fa-solid fa-shield-halved"></i> Security Code: 
-                            <span class="security-code">${request.securityCode || 'N/A'}</span>
-                        </p>
-                        ${request.checkedInAt ? `<p style="margin: 4px 0; color: #28a745;"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkedInAt)}</p>` : request.checkInTime ? `<p style="margin: 4px 0; color: #28a745;"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkInTime)}</p>` : ''}
-                        ${request.checkOutTime ? `<p style="margin: 4px 0; color: #6c757d;"><i class="fa-solid fa-door-closed"></i> Checked Out: ${formatDateTime(request.checkOutTime)}</p>` : ''}
-                        ${request.idPhoto ? `<p style="margin: 4px 0; color: #667eea;"><i class="fa-solid fa-id-card"></i> ID Photo Captured</p>` : ''}
-                        ${request.idPhotoBack ? `<p style="margin: 4px 0; color: #667eea;"><i class="fa-solid fa-id-card"></i> ID Back Photo Captured</p>` : ''}
-                        ${request.registeredAt ? `<p style="margin: 4px 0; color: #ffc107;"><i class="fa-solid fa-clock"></i> Registered at gate: ${formatDateTime(request.registeredAt)}</p>` : ''}
+                        ${request.reason && !isCompact ? `<p style="margin: ${marginItem} 0;"><i class="fa-solid fa-note-sticky"></i> ${request.reason}</p>` : ''}
+                        ${!isCompact ? `<p style="margin: ${marginItem} 0;">
+                            <i class="fa-solid fa-users"></i> Visitors: <strong>${request.numberOfVisitors || 1}</strong>
+                        </p>` : ''}
+                        ${request.checkedInAt ? `<p style="margin: ${marginItem} 0; color: #28a745; font-size: ${fontSize};"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkedInAt)}</p>` : request.checkInTime ? `<p style="margin: ${marginItem} 0; color: #28a745; font-size: ${fontSize};"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkInTime)}</p>` : ''}
+                        ${request.checkOutTime ? `<p style="margin: ${marginItem} 0; color: #6c757d; font-size: ${fontSize};"><i class="fa-solid fa-door-closed"></i> Checked Out: ${formatDateTime(request.checkOutTime)}</p>` : ''}
+                        ${!isCompact && request.idPhoto ? `<p style="margin: ${marginItem} 0; color: #667eea; font-size: ${fontSize};"><i class="fa-solid fa-id-card"></i> ID Photo Captured</p>` : ''}
                     </div>
                     ${isPendingVerification && allowActions ? `
                         <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 15px; margin-top: 15px;">
@@ -439,7 +453,7 @@
     }
     
     function verifyVisitor(requestId) {
-        if (!confirm('Verify this visitor? They will be checked in.')) return;
+        if (!confirm('Verify this visitor? They will be approved for check-in.')) return;
         
         if (!firebaseDatabase || !currentUser) {
             alert('Authentication error. Please reload the page.');
@@ -447,8 +461,7 @@
         }
         
         const updates = {
-            status: 'checked-in',
-            checkedInAt: new Date().toISOString(),
+            status: 'checked-in', // This means tenant approved - security can now check them in
             verifiedAt: new Date().toISOString(),
             verifiedBy: currentUser.uid,
             updatedAt: new Date().toISOString()
@@ -456,7 +469,21 @@
         
         firebaseDatabase.ref(`visitorRequests/${requestId}`).update(updates)
             .then(() => {
-                alert('Visitor verified and checked in successfully!');
+                // Update UI immediately to show "Approved" status
+                const visitorCard = document.querySelector(`[data-request-id="${requestId}"]`);
+                if (visitorCard) {
+                    const statusEl = visitorCard.querySelector('.visitor-status');
+                    if (statusEl) {
+                        statusEl.className = 'visitor-status approved';
+                        statusEl.innerHTML = '<i class="fa-solid fa-circle"></i> Approved';
+                    }
+                    // Remove verification buttons
+                    const verificationSection = visitorCard.querySelector('[style*="background: #fff3cd"]');
+                    if (verificationSection) {
+                        verificationSection.remove();
+                    }
+                }
+                alert('Visitor approved! Status updated. Security can now check them in.');
             })
             .catch((error) => {
                 console.error('Error verifying visitor:', error);
@@ -481,7 +508,21 @@
         
         firebaseDatabase.ref(`visitorRequests/${requestId}`).update(updates)
             .then(() => {
-                alert('Visitor rejected. Security has been notified.');
+                // Update UI immediately to show "Not Approved" status
+                const visitorCard = document.querySelector(`[data-request-id="${requestId}"]`);
+                if (visitorCard) {
+                    const statusEl = visitorCard.querySelector('.visitor-status');
+                    if (statusEl) {
+                        statusEl.className = 'visitor-status rejected';
+                        statusEl.innerHTML = '<i class="fa-solid fa-circle"></i> Not Approved';
+                    }
+                    // Remove verification buttons
+                    const verificationSection = visitorCard.querySelector('[style*="background: #fff3cd"]');
+                    if (verificationSection) {
+                        verificationSection.remove();
+                    }
+                }
+                alert('Visitor rejected. Status updated. Security has been notified.');
             })
             .catch((error) => {
                 console.error('Error rejecting visitor:', error);
