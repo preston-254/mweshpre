@@ -7,3 +7,5 @@ ui-debug.log
 *.log
 .DS_Store
 deploy.zip
+*-firebase-adminsdk-*.json
+firebase-adminsdk-*.json
