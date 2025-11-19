@@ -132,12 +132,19 @@ function renderParkingMap(block) {
     if (!mapContainer) return;
     
     // Get spaces for this block from Firebase data
-    const spaces = Object.values(parkingData).filter(s => s.block === block);
+    const spaces = Object.values(parkingData).filter(s => s && s.block === block);
     
     if (spaces.length === 0) {
         mapContainer.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">No parking spaces found for Block ${block}.</p>`;
         return;
     }
+    
+    // Sort spaces by ID
+    spaces.sort((a, b) => {
+        const numA = parseInt(a.id?.split('-')[1]) || 0;
+        const numB = parseInt(b.id?.split('-')[1]) || 0;
+        return numA - numB;
+    });
     
     // Create responsive grid layout
     const isMobile = window.innerWidth < 768;

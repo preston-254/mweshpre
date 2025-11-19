@@ -884,13 +884,13 @@
                     registeredCount++;
                 }
                 if (req.visitDate === today) todayCount++;
-                if (req.status === 'checked-in') {
+                if (req.status === 'checked-in' && req.checkedInAt) {
                     checkedInCount++;
                     totalVisitorCount += (req.numberOfVisitors || 1);
                 }
 
-                // Show pending-verification and registered visitors in pending section
-                if (req.status === 'pending-verification' || req.status === 'registered' || req.status === 'pending') {
+                // Show pending-verification, registered, and approved (awaiting security check-in) visitors in pending section
+                if (req.status === 'pending-verification' || req.status === 'registered' || req.status === 'pending' || (req.status === 'checked-in' && !req.checkedInAt)) {
                     pendingRequests.push(req);
                 }
                 allRequests.push(req);
@@ -926,18 +926,20 @@
                 </div>
             ` : '';
 
-            // Determine approval status
+            // Determine approval status - show "Approved" or "Not Approved" clearly
             let approvalStatus = '';
             if (request.status === 'pending-verification') {
-                approvalStatus = '<span class="status-badge pending" style="background: #fff3cd; color: #856404;"><i class="fa-solid fa-clock"></i> Awaiting Approval</span>';
-            } else if (request.status === 'checked-in') {
-                approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724;"><i class="fa-solid fa-check-circle"></i> Approved & Checked In</span>';
+                approvalStatus = '<span class="status-badge pending" style="background: #fff3cd; color: #856404; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-clock"></i> Not Approved - Awaiting Tenant</span>';
+            } else if (request.status === 'checked-in' && !request.checkedInAt) {
+                approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-check-circle"></i> Approved - Ready for Check-In</span>';
+            } else if (request.status === 'checked-in' && request.checkedInAt) {
+                approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-check-circle"></i> Approved & Checked In</span>';
             } else if (request.status === 'rejected') {
-                approvalStatus = '<span class="status-badge rejected" style="background: #f8d7da; color: #721c24;"><i class="fa-solid fa-times-circle"></i> Rejected</span>';
+                approvalStatus = '<span class="status-badge rejected" style="background: #f8d7da; color: #721c24; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-times-circle"></i> Not Approved - Rejected</span>';
             } else if (request.status === 'registered') {
-                approvalStatus = '<span class="status-badge registered" style="background: #d1ecf1; color: #0c5460;"><i class="fa-solid fa-user-check"></i> Registered</span>';
+                approvalStatus = '<span class="status-badge registered" style="background: #d1ecf1; color: #0c5460; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-user-check"></i> Registered</span>';
             } else {
-                approvalStatus = `<span class="${statusClass}">${(request.status || 'registered').replace('-', ' ')}</span>`;
+                approvalStatus = `<span class="${statusClass}" style="padding: 6px 12px; border-radius: 6px; display: inline-block;">${(request.status || 'registered').replace('-', ' ')}</span>`;
             }
 
             return `
@@ -1042,17 +1044,26 @@
                     if (!snapshot.exists()) throw new Error('Visitor request not found');
                     const request = snapshot.val();
                     
+                    // Check if tenant has approved (status should be 'checked-in' which means tenant verified)
                     if (request.status !== 'checked-in') {
-                        alert('Visitor must be approved by tenant first.');
+                        alert('Visitor must be approved by tenant first. Current status: ' + (request.status || 'pending'));
+                        return;
+                    }
+                    
+                    // Check if already checked in
+                    if (request.checkedInAt) {
+                        alert('Visitor is already checked in.');
                         return;
                     }
                     
                     const now = new Date();
+                    const checkInTime = now.toTimeString().split(' ')[0].substring(0, 5);
+                    const checkInDate = now.toISOString().split('T')[0];
                     const updates = {
                         checkedInAt: now.toISOString(),
                         checkedInBy: auth.currentUser ? auth.currentUser.email : 'Security',
-                        checkInTime: now.toTimeString().split(' ')[0].substring(0, 5),
-                        checkInDate: now.toISOString().split('T')[0],
+                        checkInTime: checkInTime,
+                        checkInDate: checkInDate,
                         updatedAt: now.toISOString()
                     };
                     
@@ -1062,11 +1073,11 @@
                             window.createNotification(database, request.tenantId, {
                                 type: 'visitor',
                                 title: 'Visitor Checked In',
-                                message: `${request.visitorName || 'Visitor'} has been checked in at ${updates.checkInTime} on ${updates.checkInDate}.`,
+                                message: `${request.visitorName || 'Visitor'} has been checked in at ${checkInTime} on ${checkInDate}.`,
                                 link: '#visitors'
                             });
                         }
-                        alert(`Visitor checked in successfully at ${updates.checkInTime}!`);
+                        alert(`Visitor checked in successfully!\nTime: ${checkInTime}\nDate: ${checkInDate}`);
                     });
                 })
                 .catch((error) => {
@@ -1084,12 +1095,14 @@
                     const request = snapshot.val();
                     
                     const now = new Date();
+                    const checkOutTime = now.toTimeString().split(' ')[0].substring(0, 5);
+                    const checkOutDate = now.toISOString().split('T')[0];
                     const updates = {
                         status: 'checked-out',
                         checkedOutAt: now.toISOString(),
                         checkedOutBy: auth.currentUser ? auth.currentUser.email : 'Security',
-                        checkOutTime: now.toTimeString().split(' ')[0].substring(0, 5),
-                        checkOutDate: now.toISOString().split('T')[0],
+                        checkOutTime: checkOutTime,
+                        checkOutDate: checkOutDate,
                         updatedAt: now.toISOString()
                     };
                     
@@ -1117,11 +1130,11 @@
                             window.createNotification(database, request.tenantId, {
                                 type: 'visitor',
                                 title: 'Visitor Checked Out',
-                                message: `${request.visitorName || 'Visitor'} has checked out at ${updates.checkOutTime}.`,
+                                message: `${request.visitorName || 'Visitor'} has checked out at ${checkOutTime} on ${checkOutDate}.`,
                                 link: '#visitors'
                             });
                         }
-                        alert(`Visitor checked out successfully at ${updates.checkOutTime}!`);
+                        alert(`Visitor checked out successfully!\nTime: ${checkOutTime}\nDate: ${checkOutDate}`);
                     });
                 })
                 .catch((error) => {
@@ -1645,11 +1658,22 @@
             const grid = document.getElementById('parking-spaces-grid');
             if (!grid) return;
 
-            const spaces = Object.values(parkingData).filter(s => s.block === block);
+            const spaces = Object.values(parkingData).filter(s => s && s.block === block);
             if (spaces.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No parking spaces found for this block.</p>';
                 return;
             }
+
+            // Sort spaces by ID
+            spaces.sort((a, b) => {
+                const numA = parseInt(a.id?.split('-')[1]) || 0;
+                const numB = parseInt(b.id?.split('-')[1]) || 0;
+                return numA - numB;
+            });
+
+            const isMobile = window.innerWidth < 768;
+            const gridColumns = isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)';
+            grid.style.gridTemplateColumns = gridColumns;
 
             grid.innerHTML = spaces.map(space => {
                 let bgColor = '#28a745'; // Available - Green
@@ -1666,22 +1690,24 @@
                          style="
                              background: ${bgColor};
                              color: ${textColor};
-                             padding: 15px 10px;
+                             padding: ${isMobile ? '12px 8px' : '15px 10px'};
                              border-radius: 10px;
                              text-align: center;
                              cursor: pointer;
                              transition: all 0.3s ease;
-                             min-height: 90px;
+                             min-height: ${isMobile ? '75px' : '90px'};
                              display: flex;
                              flex-direction: column;
                              justify-content: center;
                              align-items: center;
+                             touch-action: manipulation;
                          " 
-                         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)'"
-                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
-                        <div style="font-size: 16px; font-weight: 700; margin-bottom: 5px;">${space.id}</div>
-                        ${space.vehicle ? `<div style="font-size: 11px; opacity: 0.9; margin-bottom: 3px;">${space.vehicle}</div>` : ''}
-                        ${space.owner ? `<div style="font-size: 10px; opacity: 0.8;">${space.owner}</div>` : '<div style="font-size: 10px; opacity: 0.8;">Available</div>'}
+                         ${!isMobile ? `onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)'"
+                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"` : ''}>
+                        <div style="font-size: ${isMobile ? '13px' : '16px'}; font-weight: 700; margin-bottom: 5px;">${space.id}</div>
+                        ${space.vehicle ? `<div style="font-size: ${isMobile ? '9px' : '11px'}; opacity: 0.9; margin-bottom: 3px;">${space.vehicle}</div>` : ''}
+                        ${space.owner ? `<div style="font-size: ${isMobile ? '8px' : '10px'}; opacity: 0.8;">${space.owner}</div>` : '<div style="font-size: 8px; opacity: 0.8;">Available</div>'}
+                        ${space.tenant ? `<div style="font-size: ${isMobile ? '8px' : '9px'}; opacity: 0.7; margin-top: 2px;">${space.tenant}</div>` : ''}
                     </div>
                 `;
             }).join('');
@@ -1947,13 +1973,13 @@
                             window.createNotification(database, tenantId, {
                                 type: 'visitor',
                                 title: 'Visitor Arrived - Verification Required',
-                                message: `${visitorName} has arrived at the gate. Please verify this visitor.`,
+                                message: `${visitorName} has arrived at the gate. Please verify this visitor in your portal.`,
                                 link: '#visitors'
-                            });
+                            }).catch(err => console.error('Notification error:', err));
                         }
 
-                        // Also create a direct notification entry
-                        try {
+                        // Also create a direct notification entry in notifications node
+                        if (tenantId) {
                             database.ref(`notifications/${tenantId}`).push({
                                 type: 'visitor',
                                 title: 'Visitor Arrived - Verification Required',
@@ -1961,9 +1987,7 @@
                                 link: '#visitors',
                                 read: false,
                                 createdAt: new Date().toISOString()
-                            });
-                        } catch (notifError) {
-                            console.warn('Could not create notification entry:', notifError);
+                            }).catch(err => console.error('Direct notification error:', err));
                         }
 
                         alert('Visitor registered successfully! Notification sent to tenant. Waiting for tenant verification before check-in.');
