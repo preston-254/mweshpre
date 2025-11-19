@@ -372,7 +372,8 @@
                 
                 if (request.status === 'checked-out' || request.status === 'cancelled') {
                     history.push(request);
-                } else if (request.status === 'checked-in' && visitDateTime < now) {
+                } else if (request.status === 'checked-in') {
+                    // Include all checked-in visitors in history (including those checked in at gate)
                     history.push(request);
                 } else if (request.status === 'registered' && visitDateTime < now) {
                     history.push(request);
@@ -445,8 +446,10 @@
                             <i class="fa-solid fa-shield-halved"></i> Security Code: 
                             <span class="security-code">${request.securityCode || 'N/A'}</span>
                         </p>
-                        ${request.checkInTime ? `<p style="margin: 4px 0; color: #28a745;"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkInTime)}</p>` : ''}
+                        ${request.checkedInAt ? `<p style="margin: 4px 0; color: #28a745;"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkedInAt)}</p>` : request.checkInTime ? `<p style="margin: 4px 0; color: #28a745;"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkInTime)}</p>` : ''}
                         ${request.checkOutTime ? `<p style="margin: 4px 0; color: #6c757d;"><i class="fa-solid fa-door-closed"></i> Checked Out: ${formatDateTime(request.checkOutTime)}</p>` : ''}
+                        ${request.idPhoto ? `<p style="margin: 4px 0; color: #667eea;"><i class="fa-solid fa-id-card"></i> ID Photo Captured</p>` : ''}
+                        ${request.idPhotoBack ? `<p style="margin: 4px 0; color: #667eea;"><i class="fa-solid fa-id-card"></i> ID Back Photo Captured</p>` : ''}
                     </div>
                     <div class="visitor-pass-section">
                         <div>
