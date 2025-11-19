@@ -33,7 +33,7 @@
     </div>
 
     <!-- Parking Map -->
-    <div id="parking-map" style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow-x: auto;">
+    <div id="parking-map" style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow-x: auto; -webkit-overflow-scrolling: touch;">
         <!-- Map will be generated here -->
     </div>
 
@@ -125,12 +125,18 @@ function renderParkingMap(block) {
     const blockData = parkingBlocks[block];
     if (!blockData) return;
     
-    // Create grid layout
-    const gridStyle = `
+    // Create responsive grid layout
+    const isMobile = window.innerWidth < 768;
+    const gridStyle = isMobile ? `
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        width: 100%;
+    ` : `
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 15px;
-        min-width: 600px;
+        width: 100%;
     `;
     
     mapContainer.innerHTML = `
@@ -157,23 +163,24 @@ function renderParkingMap(block) {
                          style="
                              background: ${bgColor};
                              color: ${textColor};
-                             padding: 20px 15px;
+                             padding: ${isMobile ? '15px 10px' : '20px 15px'};
                              border-radius: 10px;
                              text-align: center;
                              cursor: pointer;
                              transition: all 0.3s ease;
                              border: ${border};
-                             min-height: 100px;
+                             min-height: ${isMobile ? '80px' : '100px'};
                              display: flex;
                              flex-direction: column;
                              justify-content: center;
                              align-items: center;
+                             touch-action: manipulation;
                          " 
-                         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)'"
-                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
-                        <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">${space.id}</div>
-                        ${space.vehicle ? `<div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">${space.vehicle}</div>` : ''}
-                        ${space.owner ? `<div style="font-size: 11px; opacity: 0.8;">${space.owner}</div>` : '<div style="font-size: 11px; opacity: 0.8;">Available</div>'}
+                         ${!isMobile ? `onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)'"
+                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"` : ''}>
+                        <div style="font-size: ${isMobile ? '14px' : '18px'}; font-weight: 700; margin-bottom: ${isMobile ? '4px' : '8px'};">${space.id}</div>
+                        ${space.vehicle ? `<div style="font-size: ${isMobile ? '10px' : '12px'}; opacity: 0.9; margin-bottom: ${isMobile ? '3px' : '5px'};">${space.vehicle}</div>` : ''}
+                        ${space.owner ? `<div style="font-size: ${isMobile ? '9px' : '11px'}; opacity: 0.8;">${space.owner}</div>` : `<div style="font-size: ${isMobile ? '9px' : '11px'}; opacity: 0.8;">Available</div>`}
                     </div>
                 `;
             }).join('')}
