@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance - Tenant Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .finance-container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .finance-header {
+            margin-bottom: 30px;
+        }
+
+        .finance-header h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .finance-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .finance-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .finance-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .finance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .card-icon.rent {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8b94 100%);
+            color: white;
+        }
+
+        .card-icon.wallet {
+            background: linear-gradient(135deg, #4ecdc4 0%, #95e1d3 100%);
+            color: white;
+        }
+
+        .card-icon.water {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .card-icon.payment {
+            background: linear-gradient(135deg, #ffe66d 0%, #ffd93d 100%);
+            color: white;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card-date {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .days-stayed {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .days-stayed h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .days-stayed .value {
+            font-size: 48px;
+            font-weight: 700;
+        }
+
+        .actions-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .actions-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action.primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8b94 100%);
+            color: white;
+        }
+
+        .btn-action.secondary {
+            background: linear-gradient(135deg, #4ecdc4 0%, #95e1d3 100%);
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .electricity-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .electricity-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .electricity-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .electricity-info p {
+            margin: 10px 0;
+            color: #666;
+        }
+
+        .electricity-info strong {
+            color: #333;
+        }
+
+        .payment-steps {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ffe66d;
+        }
+
+        .payment-steps h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .payment-steps ol {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .payment-steps li {
+            margin: 8px 0;
+        }
+
+        .checkout-section {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,245,245,0.95) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(255,107,107,0.2);
+            border: 2px solid transparent;
+            border-image: linear-gradient(135deg, #ff6b6b, #ffe66d) 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkout-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,107,107,0.05) 0%, transparent 70%);
+            animation: rotate 15s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .checkout-section h3 {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .checkout-section h3 i {
+            color: #ff6b6b;
+            font-size: 28px;
+        }
+
+        .checkout-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffe66d 100%);
+            border-radius: 2px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 4px rgba(255,107,107,0.1);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .receipt-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .receipt-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .receipt-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .receipt-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .receipt-info {
+            flex: 1;
+        }
+        
+        .receipt-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .receipt-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .receipt-amount {
+            font-weight: 700;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .btn-download {
+            padding: 8px 16px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: #3db5ad;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .finance-container {
+                padding: 20px;
+            }
+
+            .finance-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="finance-container">
+        <div class="finance-header">
+            <h2><i class="fas fa-wallet"></i> Finance Dashboard</h2>
+            <p>Manage your payments and view your financial information</p>
+        </div>
+
+        <div class="finance-cards">
+            <div class="finance-card">
+                <div class="card-header">
+                    <span class="card-title">Rent Due</span>
+                    <div class="card-icon rent">
+                        <i class="fas fa-home"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="rentDue">0.00 KSh</div>
+                <div class="card-date">Due: <span id="rentDueDate">-</span></div>
+            </div>
+
+            <div class="finance-card">
+                <div class="card-header">
+                    <span class="card-title">Wallet Balance</span>
+                    <div class="card-icon wallet">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="walletBalance">0.00 KSh</div>
+                <div class="card-date">Available for use</div>
+            </div>
+
+            <div class="finance-card">
+                <div class="card-header">
+                    <span class="card-title">Water Bill</span>
+                    <div class="card-icon water">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="waterBill">0.00 KSh</div>
+                <div class="card-date">Due: <span id="waterBillDate">-</span></div>
+            </div>
+
+            <div class="finance-card">
+                <div class="card-header">
+                    <span class="card-title">Last Payment</span>
+                    <div class="card-icon payment">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="card-value" id="lastPayment">0.00 KSh</div>
+                <div class="card-date">Date: <span id="lastPaymentDate">-</span></div>
+            </div>
+        </div>
+
+        <div class="days-stayed">
+            <h3>Days Stayed at Apartment</h3>
+            <div class="value" id="daysStayed">0</div>
+            <p style="margin-top: 10px; opacity: 0.9;">days</p>
+        </div>
+
+        <div class="actions-section">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <button class="btn-action primary" id="downloadReceiptBtn">
+                    <i class="fas fa-download"></i>
+                    Download Receipt
+                </button>
+                <button class="btn-action secondary" id="applyCheckoutBtn">
+                    <i class="fas fa-door-open"></i>
+                    Apply for Checkout
+                </button>
+            </div>
+        </div>
+
+        <div class="electricity-section">
+            <h3><i class="fas fa-bolt"></i> Buy Electricity Tokens</h3>
+            <div class="electricity-info">
+                <p><strong>Meter Number:</strong> <span id="meterNumber">-</span></p>
+            </div>
+            <div class="payment-steps">
+                <h4>Payment Instructions:</h4>
+                <ol>
+                    <li>Open your M-Pesa app</li>
+                    <li>Go to "Lipa na M-Pesa"</li>
+                    <li>Select "Paybill"</li>
+                    <li>Enter Paybill Number: <strong>888880</strong></li>
+                    <li>Enter Meter Number: <strong id="meterNumberDisplay">-</strong></li>
+                    <li>Enter the amount you want to pay</li>
+                    <li>Enter your M-Pesa PIN and confirm</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="checkout-section">
+            <h3><i class="fas fa-door-open"></i> Apply for Checkout</h3>
+            <form class="checkout-form" id="checkoutForm">
+                <div class="form-group">
+                    <label for="checkoutDate">Preferred Checkout Date</label>
+                    <input type="date" id="checkoutDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="checkoutReason">Reason for Checkout</label>
+                    <textarea id="checkoutReason" rows="4" placeholder="Please provide a reason for checkout..." required></textarea>
+                </div>
+                <button type="submit" class="btn-action primary" style="width: 100%; justify-content: center; padding: 15px; font-size: 16px; margin-top: 10px; background: linear-gradient(135deg, #ff6b6b 0%, #ffe66d 100%); border: none; box-shadow: 0 4px 15px rgba(255,107,107,0.3);">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Checkout Request
+                </button>
+            </form>
+        </div>
+
+        <div class="receipt-section">
+            <h3><i class="fas fa-file-invoice"></i> Payment History</h3>
+            <div class="receipt-list" id="receiptList">
+                <p style="text-align: center; color: #999; padding: 20px;">No payment history available</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let financeDataListener = null;
+        let paymentHistoryListener = null;
+
+        window.loadTenantFinanceData = function() {
+            if (!window.auth || !window.database) {
+                return;
+            }
+
+            const user = window.auth.currentUser;
+            if (!user) {
+                return;
+            }
+
+            const tenantRef = window.database.ref('tenants/' + user.uid);
+            
+            if (financeDataListener) {
+                tenantRef.off('value', financeDataListener);
+            }
+            
+            financeDataListener = (snapshot) => {
+                const tenantData = snapshot.val();
+                if (!tenantData) {
+                    return;
+                }
+
+                const finance = tenantData.finance || {};
+                const profile = tenantData.profile || {};
+                const info = tenantData.info || {};
+
+                updateElement('rentDue', (finance.rentDue || 0).toFixed(2) + ' KSh');
+                updateElement('rentDueDate', finance.rentDueDate || '-');
+                updateElement('walletBalance', (finance.walletBalance || 0).toFixed(2) + ' KSh');
+                updateElement('waterBill', (finance.waterBill || 0).toFixed(2) + ' KSh');
+                updateElement('waterBillDate', finance.waterBillDate || '-');
+                let lastPaymentAmount = 0;
+                let lastPaymentDate = '-';
+                
+                if (finance.lastPayment) {
+                    if (typeof finance.lastPayment === 'object' && finance.lastPayment.amount) {
+                        lastPaymentAmount = finance.lastPayment.amount;
+                        lastPaymentDate = finance.lastPayment.date || finance.lastPaymentDate || '-';
+                    } else if (typeof finance.lastPayment === 'number') {
+                        lastPaymentAmount = finance.lastPayment;
+                        lastPaymentDate = finance.lastPaymentDate || '-';
+                    }
+                }
+                
+                if (lastPaymentAmount === 0 && tenantData.payments) {
+                    const paymentsArray = Object.entries(tenantData.payments)
+                        .map(([key, value]) => ({ id: key, ...value }))
+                        .sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    if (paymentsArray.length > 0) {
+                        const mostRecent = paymentsArray[0];
+                        lastPaymentAmount = mostRecent.amount || 0;
+                        lastPaymentDate = mostRecent.date || '-';
+                    }
+                }
+                
+                updateElement('lastPayment', parseFloat(lastPaymentAmount).toFixed(2) + ' KSh');
+                updateElement('lastPaymentDate', lastPaymentDate !== '-' ? new Date(lastPaymentDate).toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' }) : '-');
+
+                const meterNumber = info.meterNumber || profile.meterNumber || profile.meter || profile.electricityMeter || '-';
+                updateElement('meterNumber', meterNumber);
+                updateElement('meterNumberDisplay', meterNumber);
+
+                if (profile.moveInDate) {
+                    const moveInDate = new Date(profile.moveInDate);
+                    const today = new Date();
+                    const diffTime = Math.abs(today - moveInDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    updateElement('daysStayed', diffDays);
+                }
+
+                loadPaymentHistory(user.uid);
+            };
+            
+            tenantRef.on('value', financeDataListener);
+        };
+
+        function updateElement(id, value) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        }
+
+        function loadPaymentHistory(tenantId) {
+            if (!tenantId) {
+                return;
+            }
+            
+            if (!window.database) {
+                return;
+            }
+            
+            const paymentsRef = window.database.ref('tenants/' + tenantId + '/payments');
+            
+            if (paymentHistoryListener) {
+                paymentsRef.off('value', paymentHistoryListener);
+            }
+            
+            paymentHistoryListener = (snapshot) => {
+                const payments = snapshot.val();
+                
+                let receiptList = document.getElementById('receiptList');
+                
+                if (!receiptList) {
+                    setTimeout(() => {
+                        receiptList = document.getElementById('receiptList');
+                        if (receiptList) {
+                            updatePaymentHistoryDisplay(receiptList, payments);
+                        }
+                    }, 500);
+                    return;
+                }
+                
+                updatePaymentHistoryDisplay(receiptList, payments);
+            };
+            
+            paymentsRef.on('value', paymentHistoryListener);
+        }
+        
+        function updatePaymentHistoryDisplay(receiptList, payments) {
+            if (!receiptList) {
+                return;
+            }
+            
+            if (!payments || Object.keys(payments).length === 0) {
+                receiptList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No payment history available</p>';
+                return;
+            }
+
+            const paymentsArray = Object.entries(payments)
+                .map(([key, value]) => {
+                    if (!value) {
+                        return null;
+                    }
+                    return { id: key, ...value };
+                })
+                .filter(payment => payment !== null)
+                .sort((a, b) => {
+                    const dateA = new Date(a.date || 0);
+                    const dateB = new Date(b.date || 0);
+                    return dateB - dateA;
+                });
+
+            if (paymentsArray.length === 0) {
+                receiptList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No valid payment records found</p>';
+                return;
+            }
+            receiptList.innerHTML = paymentsArray.map(payment => {
+                const paymentDate = payment.date ? new Date(payment.date).toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Date not available';
+                const paymentAmount = parseFloat(payment.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const receiptNumber = payment.receiptNumber || 'N/A';
+                const paymentMethod = payment.method || '';
+                const paymentId = String(payment.id || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                
+                return `
+                    <div class="receipt-item">
+                        <div class="receipt-info">
+                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                                <div style="flex: 1;">
+                                    <div class="receipt-date" style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 5px;">
+                                        ${paymentDate}
+                                    </div>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 3px;">
+                                        <i class="fas fa-receipt" style="margin-right: 5px;"></i>
+                                        <strong>${receiptNumber}</strong>
+                                    </div>
+                                    ${paymentMethod ? `<div style="font-size: 12px; color: #999;">
+                                        <i class="fas fa-credit-card" style="margin-right: 5px;"></i>
+                                        ${paymentMethod}
+                                    </div>` : ''}
+                                </div>
+                                <div class="receipt-amount" style="font-size: 24px; font-weight: 700; color: #28a745;">
+                                    ${paymentAmount} KSh
+                                </div>
+                            </div>
+                        </div>
+                        <div class="receipt-actions">
+                            <button class="btn-download btn-download-receipt" data-payment-id="${paymentId}" title="Download Receipt">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            <button class="btn-download btn-print-receipt" data-payment-id="${paymentId}" style="background: #17a2b8;" title="Print Receipt">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            attachPaymentHistoryListeners();
+        }
+
+        window.printReceipt = function(paymentId) {
+            window.downloadReceipt(paymentId, true);
+        };
+
+        window.downloadReceipt = function(paymentId, shouldPrint = false) {
+            if (!window.auth || !window.database) {
+                alert('Firebase not initialized');
+                return;
+            }
+
+            const user = window.auth.currentUser;
+            if (!user) {
+                alert('Please log in to download receipts');
+                return;
+            }
+
+            const tenantRef = window.database.ref('tenants/' + user.uid);
+            tenantRef.once('value')
+                .then(snapshot => {
+                    const tenantData = snapshot.val();
+                    const finance = tenantData.finance || {};
+                    const profile = tenantData.profile || {};
+                    
+                    let paymentData = null;
+                    if (paymentId) {
+                        const paymentRef = window.database.ref('tenants/' + user.uid + '/payments/' + paymentId);
+                        return paymentRef.once('value').then(paymentSnapshot => {
+                            paymentData = paymentSnapshot.val();
+                            return { tenantData, paymentData };
+                        });
+                    } else {
+                        paymentData = finance.lastPayment || { amount: 0, date: new Date().toISOString().split('T')[0] };
+                        return Promise.resolve({ tenantData, paymentData });
+                    }
+                })
+                .then(({ tenantData, paymentData }) => {
+                    const finance = tenantData.finance || {};
+                    const profile = tenantData.profile || {};
+                    
+                    const paymentAmount = paymentData.amount || finance.lastPayment?.amount || 0;
+                    const paymentDate = paymentData.date || finance.lastPayment?.date || new Date().toISOString().split('T')[0];
+                    const receiptNumber = paymentData.receiptNumber || 'RCP-' + new Date().getTime();
+
+                    const receiptHTML = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Payment Receipt - Mweshpra Apartments</title>
+                            <style>
+                                @media print {
+                                    body { margin: 0; }
+                                }
+                                body { 
+                                    font-family: 'Arial', sans-serif; 
+                                    padding: 40px; 
+                                    background: #f5f5f5;
+                                }
+                                .receipt { 
+                                    max-width: 700px; 
+                                    margin: 0 auto; 
+                                    background: white;
+                                    border: 2px solid #333; 
+                                    padding: 40px; 
+                                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                                }
+                                .header { 
+                                    text-align: center; 
+                                    margin-bottom: 40px;
+                                    border-bottom: 3px solid #ff6b6b;
+                                    padding-bottom: 20px;
+                                }
+                                .logo-container {
+                                    margin-bottom: 20px;
+                                }
+                                .logo {
+                                    max-width: 150px;
+                                    height: auto;
+                                    margin-bottom: 15px;
+                                }
+                                .header h1 { 
+                                    color: #ff6b6b;
+                                    font-size: 32px;
+                                    margin: 10px 0;
+                                }
+                                .header p {
+                                    color: #666;
+                                    font-size: 16px;
+                                    margin: 5px 0;
+                                }
+                                .receipt-number {
+                                    text-align: right;
+                                    color: #999;
+                                    font-size: 14px;
+                                    margin-bottom: 20px;
+                                }
+                                .details { 
+                                    margin: 30px 0; 
+                                    background: #f8f9fa;
+                                    padding: 25px;
+                                    border-radius: 10px;
+                                }
+                                .details-row {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    padding: 12px 0;
+                                    border-bottom: 1px solid #e0e0e0;
+                                }
+                                .details-row:last-child {
+                                    border-bottom: none;
+                                }
+                                .details-label {
+                                    font-weight: 600;
+                                    color: #333;
+                                }
+                                .details-value {
+                                    color: #666;
+                                }
+                                .total { 
+                                    background: linear-gradient(135deg, #ff6b6b 0%, #ff8b94 100%);
+                                    color: white;
+                                    padding: 25px;
+                                    border-radius: 10px;
+                                    text-align: center;
+                                    margin-top: 30px;
+                                }
+                                .total-label {
+                                    font-size: 18px;
+                                    margin-bottom: 10px;
+                                    opacity: 0.9;
+                                }
+                                .total-amount {
+                                    font-size: 36px;
+                                    font-weight: bold;
+                                }
+                                .footer {
+                                    text-align: center;
+                                    margin-top: 40px;
+                                    padding-top: 20px;
+                                    border-top: 1px solid #e0e0e0;
+                                    color: #999;
+                                    font-size: 12px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="receipt">
+                                <div class="header">
+                                    <div class="logo-container">
+                                        <div style="width: 100px; height: 100px; margin: 0 auto; background: linear-gradient(135deg, #ff6b6b 0%, #ff8b94 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; font-weight: bold;">M</div>
+                                    </div>
+                                    <h1>Mweshpra Apartments</h1>
+                                    <p>Kinoru Stadium, Meru, Kenya</p>
+                                    <p style="margin-top: 10px;">Payment Receipt</p>
+                                </div>
+                                <div class="receipt-number">
+                                    Receipt No: ${receiptNumber}
+                                </div>
+                                <div class="details">
+                                    <div class="details-row">
+                                        <span class="details-value">${profile.name || 'N/A'}</span>
+                                    </div>
+                                    <div class="details-row">
+                                        <span class="details-value">${profile.houseNumber || 'N/A'}</span>
+                                    </div>
+                                    <div class="details-row">
+                                        <span class="details-value">${user.email || 'N/A'}</span>
+                                    </div>
+                                    <div class="details-row">
+                                        <span class="details-value">${new Date(paymentDate).toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                    </div>
+                                    <div class="details-row">
+                                        <span class="details-value">${paymentData.method || 'M-Pesa'}</span>
+                                    </div>
+                                </div>
+                                <div class="total">
+                                    <div class="total-amount">KSh ${parseFloat(paymentAmount).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                </div>
+                                <div class="footer">
+                                    <p>Thank you for your payment!</p>
+                                    <p>This is a computer-generated receipt. No signature required.</p>
+                                    <p style="margin-top: 10px;">Mweshpra Apartments &copy; ${new Date().getFullYear()}</p>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `;
+
+                    if (shouldPrint) {
+                        const printWindow = window.open('', '_blank');
+                        printWindow.document.write(receiptHTML);
+                        printWindow.document.close();
+                        printWindow.onload = function() {
+                            printWindow.print();
+                        };
+                    } else {
+                        const blob = new Blob([receiptHTML], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'receipt_' + receiptNumber + '.html';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                })
+                .catch(error => {
+                    alert('Error generating receipt: ' + error.message);
+                });
+        };
+
+        window.applyCheckout = function(e) {
+            if (e) {
+                e.preventDefault();
+            }
+            
+            const checkoutDate = document.getElementById('checkoutDate').value;
+            const checkoutReason = document.getElementById('checkoutReason').value;
+
+            if (!checkoutDate || !checkoutReason) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (!window.auth || !window.database) {
+                alert('Firebase not initialized');
+                return;
+            }
+
+            const user = window.auth.currentUser;
+            if (!user) {
+                alert('Please log in to submit checkout request');
+                return;
+            }
+
+            const checkoutRef = window.database.ref('checkoutRequests/' + user.uid);
+            checkoutRef.set({
+                date: checkoutDate,
+                reason: checkoutReason,
+                status: 'pending',
+                submittedAt: new Date().toISOString()
+            })
+            .then(() => {
+                alert('Checkout request submitted successfully!');
+                document.getElementById('checkoutForm').reset();
+            })
+            .catch(error => {
+                alert('Error submitting checkout request');
+            });
+        };
+
+        window.submitCheckout = function(event) {
+            if (event) event.preventDefault();
+            window.applyCheckout(event);
+        };
+
+        function attachPaymentHistoryListeners() {
+            const receiptList = document.getElementById('receiptList');
+            if (!receiptList) return;
+            
+            receiptList.removeEventListener('click', handlePaymentHistoryClick);
+            
+            receiptList.addEventListener('click', handlePaymentHistoryClick);
+        }
+        
+        function handlePaymentHistoryClick(e) {
+            const target = e.target.closest('.btn-download-receipt, .btn-print-receipt');
+            if (!target) return;
+            
+            const paymentId = target.getAttribute('data-payment-id');
+            if (!paymentId) return;
+            
+            if (target.classList.contains('btn-download-receipt')) {
+                e.preventDefault();
+                if (typeof window.downloadReceipt === 'function') {
+                    window.downloadReceipt(paymentId);
+                }
+            } else if (target.classList.contains('btn-print-receipt')) {
+                e.preventDefault();
+                if (typeof window.printReceipt === 'function') {
+                    window.printReceipt(paymentId);
+                }
+            }
+        }
+        
+        function attachEventListeners() {
+            const downloadBtn = document.getElementById('downloadReceiptBtn');
+            const checkoutBtn = document.getElementById('applyCheckoutBtn');
+            const checkoutForm = document.getElementById('checkoutForm');
+            
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    window.downloadReceipt();
+                });
+            }
+            
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', function(e) {
+                    window.applyCheckout(e);
+                });
+            }
+            
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.applyCheckout(e);
+                });
+            }
+            
+            attachPaymentHistoryListeners();
+        }
+
+        function initializeFinancePage() {
+            attachEventListeners();
+            
+            setTimeout(() => {
+                if (typeof window.loadTenantFinanceData === 'function') {
+                    window.loadTenantFinanceData();
+                }
+                
+                if (window.auth && window.auth.currentUser && window.database) {
+                    const user = window.auth.currentUser;
+                    loadPaymentHistory(user.uid);
+                }
+            }, 500);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeFinancePage);
+        } else {
+            setTimeout(initializeFinancePage, 100);
+        }
+        
+        setTimeout(initializeFinancePage, 1000);
+        
+        setTimeout(() => {
+            if (window.auth && window.auth.currentUser && window.database) {
+                const user = window.auth.currentUser;
+                loadPaymentHistory(user.uid);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

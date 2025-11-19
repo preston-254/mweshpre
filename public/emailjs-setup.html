@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EmailJS Setup Guide - Mweshpra Apartments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .step {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .step h2 {
+            display: inline-block;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .step-content {
+            margin-left: 50px;
+        }
+        
+        .step-content ol, .step-content ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .step-content li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .step-content a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .step-content a:hover {
+            text-decoration: underline;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        .config-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-test {
+            background: #28a745;
+            margin-left: 10px;
+        }
+        
+        .btn-test:hover {
+            background: #218838;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .screenshot-placeholder {
+            background: #e9ecef;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #666;
+        }
+        
+        .template-preview {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .template-preview h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .template-preview p {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fa-solid fa-envelope"></i> EmailJS Setup Guide</h1>
+            <p>Configure automated payment reminders for your tenants</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert alert-info" id="info-alert">
+                <strong><i class="fa-solid fa-info-circle"></i> Note:</strong> This setup is required for automated payment reminders to work. Follow the steps below to configure EmailJS.
+            </div>
+            
+            <div class="alert alert-success" id="success-alert" style="display: none;">
+                <strong><i class="fa-solid fa-check-circle"></i> Success!</strong> <span id="success-message"></span>
+            </div>
+            
+            <div class="alert alert-error" id="error-alert" style="display: none;">
+                <strong><i class="fa-solid fa-exclamation-circle"></i> Error:</strong> <span id="error-message"></span>
+            </div>
+            
+            <!-- Step 1 -->
+            <div class="step">
+                <span class="step-number">1</span>
+                <h2>Create EmailJS Account</h2>
+                <div class="step-content">
+                    <ol>
+                        <li>Go to <a href="https://www.emailjs.com/" target="_blank">https://www.emailjs.com/</a></li>
+                        <li>Click <strong>"Sign Up"</strong> in the top right corner</li>
+                        <li>Enter your email address and create a password</li>
+                        <li>Verify your email address (check your inbox)</li>
+                        <li>You'll get <strong>200 free emails per month</strong> on the free tier</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="step">
+                <span class="step-number">2</span>
+                <h2>Add Email Service</h2>
+                <div class="step-content">
+                    <ol>
+                        <li>After logging in, go to <strong>"Email Services"</strong> in the left sidebar</li>
+                        <li>Click <strong>"Add New Service"</strong></li>
+                        <li>Choose your email provider:
+                            <ul>
+                                <li><strong>Gmail</strong> - Most common, easy setup</li>
+                                <li><strong>Outlook</strong> - Microsoft email</li>
+                                <li><strong>Custom SMTP</strong> - For other providers</li>
+                            </ul>
+                        </li>
+                        <li>Follow the connection instructions for your provider</li>
+                        <li>For Gmail: You'll need to enable "Less secure app access" or use an App Password</li>
+                        <li>Once connected, you'll see your <strong>Service ID</strong> (e.g., <code>service_abc123</code>)</li>
+                        <li><strong>Copy this Service ID</strong> - you'll need it in Step 5</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="step">
+                <span class="step-number">3</span>
+                <h2>Create Email Template</h2>
+                <div class="step-content">
+                    <ol>
+                        <li>Go to <strong>"Email Templates"</strong> in the left sidebar</li>
+                        <li>Click <strong>"Create New Template"</strong></li>
+                        <li>Give it a name: <strong>"Payment Reminder"</strong></li>
+                        <li>Set the <strong>Subject</strong> to: <code>{{subject}}</code></li>
+                        <li>Copy and paste this template content:</li>
+                    </ol>
+                    
+                    <div class="template-preview">
+                        <h3>Template Content:</h3>
+                        <div class="code-block">Dear {{to_name}},
+
+{{message}}
+
+Payment Details:
+- Amount Due: Ksh {{amount}}
+- Due Date: {{due_date}}
+- Days Until Due: {{days_until}}
+
+Please ensure payment is made on time to avoid any inconvenience.
+
+Thank you,
+Mweshpra Apartments Management</div>
+                    </div>
+                    
+                    <ol start="6">
+                        <li>Click <strong>"Save"</strong></li>
+                        <li>You'll see your <strong>Template ID</strong> (e.g., <code>template_xyz789</code>)</li>
+                        <li><strong>Copy this Template ID</strong> - you'll need it in Step 5</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="step">
+                <span class="step-number">4</span>
+                <h2>Get Public Key</h2>
+                <div class="step-content">
+                    <ol>
+                        <li>Go to <strong>"Account"</strong> → <strong>"General"</strong> in the left sidebar</li>
+                        <li>Scroll down to find your <strong>Public Key</strong></li>
+                        <li>It looks like: <code>abcdefghijklmnop</code> (a string of letters/numbers)</li>
+                        <li><strong>Copy this Public Key</strong> - you'll need it in Step 5</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Step 5 -->
+            <div class="step">
+                <span class="step-number">5</span>
+                <h2>Configure in Application</h2>
+                <div class="step-content">
+                    <p>Enter your EmailJS credentials below and click "Save Configuration":</p>
+                    
+                    <div class="config-form">
+                        <form id="emailjs-config-form">
+                            <div class="form-group">
+                                <label for="service-id">
+                                    <i class="fa-solid fa-server"></i> Service ID
+                                </label>
+                                <input type="text" id="service-id" placeholder="service_abc123" required>
+                                <small>Found in Email Services section</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="template-id">
+                                    <i class="fa-solid fa-file-lines"></i> Template ID
+                                </label>
+                                <input type="text" id="template-id" placeholder="template_xyz789" required>
+                                <small>Found in Email Templates section</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="public-key">
+                                    <i class="fa-solid fa-key"></i> Public Key
+                                </label>
+                                <input type="text" id="public-key" placeholder="abcdefghijklmnop" required>
+                                <small>Found in Account → General section</small>
+                            </div>
+                            
+                            <button type="submit" class="btn">
+                                <i class="fa-solid fa-save"></i> Save Configuration
+                            </button>
+                            <button type="button" class="btn btn-test" onclick="testEmailJS()">
+                                <i class="fa-solid fa-paper-plane"></i> Test Email
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 6 -->
+            <div class="step">
+                <span class="step-number">6</span>
+                <h2>Test the System</h2>
+                <div class="step-content">
+                    <ol>
+                        <li>After saving your configuration, click <strong>"Test Email"</strong> above</li>
+                        <li>Enter your email address in the test form</li>
+                        <li>Check your inbox for the test email</li>
+                        <li>If you receive it, the setup is complete!</li>
+                        <li>Payment reminders will now be sent automatically when tenants log in</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script>
+        // Load saved configuration
+        function loadSavedConfig() {
+            const saved = localStorage.getItem('emailjs_config');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    document.getElementById('service-id').value = config.serviceId || '';
+                    document.getElementById('template-id').value = config.templateId || '';
+                    document.getElementById('public-key').value = config.publicKey || '';
+                } catch (e) {
+                    console.error('Error loading saved config:', e);
+                }
+            }
+        }
+        
+        // Save configuration
+        document.getElementById('emailjs-config-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const serviceId = document.getElementById('service-id').value.trim();
+            const templateId = document.getElementById('template-id').value.trim();
+            const publicKey = document.getElementById('public-key').value.trim();
+            
+            if (!serviceId || !templateId || !publicKey) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            // Save to localStorage
+            const config = { serviceId, templateId, publicKey };
+            localStorage.setItem('emailjs_config', JSON.stringify(config));
+            
+            // Update the payment-reminders.js file content (we'll need to do this via a server-side script or manual update)
+            // For now, we'll save it and show instructions
+            showSuccess('Configuration saved! Now update js/payment-reminders.js with these values.');
+            
+            // Show the code to update
+            const codeToUpdate = `
+// Update these values in js/payment-reminders.js:
+const EMAILJS_SERVICE_ID = '${serviceId}';
+const EMAILJS_TEMPLATE_ID = '${templateId}';
+const EMAILJS_PUBLIC_KEY = '${publicKey}';
+            `;
+            
+            console.log('Update js/payment-reminders.js with:', codeToUpdate);
+            
+            // Try to update the file automatically (this would require a backend)
+            // For now, show instructions
+            setTimeout(() => {
+                alert('Configuration saved to browser storage.\n\nPlease manually update js/payment-reminders.js with:\n\n' + 
+                      'const EMAILJS_SERVICE_ID = "' + serviceId + '";\n' +
+                      'const EMAILJS_TEMPLATE_ID = "' + templateId + '";\n' +
+                      'const EMAILJS_PUBLIC_KEY = "' + publicKey + '";');
+            }, 500);
+        });
+        
+        // Test EmailJS
+        function testEmailJS() {
+            const serviceId = document.getElementById('service-id').value.trim();
+            const templateId = document.getElementById('template-id').value.trim();
+            const publicKey = document.getElementById('public-key').value.trim();
+            
+            if (!serviceId || !templateId || !publicKey) {
+                showError('Please fill in all fields first');
+                return;
+            }
+            
+            const testEmail = prompt('Enter your email address to send a test email:');
+            if (!testEmail) return;
+            
+            // Initialize EmailJS
+            emailjs.init(publicKey);
+            
+            const templateParams = {
+                to_email: testEmail,
+                to_name: 'Test User',
+                amount: '10,000',
+                due_date: new Date().toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' }),
+                days_until: 3,
+                urgency: 'MEDIUM',
+                message: 'This is a test email from Mweshpra Apartments payment reminder system.',
+                subject: 'Test Payment Reminder - Mweshpra Apartments'
+            };
+            
+            showInfo('Sending test email...');
+            
+            emailjs.send(serviceId, templateId, templateParams)
+                .then(() => {
+                    showSuccess('Test email sent successfully! Check your inbox at ' + testEmail);
+                })
+                .catch((error) => {
+                    console.error('EmailJS Error:', error);
+                    showError('Failed to send test email: ' + (error.text || error.message || 'Unknown error'));
+                });
+        }
+        
+        function showSuccess(message) {
+            document.getElementById('success-message').textContent = message;
+            document.getElementById('success-alert').style.display = 'block';
+            document.getElementById('error-alert').style.display = 'none';
+            document.getElementById('info-alert').style.display = 'none';
+        }
+        
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error-alert').style.display = 'block';
+            document.getElementById('success-alert').style.display = 'none';
+            document.getElementById('info-alert').style.display = 'none';
+        }
+        
+        function showInfo(message) {
+            document.getElementById('info-alert').innerHTML = '<strong><i class="fa-solid fa-info-circle"></i> Info:</strong> ' + message;
+            document.getElementById('info-alert').style.display = 'block';
+        }
+        
+        // Load saved config on page load
+        loadSavedConfig();
+    </script>
+</body>
+</html>
+

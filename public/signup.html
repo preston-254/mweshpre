@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <title>Mweshpra Apartments - Tenant Signup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <link href="bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Firebase SDKs v8 (compatible with script tags) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCk7rNj_35-C8zrQB0O2S4c9CORNIsqlxQ",
+            authDomain: "mweshpra-apartments.firebaseapp.com",
+            projectId: "mweshpra-apartments",
+            storageBucket: "mweshpra-apartments.firebasestorage.app",
+            messagingSenderId: "8486695233",
+            appId: "1:8486695233:web:fa68793732171d5bfb71c0",
+            measurementId: "G-1FM5TXCL1C",
+            databaseURL: "https://mweshpra-apartments-default-rtdb.firebaseio.com/"
+        };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+    </script>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header-top">
+        <div class="container">
+            <div class="bottom_header_left">
+                <p><i class="fa-solid fa-map-location"></i> Meru, Kenya</p>
+            </div>
+            <div class="bottom_header_right">
+                <div class="bottom-social-icons">
+                    <a class="facebook" href="#"><i class="fa-brands fa-facebook"></i></a>
+                    <a class="twitter" href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a class="pinterest" href="#"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a class="linkedin" href="#"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+                <div class="header-top-right">
+                    <a href="login.html"><span class="fa fa-sign-in"></span> Login</a>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+    </div>
+
+    <div class="register-form-main">
+        <div class="container">
+            <div class="title-div">
+                <h3 class="tittle">
+                    <span>T</span>enant
+                    <span>S</span>ignup
+                </h3>
+                <div class="tittle-style"></div>
+            </div>
+
+            <div class="login-form">
+                <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                    <i class="fa-solid fa-info-circle"></i> Create your tenant account. Your email must be pre-approved by the landlord.
+                </p>
+                <form id="signup-form">
+                    <div>
+                        <p>Email <span style="color: red;">*</span></p>
+                        <input type="email" class="name" name="email" id="email" placeholder="Enter your email address" required />
+                        <small id="emailCheck" style="display: none; color: #dc3545; margin-top: 5px;"></small>
+                    </div>
+                    <div>
+                        <p>Full Name <span style="color: red;">*</span></p>
+                        <input type="text" class="name" name="fullName" id="fullName" placeholder="Enter your full name" required />
+                    </div>
+                    <div>
+                        <p>Phone Number <span style="color: red;">*</span></p>
+                        <input type="tel" class="phone number" name="phone" id="phone" placeholder="Enter your phone number" required />
+                    </div>
+                    <div>
+                        <p>Password <span style="color: red;">*</span></p>
+                        <input type="password" class="password" name="password" id="password1" placeholder="Enter your password" required />
+                    </div>
+                    <div>
+                        <p>Confirm Password <span style="color: red;">*</span></p>
+                        <input type="password" class="password" name="confirmPassword" id="password2" placeholder="Confirm your password" required />
+                        <small id="passwordMatch" style="display: none; color: #dc3545; margin-top: 5px;"></small>
+                    </div>
+                    <label class="anim">
+                        <input type="checkbox" class="checkbox" id="termsCheck" required="">
+                        <span>I agree to the terms and conditions</span>
+                    </label>
+                    <input type="submit" value="Create Account" id="submitBtn">
+                    <div id="signupMessage" style="margin-top: 15px; text-align: center; display: none;"></div>
+                    <div class="register-forming" style="margin-top: 20px; text-align: center;">
+                        <p>Already have an account? <a href="login.html" style="color: #667eea; font-weight: bold;">Login Here</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mkl_footer">
+        <div class="sub-footer">
+            <div class="container">
+                <div class="mkls_footer_grid">
+                    <div class="col-xs-4 mkls_footer_grid_left">
+                        <h4>Location:</h4>
+                        <p>Kinoru Stadium, Meru,
+                            <br>Moi Avenue Srt, KENYA</p>
+                    </div>
+                    <div class="col-xs-4 mkls_footer_grid_left">
+                        <h4>Mail Us:</h4>
+                        <p>
+                            <span>Phone : </span>0706148538</p>
+                        <p>
+                            <span>Email : </span>
+                            <a href="mailto:Prestonmugo83@gmail.com">Prestonmugo83@gmail.com</a>
+                        </p>
+                    </div>
+                    <div class="col-xs-4 mkls_footer_grid_left">
+                        <h4>Opening Hours:</h4>
+                        <p>Working days : 8am-10pm</p>
+                        <p>Sunday
+                            <span>(closed)</span>
+                        </p>
+                    </div>
+                    <div class="clearfix"> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+
+    <script>
+        const signupForm = document.getElementById("signup-form");
+        const emailInput = document.getElementById("email");
+        const password1 = document.getElementById("password1");
+        const password2 = document.getElementById("password2");
+        const submitBtn = document.getElementById("submitBtn");
+        const signupMessage = document.getElementById("signupMessage");
+        const emailCheck = document.getElementById("emailCheck");
+
+        // Check if email is allowed when user types
+        emailInput.addEventListener('blur', function() {
+            const email = emailInput.value.trim();
+            if (email) {
+                checkEmailAllowed(email);
+            }
+        });
+
+        // Check if email is in allowed list
+        function checkEmailAllowed(email) {
+            const adminEmail = "preston.mwendwa@riarauniversity.ac.ke";
+            const emailLower = email.toLowerCase();
+            const isAdmin = emailLower === adminEmail.toLowerCase();
+            
+            if (isAdmin) {
+                emailCheck.style.display = 'block';
+                emailCheck.style.color = '#28a745';
+                emailCheck.textContent = '✓ Admin email - approved for signup';
+                emailInput.style.borderColor = '#28a745';
+                return;
+            }
+            
+            const allowedEmailsRef = database.ref('allowedEmails');
+            allowedEmailsRef.once('value', (snapshot) => {
+                const allowedEmails = snapshot.val() || {};
+                const isAllowed = Object.values(allowedEmails).some(allowed => allowed.toLowerCase() === emailLower);
+                
+                if (isAllowed) {
+                    emailCheck.style.display = 'block';
+                    emailCheck.style.color = '#28a745';
+                    emailCheck.textContent = '✓ Email is approved for signup';
+                    emailInput.style.borderColor = '#28a745';
+                } else {
+                    emailCheck.style.display = 'block';
+                    emailCheck.style.color = '#dc3545';
+                    emailCheck.textContent = '✗ This email is not approved. Please contact the landlord.';
+                    emailInput.style.borderColor = '#dc3545';
+                }
+            }).catch((error) => {
+                console.error('Error checking email:', error);
+                emailCheck.style.display = 'block';
+                emailCheck.style.color = '#ffc107';
+                emailCheck.textContent = '⚠ Could not verify email. You can still try to sign up.';
+                emailInput.style.borderColor = '#ffc107';
+            });
+        }
+
+        // Password validation
+        password2.addEventListener('input', function() {
+            const passwordMatch = document.getElementById("passwordMatch");
+            if (password1.value !== password2.value) {
+                passwordMatch.style.display = 'block';
+                passwordMatch.textContent = "Passwords don't match";
+                password2.style.borderColor = '#dc3545';
+            } else {
+                passwordMatch.style.display = 'none';
+                password2.style.borderColor = '#28a745';
+            }
+        });
+
+        password1.addEventListener('input', function() {
+            if (password2.value && password1.value !== password2.value) {
+                passwordMatch.style.display = 'block';
+                passwordMatch.textContent = "Passwords don't match";
+            } else if (password1.value === password2.value && password2.value) {
+                passwordMatch.style.display = 'none';
+            }
+        });
+
+        // Handle signup form submission
+        signupForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const fullName = document.getElementById("fullName").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const password = password1.value;
+            const confirmPassword = password2.value;
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            // Admin email - allow signup without checking allowed list
+            const adminEmail = "preston.mwendwa@riarauniversity.ac.ke";
+            const emailLower = email.toLowerCase();
+            const isAdmin = emailLower === adminEmail.toLowerCase();
+
+            // Check if email is allowed (skip check for admin)
+            if (!isAdmin) {
+                const allowedEmailsRef = database.ref('allowedEmails');
+                allowedEmailsRef.once('value', (snapshot) => {
+                    const allowedEmails = snapshot.val() || {};
+                    const isAllowed = Object.values(allowedEmails).some(allowed => allowed.toLowerCase() === emailLower);
+
+                    if (!isAllowed) {
+                        alert("This email is not approved for signup. Please contact the landlord to get your email approved.");
+                        return;
+                    }
+
+                    // Proceed with account creation
+                    createAccount(email, fullName, phone, password);
+                }).catch((error) => {
+                    console.error("Error checking email:", error);
+                    // If permission denied, show helpful message
+                    if (error.code === 'PERMISSION_DENIED' || error.message.includes('permission')) {
+                        alert("Database permission error. Please contact the admin to update Firebase rules to allow reading allowedEmails without authentication.");
+                    } else {
+                        alert("Error checking email: " + error.message + "\n\nPlease contact the landlord if this persists.");
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.value = 'Create Account';
+                });
+            } else {
+                // Admin email - proceed directly
+                createAccount(email, fullName, phone, password);
+            }
+
+            // Function to create account
+            function createAccount(email, fullName, phone, password) {
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.value = 'Creating Account...';
+
+                // Create user account
+                console.log("Creating account for:", email);
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        console.log("Account created, user ID:", user.uid);
+                        
+                        // Save tenant data to database (for admin, we still save it but they'll be redirected to admin panel)
+                        const tenantData = {
+                            info: {
+                                email: email,
+                                fullName: fullName,
+                                phone: phone
+                            },
+                            finance: {
+                                rentDue: 0,
+                                rentDueDate: '',
+                                walletBalance: 0,
+                                maintenanceFee: 0,
+                                maintenanceDueDate: '',
+                                lastPayment: {
+                                    amount: 0,
+                                    date: ''
+                                },
+                                otherFees: []
+                            }
+                        };
+
+                        // Check if admin - if so, redirect directly to admin panel
+                        const adminEmail = "preston.mwendwa@riarauniversity.ac.ke";
+                        const isAdmin = email.toLowerCase() === adminEmail.toLowerCase();
+                        console.log("Is admin:", isAdmin);
+                        
+                        if (isAdmin) {
+                            // For admin, save data and redirect to admin panel
+                            console.log("Saving admin data to database...");
+                            return database.ref(`tenants/${user.uid}`).set(tenantData).then(() => {
+                                console.log("Admin data saved, redirecting...");
+                                signupMessage.style.display = 'block';
+                                signupMessage.style.color = '#28a745';
+                                signupMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i> Admin account created successfully! Redirecting to admin panel...';
+                                
+                                // Redirect to admin panel after 1 second
+                                setTimeout(() => {
+                                    window.location.href = "admin.html";
+                                }, 1000);
+                            }).catch((dbError) => {
+                                console.error("Database error:", dbError);
+                                // Even if database save fails, redirect to admin panel
+                                signupMessage.style.display = 'block';
+                                signupMessage.style.color = '#ffc107';
+                                signupMessage.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Account created but database save failed. Redirecting anyway...';
+                                setTimeout(() => {
+                                    window.location.href = "admin.html";
+                                }, 2000);
+                            });
+                        } else {
+                            // For regular tenants, check if there's pending tenant data
+                            const emailLower = email.toLowerCase();
+                            const emailKey = emailLower.replace(/[.#$\[\]]/g, '_');
+                            const pendingTenantRef = database.ref(`pendingTenants/${emailKey}`);
+                            
+                            return pendingTenantRef.once('value').then((pendingSnapshot) => {
+                                let finalTenantData = tenantData;
+                                
+                                // If pending tenant exists, merge the finance data
+                                if (pendingSnapshot.exists()) {
+                                    const pendingData = pendingSnapshot.val();
+                                    console.log("Found pending tenant data, merging...");
+                                    
+                                    // Merge finance data from pending tenant (preserve rent, wallet, etc.)
+                                    finalTenantData = {
+                                        info: {
+                                            email: email,
+                                            fullName: fullName,
+                                            phone: phone
+                                        },
+                                        finance: {
+                                            rentDue: pendingData.finance?.rentDue || 0,
+                                            rentDueDate: pendingData.finance?.rentDueDate || '',
+                                            walletBalance: pendingData.finance?.walletBalance || 0,
+                                            maintenanceFee: pendingData.finance?.maintenanceFee || 0,
+                                            maintenanceDueDate: pendingData.finance?.maintenanceDueDate || '',
+                                            lastPayment: pendingData.finance?.lastPayment || {
+                                                amount: 0,
+                                                date: ''
+                                            },
+                                            otherFees: pendingData.finance?.otherFees || []
+                                        }
+                                    };
+                                    
+                                    // Remove pending tenant entry
+                                    pendingTenantRef.remove();
+                                }
+                                
+                                // Save tenant data to database
+                                console.log("Saving tenant data to database...");
+                                return database.ref(`tenants/${user.uid}`).set(finalTenantData).then(() => {
+                                    console.log("Tenant data saved, redirecting...");
+                                    signupMessage.style.display = 'block';
+                                    signupMessage.style.color = '#28a745';
+                                    signupMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i> Account created successfully! Redirecting to login...';
+                                    
+                                    // Redirect to login after 2 seconds
+                                    setTimeout(() => {
+                                        window.location.href = "login.html";
+                                    }, 2000);
+                                }).catch((saveError) => {
+                                    console.error("Error saving tenant data:", saveError);
+                                    signupMessage.style.display = 'block';
+                                    signupMessage.style.color = '#ffc107';
+                                    signupMessage.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Account created but tenant data could not be saved. You can try logging in - the system will create your tenant record automatically.';
+                                    setTimeout(() => {
+                                        window.location.href = "login.html";
+                                    }, 3000);
+                                });
+                            }).catch((error) => {
+                                console.error("Error checking pending tenant:", error);
+                                // If error checking pending, just save with default data
+                                return database.ref(`tenants/${user.uid}`).set(tenantData).then(() => {
+                                    console.log("Tenant data saved (fallback), redirecting...");
+                                    signupMessage.style.display = 'block';
+                                    signupMessage.style.color = '#28a745';
+                                    signupMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i> Account created successfully! Redirecting to login...';
+                                    setTimeout(() => {
+                                        window.location.href = "login.html";
+                                    }, 2000);
+                                }).catch((saveError) => {
+                                    console.error("Error saving tenant data:", saveError);
+                                    signupMessage.style.display = 'block';
+                                    signupMessage.style.color = '#ffc107';
+                                    signupMessage.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Account created but tenant data could not be saved. You can try logging in - the system will create your tenant record automatically.';
+                                    setTimeout(() => {
+                                        window.location.href = "login.html";
+                                    }, 3000);
+                                });
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Signup error:", error);
+                        signupMessage.style.display = 'block';
+                        signupMessage.style.color = '#dc3545';
+                        
+                        // Show detailed error message
+                        let errorMsg = error.message;
+                        if (error.code === 'auth/email-already-in-use') {
+                            errorMsg = 'This email is already registered. Please login instead.';
+                        } else if (error.code === 'auth/weak-password') {
+                            errorMsg = 'Password is too weak. Please use a stronger password (at least 6 characters).';
+                        } else if (error.code === 'auth/invalid-email') {
+                            errorMsg = 'Invalid email address. Please check and try again.';
+                        } else if (error.code === 'auth/network-request-failed') {
+                            errorMsg = 'Network error. Please check your internet connection and try again.';
+                        }
+                        
+                        signupMessage.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Error: ' + errorMsg;
+                        
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                        submitBtn.value = 'Create Account';
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>
+

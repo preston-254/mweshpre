@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quick EmailJS Setup - Mweshpra Apartments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .content {
+            padding: 40px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        .btn-test {
+            background: #28a745;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fa-solid fa-envelope"></i> EmailJS Quick Setup</h1>
+            <p>Enter your EmailJS credentials</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert alert-success" id="success-alert" style="display: none;"></div>
+            <div class="alert alert-error" id="error-alert" style="display: none;"></div>
+            
+            <p style="margin-bottom: 20px; color: #666;">
+                Don't have EmailJS credentials yet? 
+                <a href="emailjs-setup.html" target="_blank" rel="noopener noreferrer">Follow the detailed setup guide</a>
+            </p>
+            
+            <form id="config-form">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-server"></i> Service ID</label>
+                    <input type="text" id="service-id" placeholder="service_abc123" required>
+                    <small>From EmailJS → Email Services</small>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fa-solid fa-file-lines"></i> Template ID</label>
+                    <input type="text" id="template-id" placeholder="template_xyz789" required>
+                    <small>From EmailJS → Email Templates</small>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fa-solid fa-key"></i> Public Key</label>
+                    <input type="text" id="public-key" placeholder="abcdefghijklmnop" required>
+                    <small>From EmailJS → Account → General</small>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fa-solid fa-save"></i> Save Configuration
+                </button>
+                <button type="button" class="btn btn-test" onclick="testEmail()">
+                    <i class="fa-solid fa-paper-plane"></i> Test Email
+                </button>
+            </form>
+            
+            <div class="links">
+                <a href="emailjs-setup.html" target="_blank" rel="noopener noreferrer">Detailed Setup Guide</a>
+                <a href="https://www.emailjs.com/" target="_blank" rel="noopener noreferrer">EmailJS Website</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // Load saved config or use default values
+        const saved = localStorage.getItem('emailjs_config');
+        if (saved) {
+            try {
+                const config = JSON.parse(saved);
+                document.getElementById('service-id').value = config.serviceId || '';
+                document.getElementById('template-id').value = config.templateId || '';
+                document.getElementById('public-key').value = config.publicKey || '';
+            } catch (e) {}
+        } else {
+            // Pre-fill with configured values from payment-reminders.js
+            document.getElementById('service-id').value = 'service_byzmfbn';
+            document.getElementById('template-id').value = 'template_tb8069k';
+            document.getElementById('public-key').value = 'S28nx8TWnsKEpl8vV';
+        }
+        
+        document.getElementById('config-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const serviceId = document.getElementById('service-id').value.trim();
+            const templateId = document.getElementById('template-id').value.trim();
+            const publicKey = document.getElementById('public-key').value.trim();
+            
+            if (!serviceId || !templateId || !publicKey) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            // Save to localStorage
+            const config = { serviceId, templateId, publicKey };
+            localStorage.setItem('emailjs_config', JSON.stringify(config));
+            
+            showSuccess('Configuration saved! Payment reminders are now active. Refresh the portal to apply changes.');
+        });
+        
+        function testEmail() {
+            const serviceId = document.getElementById('service-id').value.trim();
+            const templateId = document.getElementById('template-id').value.trim();
+            const publicKey = document.getElementById('public-key').value.trim();
+            
+            if (!serviceId || !templateId || !publicKey) {
+                showError('Please fill in all fields first');
+                return;
+            }
+            
+            const testEmail = prompt('Enter your email address to send a test email:');
+            if (!testEmail) return;
+            
+            try {
+                emailjs.init(publicKey);
+            } catch (initError) {
+                showError('Error initializing EmailJS: ' + initError.message);
+                return;
+            }
+            
+            // EmailJS template parameters
+            // Note: The recipient email variable name depends on your EmailJS service configuration
+            // Common variable names: to_email, user_email, email, recipient_email
+            const templateParams = {
+                // Try different recipient email variable names
+                to_email: testEmail,
+                user_email: testEmail,
+                email: testEmail,
+                recipient_email: testEmail,
+                // Other template variables
+                to_name: 'Test User',
+                user_name: 'Test User',
+                from_name: 'Mweshpra Apartments',
+                message: 'This is a test email from Mweshpra Apartments payment reminder system. If you receive this, your EmailJS setup is working correctly!',
+                subject: 'Test Payment Reminder - Mweshpra Apartments',
+                // Additional variables that might be in your template
+                amount: '10,000',
+                due_date: new Date().toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' }),
+                days_until: '3',
+                urgency: 'MEDIUM'
+            };
+            
+            showError('Sending test email...');
+            
+            emailjs.send(serviceId, templateId, templateParams, publicKey)
+                .then((response) => {
+                    console.log('EmailJS Success:', response);
+                    showSuccess('Test email sent successfully! Check your inbox at ' + testEmail);
+                })
+                .catch((error) => {
+                    console.error('EmailJS Error Details:', error);
+                    let errorMsg = 'Failed to send email. ';
+                    
+                    if (error.text) {
+                        errorMsg += 'Error: ' + error.text;
+                    } else if (error.message) {
+                        errorMsg += 'Error: ' + error.message;
+                    } else if (error.status) {
+                        errorMsg += 'Status: ' + error.status;
+                    } else {
+                        errorMsg += 'Unknown error. Check console for details.';
+                    }
+                    
+                    // Common 422 error causes
+                    if (error.status === 422) {
+                        errorMsg += '\n\n422 Error usually means:\n';
+                        errorMsg += '1. Template variables don\'t match your EmailJS template\n';
+                        errorMsg += '2. Check your template in EmailJS dashboard\n';
+                        errorMsg += '3. Make sure variable names match exactly (case-sensitive)';
+                    }
+                    
+                    showError(errorMsg);
+                });
+        }
+        
+        function showSuccess(msg) {
+            document.getElementById('success-alert').textContent = msg;
+            document.getElementById('success-alert').style.display = 'block';
+            document.getElementById('error-alert').style.display = 'none';
+        }
+        
+        function showError(msg) {
+            document.getElementById('error-alert').textContent = msg;
+            document.getElementById('error-alert').style.display = 'block';
+            document.getElementById('success-alert').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,259 @@
+<div class="profile-content">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="profile-card text-center">
+                <div class="profile-picture-container">
+                    <img id="profile-picture-main" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Ccircle cx='75' cy='75' r='75' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-size='48'%3E%3F%3C/text%3E%3C/svg%3E" 
+                         alt="Profile" 
+                         style="width: 150px; height: 150px; border-radius: 50%; border: 5px solid #667eea; object-fit: cover; cursor: pointer; margin-bottom: 20px;"
+                         onclick="document.getElementById('profile-picture-input').click()">
+                    <input type="file" id="profile-picture-input" accept="image/*" style="display: none;" onchange="uploadProfilePicture(event)">
+                    <button class="btn-upload" onclick="document.getElementById('profile-picture-input').click()">
+                        <i class="fa-solid fa-camera"></i> Change Photo
+                    </button>
+                </div>
+                <h3 id="profile-name">Loading...</h3>
+                <p id="profile-email" class="text-muted">Loading...</p>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="profile-form-card">
+                <h3><i class="fa-solid fa-user-edit"></i> Personal Information</h3>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-user"></i> Full Name</label>
+                        <input type="text" id="profile-fullname" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-envelope"></i> Email</label>
+                        <input type="email" id="profile-email-input" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-phone"></i> Phone Number</label>
+                        <input type="tel" id="profile-phone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-house"></i> House Number</label>
+                        <input type="text" id="profile-house-number" class="form-control" placeholder="e.g., A101">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-car"></i> Number of Cars</label>
+                        <input type="number" id="profile-cars" class="form-control" min="0" max="5" placeholder="0">
+                    </div>
+                    <button type="submit" class="btn-save">
+                        <i class="fa-solid fa-save"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.profile-form-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn-upload {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    margin-top: 10px;
+}
+</style>
+
+<script>
+(function() {
+    function loadProfileData() {
+        const firebaseAuth = window.firebase ? window.firebase.auth() : (typeof firebase !== 'undefined' ? firebase.auth() : null);
+        const firebaseDatabase = window.firebase ? window.firebase.database() : (typeof firebase !== 'undefined' ? firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            setTimeout(loadProfileData, 100);
+            return;
+        }
+        
+        const user = firebaseAuth.currentUser;
+        if (user) {
+            const tenantRef = firebaseDatabase.ref('tenants/' + user.uid);
+            tenantRef.once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const info = data.info || {};
+                    
+                    const nameEl = document.getElementById('profile-name');
+                    const emailEl = document.getElementById('profile-email');
+                    const emailInputEl = document.getElementById('profile-email-input');
+                    const fullnameEl = document.getElementById('profile-fullname');
+                    const phoneEl = document.getElementById('profile-phone');
+                    const houseEl = document.getElementById('profile-house-number');
+                    const carsEl = document.getElementById('profile-cars');
+                    const picEl = document.getElementById('profile-picture-main');
+                    
+                    const moveInEl = document.getElementById('profile-move-in-date');
+                    const meterEl = document.getElementById('profile-meter-number');
+                    const accountEl = document.getElementById('profile-account-number');
+                    
+                    if (nameEl) nameEl.textContent = info.fullName || 'Tenant';
+                    if (emailEl) emailEl.textContent = info.email || '';
+                    if (emailInputEl) emailInputEl.value = info.email || '';
+                    if (fullnameEl) fullnameEl.value = info.fullName || '';
+                    if (phoneEl) phoneEl.value = info.phone || '';
+                    if (houseEl) houseEl.value = info.houseNumber || '';
+                    if (carsEl) carsEl.value = info.cars || 0;
+                    if (moveInEl) moveInEl.value = info.moveInDate || '';
+                    if (meterEl) meterEl.value = info.meterNumber || '';
+                    if (accountEl) accountEl.value = info.accountNumber || '';
+                    if (picEl && info.profilePicture) picEl.src = info.profilePicture;
+                }
+            });
+        } else {
+            firebaseAuth.onAuthStateChanged(u => {
+                if (u) loadProfileData();
+            });
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadProfileData);
+    } else {
+        loadProfileData();
+    }
+})();
+
+(function() {
+    const form = document.getElementById('profile-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const firebaseAuth = window.firebase ? window.firebase.auth() : (typeof firebase !== 'undefined' ? firebase.auth() : null);
+            const firebaseDatabase = window.firebase ? window.firebase.database() : (typeof firebase !== 'undefined' ? firebase.database() : null);
+            
+            if (!firebaseAuth || !firebaseDatabase) {
+                alert('Firebase not initialized. Please refresh the page.');
+                return;
+            }
+            
+            const user = firebaseAuth.currentUser;
+            if (!user) {
+                alert('Please log in to update profile.');
+                return;
+            }
+            
+            const updates = {
+                fullName: document.getElementById('profile-fullname').value,
+                phone: document.getElementById('profile-phone').value,
+                houseNumber: document.getElementById('profile-house-number').value,
+                cars: parseInt(document.getElementById('profile-cars').value) || 0,
+                moveInDate: document.getElementById('profile-move-in-date').value || ''
+            };
+            
+            firebaseDatabase.ref('tenants/' + user.uid + '/info').update(updates)
+                .then(() => {
+                    alert('Profile updated successfully!');
+                    const nameEl = document.getElementById('profile-name');
+                    if (nameEl) nameEl.textContent = updates.fullName;
+                })
+                .catch(error => {
+                    alert('Error updating profile: ' + error.message);
+                });
+        });
+    }
+})();
+
+function uploadProfilePicture(event) {
+    const file = event.target.files[0];
+    if (!file || !file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB.');
+        return;
+    }
+    
+    const firebaseAuth = window.firebase ? window.firebase.auth() : (typeof firebase !== 'undefined' ? firebase.auth() : null);
+    const firebaseDatabase = window.firebase ? window.firebase.database() : (typeof firebase !== 'undefined' ? firebase.database() : null);
+    
+    if (!firebaseAuth || !firebaseDatabase) {
+        alert('Firebase not initialized. Please refresh the page.');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const imageDataUrl = e.target.result;
+        const user = firebaseAuth.currentUser;
+        
+        if (!user) {
+            alert('Please log in to upload picture.');
+            return;
+        }
+        
+        firebaseDatabase.ref('tenants/' + user.uid + '/info/profilePicture').set(imageDataUrl)
+            .then(() => {
+                const picEl = document.getElementById('profile-picture-main');
+                if (picEl) picEl.src = imageDataUrl;
+                alert('Profile picture updated!');
+            })
+            .catch(error => {
+                alert('Error uploading picture: ' + error.message);
+            });
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+

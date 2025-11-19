@@ -1,0 +1,215 @@
+<div class="maintenance-content">
+    <div class="row">
+        <div class="col-md-8">
+            <h2><i class="fa-solid fa-tools"></i> Maintenance Requests</h2>
+            <div id="maintenance-requests" class="maintenance-list">
+                <div class="text-center" style="padding: 40px;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 48px; color: #667eea;"></i>
+                    <p>Loading requests...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="maintenance-form-card">
+                <h3><i class="fa-solid fa-plus-circle"></i> New Request</h3>
+                <form id="maintenance-form">
+                    <div class="form-group">
+                        <label>Issue Type</label>
+                        <select id="issue-type" class="form-control" required>
+                            <option value="">Select type...</option>
+                            <option value="carpentry">Carpentry</option>
+                            <option value="electrical">Electrical</option>
+                            <option value="plumbing">Plumbing</option>
+                            <option value="painting">Painting</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="issue-description" class="form-control" rows="4" required placeholder="Describe the issue..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.maintenance-list {
+    margin-top: 20px;
+}
+
+.maintenance-request-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.request-type {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.request-type.carpentry { background: #ffc107; color: #333; }
+.request-type.electrical { background: #ff9800; color: white; }
+.request-type.plumbing { background: #2196f3; color: white; }
+.request-type.painting { background: #9c27b0; color: white; }
+.request-type.cleaning { background: #4caf50; color: white; }
+.request-type.other { background: #607d8b; color: white; }
+
+.request-status {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.request-status.pending { background: #ffc107; color: #333; }
+.request-status.in-progress { background: #2196f3; color: white; }
+.request-status.completed { background: #4caf50; color: white; }
+
+.maintenance-form-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 20px;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+}
+</style>
+
+<script>
+(function() {
+    function initMaintenance() {
+        const firebaseAuth = window.firebase ? window.firebase.auth() : (typeof firebase !== 'undefined' ? firebase.auth() : null);
+        const firebaseDatabase = window.firebase ? window.firebase.database() : (typeof firebase !== 'undefined' ? firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            setTimeout(initMaintenance, 100);
+            return;
+        }
+        
+        const user = firebaseAuth.currentUser;
+        if (user) {
+            // Load user's maintenance requests
+            const requestsRef = firebaseDatabase.ref('maintenanceRequests').orderByChild('tenantId').equalTo(user.uid);
+            requestsRef.on('value', (snapshot) => {
+                const requests = snapshot.val() || {};
+                const container = document.getElementById('maintenance-requests');
+                
+                if (!container) return;
+                
+                if (Object.keys(requests).length === 0) {
+                    container.innerHTML = '<div class="text-center" style="padding: 40px;"><i class="fa-solid fa-tools" style="font-size: 48px; color: #ccc;"></i><p style="color: #999; margin-top: 20px;">No maintenance requests yet</p></div>';
+                    return;
+                }
+                
+                let html = '';
+                Object.entries(requests).reverse().forEach(([key, request]) => {
+                    const statusClass = request.status === 'completed' ? 'completed' : (request.status === 'in-progress' ? 'in-progress' : 'pending');
+                    const statusText = request.status === 'completed' ? 'Closed' : (request.status === 'in-progress' ? 'In Progress' : 'Pending');
+                    html += `
+                        <div class="maintenance-request-card">
+                            <div class="request-header">
+                                <div>
+                                    <span class="request-type ${request.type}">${request.type || 'Other'}</span>
+                                    ${request.ticketNumber ? `<span style="display: inline-block; margin-left: 10px; padding: 5px 12px; background: #4A90E2; color: white; border-radius: 15px; font-size: 11px; font-weight: 600;">Ticket: ${request.ticketNumber}</span>` : ''}
+                                </div>
+                                <span class="request-status ${statusClass}">${statusText}</span>
+                            </div>
+                            <p style="color: #555; margin-bottom: 10px;">${request.description || ''}</p>
+                            <small style="color: #999;">Submitted: ${request.date || ''}</small>
+                            ${request.completedDate ? `<small style="color: #28a745; display: block; margin-top: 5px;"><i class="fa-solid fa-check-circle"></i> Completed: ${request.completedDate}</small>` : ''}
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            });
+            
+            // Handle form submission
+            const form = document.getElementById('maintenance-form');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const type = document.getElementById('issue-type').value;
+                    const description = document.getElementById('issue-description').value;
+                    
+                    if (!type || !description) {
+                        alert('Please fill in all fields');
+                        return;
+                    }
+                    
+                    const tenantRef = firebaseDatabase.ref('tenants/' + user.uid);
+                    tenantRef.once('value', (snapshot) => {
+                        const tenantData = snapshot.val();
+                        const tenantInfo = tenantData.info || {};
+                        
+                        // Generate ticket number
+                        const ticketNumber = 'TKT-' + Date.now().toString().slice(-8) + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+                        
+                        const request = {
+                            tenantId: user.uid,
+                            tenantName: tenantInfo.fullName || 'Tenant',
+                            tenantEmail: tenantInfo.email || '',
+                            type: type,
+                            description: description,
+                            status: 'pending',
+                            ticketNumber: ticketNumber,
+                            date: new Date().toISOString().split('T')[0],
+                            submittedAt: new Date().toISOString()
+                        };
+                        
+                        firebaseDatabase.ref('maintenanceRequests').push(request)
+                            .then(() => {
+                                alert('Maintenance request submitted successfully!\nTicket Number: ' + ticketNumber);
+                                form.reset();
+                            })
+                            .catch(error => {
+                                alert('Error submitting request: ' + error.message);
+                            });
+                    });
+                });
+            }
+        } else {
+            firebaseAuth.onAuthStateChanged(u => {
+                if (u) initMaintenance();
+            });
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMaintenance);
+    } else {
+        initMaintenance();
+    }
+})();
+</script>
+

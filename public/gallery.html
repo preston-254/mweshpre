@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Mweshpra Apartments</title>
+    <link rel="stylesheet" href="modern-website.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .gallery-hero {
+            background: var(--gradient-primary);
+            color: var(--white);
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+        .gallery-hero h1 {
+            color: var(--white);
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .gallery-hero p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Top -->
+    <div class="header-top">
+        <div class="container">
+            <div class="header-top-left">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Kinoru Stadium, Meru, Kenya</span>
+            </div>
+            <div class="header-top-right">
+                <a href="login.html">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">
+                <h1>Mweshpra</h1>
+                <span class="tagline">Apartments</span>
+            </a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle mobile menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="navbar-nav">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="join.html">Available Houses</a></li>
+                <li class="active"><a href="gallery.html">Gallery</a></li>
+                <li><a href="contact.html" class="btn-contact">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <div class="mobile-sidebar-header">
+            <h2>Menu</h2>
+            <button class="mobile-sidebar-close" id="mobileSidebarClose" aria-label="Close mobile menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-sidebar-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="join.html">Available Houses</a></li>
+            <li class="active"><a href="gallery.html">Gallery</a></li>
+            <li><a href="contact.html" class="btn-contact">Contact Us</a></li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const menuToggle = document.getElementById('menuToggle');
+                const mobileSidebar = document.getElementById('mobileSidebar');
+                const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+                const mobileSidebarClose = document.getElementById('mobileSidebarClose');
+
+                function openMobileMenu() {
+                    if (mobileSidebar) mobileSidebar.classList.add('active');
+                    if (mobileMenuOverlay) mobileMenuOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeMobileMenu() {
+                    if (mobileSidebar) mobileSidebar.classList.remove('active');
+                    if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+
+                if (menuToggle) {
+                    menuToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openMobileMenu();
+                    });
+                }
+
+                if (mobileSidebarClose) {
+                    mobileSidebarClose.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeMobileMenu();
+                    });
+                }
+
+                if (mobileMenuOverlay) {
+                    mobileMenuOverlay.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeMobileMenu();
+                    });
+                }
+
+                const mobileNavLinks = document.querySelectorAll('.mobile-sidebar-nav a');
+                mobileNavLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        setTimeout(closeMobileMenu, 100);
+                    });
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && mobileSidebar && mobileSidebar.classList.contains('active')) {
+                        closeMobileMenu();
+                    }
+                });
+            } catch (error) {
+                // Silently fail if there's an error
+            }
+        });
+    </script>
+
+    <!-- Gallery Hero -->
+    <div class="gallery-hero">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <h1>Our Gallery</h1>
+            <p>Take a visual tour of our beautiful apartments and facilities</p>
+        </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <section class="section">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="images/g1.jpg" alt="Apartment View">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g2.jpg" alt="Living Room">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g3.jpg" alt="Bedroom">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g4.jpg" alt="Kitchen">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g5.jpg" alt="Bathroom">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g6.jpg" alt="Balcony">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g7.jpg" alt="Exterior">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g8.jpg" alt="Common Area">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/g9.jpg" alt="Parking">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/s1.jpg" alt="Building">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/s2.jpg" alt="Entrance">
+                </div>
+                <div class="gallery-item">
+                    <img src="images/s3.jpg" alt="Facilities">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Mweshpra Apartments</h3>
+                <p>Your trusted partner for modern, comfortable living in Meru, Kenya.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="index.html">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="join.html">Available Houses</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Kinoru Stadium, Meru, Kenya</p>
+                <p><i class="fas fa-envelope"></i> info@mweshpra.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Mweshpra Apartments. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <title>Mweshpra Apartments - Tenant Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <link href="bootstrap.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .portal-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            z-index: 1002;
+        }
+        
+        .sidebar-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .sidebar-profile {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sidebar-profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #667eea;
+            object-fit: cover;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        .sidebar-profile h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-profile p {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+        
+        .menu-item i {
+            width: 25px;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        
+        .menu-item span {
+            font-weight: 500;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+        
+        .top-bar {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-bar h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .top-bar-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .content-area {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 200px);
+            overflow-x: hidden;
+        }
+        
+        .content-area * {
+            max-width: 100%;
+        }
+        
+        .content-area img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        
+        /* Sidebar Overlay for Mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Ensure consistent behavior across devices */
+        @media (max-width: 768px) {
+            .sidebar-overlay {
+                display: block;
+            }
+            
+            .sidebar.active ~ .sidebar-overlay {
+                opacity: 1;
+            }
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active,
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+            
+            .top-bar {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .top-bar h1 {
+                font-size: 22px;
+            }
+            
+            .top-bar-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .content-area {
+                padding: 20px 15px;
+                border-radius: 10px;
+            }
+            
+            .sidebar-header {
+                padding: 20px 15px;
+            }
+            
+            .sidebar-header h2 {
+                font-size: 20px;
+            }
+            
+            .sidebar-close {
+                display: block;
+            }
+            
+            .sidebar-profile {
+                padding: 15px;
+            }
+            
+            .sidebar-profile img {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .menu-item {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .menu-item i {
+                width: 20px;
+                font-size: 16px;
+                margin-right: 12px;
+            }
+        }
+        
+        
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .top-bar {
+                padding: 12px 15px;
+                border-radius: 10px;
+            }
+            
+            .top-bar h1 {
+                font-size: 18px;
+            }
+            
+            .content-area {
+                padding: 15px 10px;
+            }
+            
+            .btn-logout {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .sidebar {
+                width: 260px;
+            }
+            
+            .menu-toggle {
+                top: 10px;
+                left: 10px;
+                padding: 10px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .content-area {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- EmailJS for sending email reminders -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Payment Reminders System -->
+    <script src="js/payment-reminders.js"></script>
+    
+    <!-- Notifications System -->
+    <script src="js/notifications.js"></script>
+    
+    <!-- QRCode Library for Visitor Passes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="console.error('Failed to load QRCode library')"></script>
+    <script>
+        // Ensure QRCode library is loaded
+        if (typeof QRCode === 'undefined') {
+            console.warn('QRCode library not loaded, attempting alternative CDN...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+            script.onerror = function() {
+                console.error('Failed to load QRCode library from alternative CDN');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCk7rNj_35-C8zrQB0O2S4c9CORNIsqlxQ",
+            authDomain: "mweshpra-apartments.firebaseapp.com",
+            databaseURL: "https://mweshpra-apartments-default-rtdb.firebaseio.com/",
+            projectId: "mweshpra-apartments",
+            storageBucket: "mweshpra-apartments.firebasestorage.app",
+            messagingSenderId: "8486695233",
+            appId: "1:8486695233:web:fa68793732171d5bfb71c0",
+            measurementId: "G-1FM5TXCL1C"
+        };
+        
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        // Make firebase globally available for portal pages
+        window.firebase = firebase;
+        window.auth = auth;
+        window.database = database;
+        
+        // Check authentication
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const adminEmail = "preston.mwendwa@riarauniversity.ac.ke";
+                if (user.email && user.email.toLowerCase() === adminEmail.toLowerCase()) {
+                    window.location.href = "admin.html";
+                    return;
+                }
+                
+                // Load tenant data
+                const tenantRef = database.ref('tenants/' + user.uid);
+                tenantRef.once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const tenantData = snapshot.val();
+                        const info = tenantData.info || {};
+                        updateSidebarProfile(info);
+                        window.currentTenantInfo = info;
+                        
+                        // Initialize payment reminders
+                        if (window.initializePaymentReminders) {
+                            setTimeout(() => {
+                                window.initializePaymentReminders();
+                            }, 2000); // Wait 2 seconds for everything to load
+                        }
+                        
+                        // Initialize notifications system
+                        if (window.initializeNotifications) {
+                            setTimeout(() => {
+                                window.initializeNotifications();
+                            }, 2500);
+                        }
+                    } else {
+                        alert("You are not authorized. Please contact the landlord.");
+                        auth.signOut();
+                        window.location.href = "login.html";
+                    }
+                });
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+        
+        function updateSidebarProfile(info) {
+            const profileImg = document.getElementById('sidebar-profile-img');
+            const profileName = document.getElementById('sidebar-profile-name');
+            const profileEmail = document.getElementById('sidebar-profile-email');
+            
+            if (profileImg && info.profilePicture) {
+                profileImg.src = info.profilePicture;
+            }
+            if (profileName) profileName.textContent = info.fullName || 'Tenant';
+            if (profileEmail) profileEmail.textContent = info.email || '';
+        }
+        
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut().then(() => {
+                    window.location.href = "login.html";
+                });
+            }
+        }
+        
+        function toggleMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+                sidebar.classList.toggle('open'); // Keep for backward compatibility
+            }
+            if (overlay) {
+                overlay.classList.toggle('active');
+            }
+        }
+        
+        // Load page content
+        function loadPage(page, event) {
+            const contentArea = document.getElementById('content-area');
+            const pageTitle = document.getElementById('page-title');
+            const menuItems = document.querySelectorAll('.menu-item');
+            
+            // Update active menu item
+            menuItems.forEach(item => item.classList.remove('active'));
+            let clickedItem = null;
+            if (event && event.target) {
+                // Check if closest is available (for older browsers, use polyfill approach)
+                if (typeof event.target.closest === 'function') {
+                    clickedItem = event.target.closest('.menu-item');
+                } else {
+                    // Fallback for browsers without closest support
+                    let element = event.target;
+                    while (element && !clickedItem) {
+                        if (element.classList && element.classList.contains('menu-item')) {
+                            clickedItem = element;
+                        } else {
+                            element = element.parentElement;
+                        }
+                    }
+                }
+            }
+            if (!clickedItem) {
+                clickedItem = document.querySelector(`.menu-item[onclick*="${page}"]`);
+            }
+            if (clickedItem) clickedItem.classList.add('active');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'finance': 'Finance',
+                'profile': 'Profile',
+                'announcements': 'Announcements',
+                'maintenance': 'Maintenance',
+                'community': 'Community',
+                'notifications': 'Notifications',
+                'visitors': 'Visitors'
+            };
+            pageTitle.textContent = titles[page] || 'Portal';
+            
+            // Load page content
+            if (page === 'finance') {
+                // Load financeportal.html content directly
+                fetch('financeportal.html')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Not found');
+                        return response.text();
+                    })
+                    .then(html => {
+                        // Extract scripts before setting innerHTML (scripts won't execute when set via innerHTML)
+                        const scripts = [];
+                        // More robust regex that handles various script tag formats
+                        const scriptTagRegex = /<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi;
+                        let match;
+                        let lastIndex = 0;
+                        
+                        // Reset regex lastIndex to avoid issues with global regex
+                        scriptTagRegex.lastIndex = 0;
+                        
+                        // Extract all script contents
+                        while ((match = scriptTagRegex.exec(html)) !== null) {
+                            if (match[1]) {
+                                const scriptContent = match[1].trim();
+                                if (scriptContent && scriptContent.length > 0) {
+                                    scripts.push(scriptContent);
+                                    console.log(`Extracted finance script ${scripts.length}, length: ${scriptContent.length} chars`);
+                                }
+                            }
+                            // Prevent infinite loop
+                            if (match.index === lastIndex) {
+                                break;
+                            }
+                            lastIndex = match.index;
+                        }
+                        
+                        // Remove scripts from HTML before inserting
+                        const htmlWithoutScripts = html.replace(/<script(?:\s+[^>]*)?>[\s\S]*?<\/script>/gi, '');
+                        contentArea.innerHTML = htmlWithoutScripts;
+                        
+                        // Execute all scripts sequentially
+                        const totalScripts = scripts.length;
+                        
+                        if (totalScripts === 0) {
+                            console.warn('No scripts found in financeportal.html');
+                        } else {
+                            console.log(`Found ${totalScripts} script(s) in financeportal.html`);
+                        }
+                        
+                        // Execute scripts synchronously with error handling
+                        scripts.forEach((scriptContent, index) => {
+                            try {
+                                if (scriptContent && scriptContent.trim()) {
+                                    console.log(`Executing script ${index + 1}/${totalScripts}...`);
+                                    
+                                    // Create a new script element and append to body for execution
+                                    // Scripts with textContent execute synchronously when appended
+                                    const trimmedContent = scriptContent.trim();
+                                    const scriptEl = document.createElement('script');
+                                    
+                                    try {
+                                        scriptEl.textContent = trimmedContent;
+                                        document.body.appendChild(scriptEl);
+                                        console.log(`✓ Script ${index + 1}/${totalScripts} executed from financeportal.html`);
+                                        
+                                        // Check if functions are now available
+                                        setTimeout(() => {
+                                            if (typeof window.loadTenantFinanceData === 'function') {
+                                                console.log('✓ loadTenantFinanceData is now available on window');
+                                            } else {
+                                                console.warn('⚠ loadTenantFinanceData still not on window after script execution');
+                                            }
+                                            if (typeof window.downloadReceipt === 'function') {
+                                                console.log('✓ downloadReceipt is now available on window');
+                                            } else {
+                                                console.warn('⚠ downloadReceipt still not on window after script execution');
+                                            }
+                                            if (typeof window.applyCheckout === 'function') {
+                                                console.log('✓ applyCheckout is now available on window');
+                                            } else {
+                                                console.warn('⚠ applyCheckout still not on window after script execution');
+                                            }
+                                            
+                                            // Re-attach event listeners after scripts are loaded
+                                            setTimeout(() => {
+                                                const downloadBtn = document.getElementById('downloadReceiptBtn');
+                                                const checkoutBtn = document.getElementById('applyCheckoutBtn');
+                                                if (downloadBtn && typeof window.downloadReceipt === 'function') {
+                                                    downloadBtn.onclick = () => window.downloadReceipt();
+                                                    console.log('✓ Download receipt button event attached');
+                                                }
+                                                if (checkoutBtn && typeof window.applyCheckout === 'function') {
+                                                    checkoutBtn.onclick = () => window.applyCheckout();
+                                                    console.log('✓ Apply checkout button event attached');
+                                                }
+                                            }, 200);
+                                        }, 100);
+                                        
+                                        // Remove after execution
+                                        setTimeout(() => {
+                                            if (scriptEl.parentNode) {
+                                                document.body.removeChild(scriptEl);
+                                            }
+                                        }, 0);
+                                    } catch (appendError) {
+                                        console.error(`Error appending finance script ${index + 1}:`, appendError);
+                                        // Fallback: try direct eval
+                                        try {
+                                            eval(trimmedContent);
+                                            console.log(`✓ Finance script ${index + 1} executed via eval fallback`);
+                                        } catch (evalError) {
+                                            console.error(`✗ Finance script ${index + 1} failed even with eval:`, evalError);
+                                            console.error('Script preview:', trimmedContent.substring(0, 300));
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                console.error(`Error executing script ${index + 1} from financeportal.html:`, e);
+                                console.error('Script content preview:', scriptContent.substring(0, 200) + '...');
+                                // Fallback: try direct eval
+                                try {
+                                    console.log('Trying eval fallback...');
+                                    eval(scriptContent);
+                                    console.log(`✓ Script ${index + 1} executed via eval fallback`);
+                                } catch (evalError) {
+                                    console.error(`✗ Script ${index + 1} failed even with eval:`, evalError);
+                                    console.error('Full error:', evalError);
+                                }
+                            }
+                        });
+                        
+                        // Function to manually load and display finance data immediately
+                        function loadFinanceDataManually() {
+                            console.log('Loading finance data manually...');
+                            if (window.auth && window.database && window.auth.currentUser) {
+                                const user = window.auth.currentUser;
+                                const tenantRef = window.database.ref('tenants/' + user.uid);
+                                
+                                tenantRef.on('value', (snapshot) => {
+                                    if (snapshot.exists()) {
+                                        const tenantData = snapshot.val();
+                                        const finance = tenantData.finance || {};
+                                        const info = tenantData.info || {};
+                                        
+                                        console.log('Finance data loaded:', finance);
+                                        console.log('Tenant info loaded:', info);
+                                        
+                                        // Update UI elements directly
+                                        const updateElement = (id, value) => {
+                                            const el = document.getElementById(id);
+                                            if (el) {
+                                                el.textContent = value;
+                                                console.log(`✓ Updated ${id}: ${value}`);
+                                            } else {
+                                                console.warn(`✗ Element ${id} not found`);
+                                            }
+                                        };
+                                        
+                                        // Update rent due
+                                        updateElement('rentDue', (finance.rentDue || 0).toFixed(2) + ' KSh');
+                                        updateElement('rentDueDate', finance.rentDueDate || '-');
+                                        
+                                        // Update wallet
+                                        updateElement('walletBalance', (finance.walletBalance || 0).toFixed(2) + ' KSh');
+                                        
+                                        // Update water bill
+                                        updateElement('waterBill', (finance.waterBill || 0).toFixed(2) + ' KSh');
+                                        updateElement('waterBillDate', finance.waterBillDate || '-');
+                                        
+                                        // Update welcome name
+                                        updateElement('welcomeName', info.fullName || 'Tenant');
+                                        
+                                        // Update customer ID
+                                        if (user.uid) {
+                                            updateElement('customerId', user.uid.substring(0, 10));
+                                        }
+                                        
+                                        // Update meter number and account number
+                                        updateElement('meterNumber', info.meterNumber || '-');
+                                        updateElement('accountNumber', info.accountNumber || '-');
+                                        
+                                        // Update account number instruction
+                                        const accountInstructionEl = document.getElementById('accountNumberInstruction');
+                                        if (accountInstructionEl) {
+                                            accountInstructionEl.textContent = info.accountNumber || '(Your account number)';
+                                        }
+                                        
+                                        // Calculate and update days stayed
+                                        if (info.moveInDate) {
+                                            try {
+                                                const moveIn = new Date(info.moveInDate);
+                                                const today = new Date();
+                                                moveIn.setHours(0, 0, 0, 0);
+                                                today.setHours(0, 0, 0, 0);
+                                                const daysStayed = Math.floor((today - moveIn) / (1000 * 60 * 60 * 24));
+                                                updateElement('daysStayed', daysStayed >= 0 ? daysStayed : 0);
+                                                
+                                                const dateObj = new Date(info.moveInDate);
+                                                const formattedDate = dateObj.toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' });
+                                                updateElement('moveInDate', formattedDate);
+                                            } catch (e) {
+                                                console.error('Error calculating days stayed:', e);
+                                            }
+                                        } else {
+                                            updateElement('daysStayed', '0');
+                                            updateElement('moveInDate', 'Not set');
+                                        }
+                                        
+                                        console.log('✓ Finance UI updated manually');
+                                    } else {
+                                        console.log('No tenant data found in database');
+                                    }
+                                }, (error) => {
+                                    console.error('Error loading finance data:', error);
+                                });
+                            } else {
+                                console.error('Firebase not available for manual load');
+                                console.log('Auth:', !!window.auth, 'Database:', !!window.database, 'User:', !!window.auth?.currentUser);
+                            }
+                        }
+                        
+                        // Load data immediately (don't wait for scripts)
+                        loadFinanceDataManually();
+                        
+                        // Also check for functions after a short delay (in case scripts load successfully)
+                        setTimeout(() => {
+                            console.log('Finance page loaded, checking functions...');
+                            console.log('window.loadTenantFinanceData type:', typeof window.loadTenantFinanceData);
+                            console.log('window.initializeFinancePage type:', typeof window.initializeFinancePage);
+                            
+                            // If functions are available, use them (they might have better features)
+                            if (typeof window.loadTenantFinanceData === 'function') {
+                                console.log('✓ loadTenantFinanceData function found, calling...');
+                                window.loadTenantFinanceData();
+                            }
+                            
+                            // Setup checkout form
+                            if (typeof window.setupCheckoutForm === 'function') {
+                                window.setupCheckoutForm();
+                            }
+                            
+                            // Initialize finance page
+                            if (typeof window.initializeFinancePage === 'function') {
+                                console.log('✓ Calling initializeFinancePage...');
+                                window.initializeFinancePage();
+                            }
+                        }, 200);
+                    })
+                    .catch(() => {
+                        contentArea.innerHTML = '<p style="padding: 20px; color: #dc3545;">Error loading finance page. Please refresh.</p>';
+                    });
+                return;
+            }
+            
+            if (page === 'notifications') {
+                // Load notification center
+                fetch('portal-notifications-center.html')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Not found');
+                        return response.text();
+                    })
+                    .then(html => {
+                        contentArea.innerHTML = html;
+                        // Update page title
+                        const pageTitle = document.getElementById('page-title');
+                        if (pageTitle) pageTitle.textContent = 'Notifications';
+                    })
+                    .catch(() => {
+                        contentArea.innerHTML = '<p style="padding: 20px; color: #dc3545;">Error loading notifications. Please refresh.</p>';
+                    });
+                return;
+            }
+            
+            fetch(`portal-${page}.html`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Not found');
+                    return response.text();
+                })
+                .then(html => {
+                    // Extract scripts before setting innerHTML (scripts won't execute when set via innerHTML)
+                    const scripts = [];
+                    // More robust regex that handles various script tag formats
+                    const scriptTagRegex = /<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi;
+                    let match;
+                    let lastIndex = 0;
+                    
+                    // Reset regex lastIndex to avoid issues with global regex
+                    scriptTagRegex.lastIndex = 0;
+                    
+                    // Extract all script contents
+                    while ((match = scriptTagRegex.exec(html)) !== null) {
+                        if (match[1]) {
+                            const scriptContent = match[1].trim();
+                            if (scriptContent && scriptContent.length > 0) {
+                                scripts.push(scriptContent);
+                                console.log(`Extracted script ${scripts.length}, length: ${scriptContent.length} chars`);
+                            }
+                        }
+                        // Prevent infinite loop
+                        if (match.index === lastIndex) {
+                            break;
+                        }
+                        lastIndex = match.index;
+                    }
+                    
+                    // Remove scripts from HTML before inserting
+                    const htmlWithoutScripts = html.replace(/<script(?:\s+[^>]*)?>[\s\S]*?<\/script>/gi, '');
+                    contentArea.innerHTML = htmlWithoutScripts;
+                    
+                    // Execute all scripts sequentially
+                    scripts.forEach((scriptContent, index) => {
+                        try {
+                            if (scriptContent && scriptContent.trim()) {
+                                // Validate script content first
+                                const trimmedContent = scriptContent.trim();
+                                
+                                // Try to create and execute script element
+                                try {
+                                    const scriptEl = document.createElement('script');
+                                    scriptEl.textContent = trimmedContent;
+                                    
+                                    // Append to body - this executes the script
+                                    document.body.appendChild(scriptEl);
+                                    
+                                    // Remove after execution
+                                    setTimeout(() => {
+                                        if (scriptEl.parentNode) {
+                                            document.body.removeChild(scriptEl);
+                                        }
+                                    }, 0);
+                                    
+                                    console.log(`✓ Executed script ${index + 1} from portal-${page}.html`);
+                                } catch (appendError) {
+                                    console.error(`Error appending script ${index + 1}:`, appendError);
+                                    // Fallback: try direct eval
+                                    try {
+                                        eval(trimmedContent);
+                                        console.log(`✓ Script ${index + 1} executed via eval fallback`);
+                                    } catch (evalError) {
+                                        console.error(`✗ Script ${index + 1} failed even with eval:`, evalError);
+                                        console.error('Script content length:', trimmedContent.length);
+                                        console.error('Script preview (first 200 chars):', trimmedContent.substring(0, 200));
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.error(`Error executing script ${index + 1} from portal-${page}.html:`, e);
+                            console.error('Script content preview:', scriptContent ? scriptContent.substring(0, 100) + '...' : 'No content');
+                            // Fallback: try direct eval
+                            try {
+                                if (scriptContent && scriptContent.trim()) {
+                                    eval(scriptContent.trim());
+                                    console.log(`✓ Script ${index + 1} executed via eval fallback`);
+                                }
+                            } catch (evalError) {
+                                console.error(`✗ Script ${index + 1} failed even with eval:`, evalError);
+                            }
+                        }
+                    });
+                })
+                .catch(() => {
+                    // Create default content for each page
+                    createDefaultPage(page, contentArea);
+                });
+        }
+        
+        function createDefaultPage(page, container) {
+            const pages = {
+                'dashboard': '<div class="text-center"><h2>Dashboard</h2><p>Welcome to your tenant portal</p></div>',
+                'profile': '<div class="text-center"><h2>Profile</h2><p>Profile page coming soon</p></div>',
+                'announcements': '<div class="text-center"><h2>Announcements</h2><p>No announcements yet</p></div>',
+                'maintenance': '<div class="text-center"><h2>Maintenance</h2><p>Maintenance page coming soon</p></div>',
+                'community': '<div class="text-center"><h2>Community</h2><p>Community page coming soon</p></div>'
+            };
+            container.innerHTML = pages[page] || '<div class="text-center"><h3>Page not found</h3></div>';
+        }
+    </script>
+</head>
+
+<body>
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+    
+    <div class="portal-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="sidebar-close" onclick="toggleMenu()" aria-label="Close menu">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+                <h2><i class="fa-solid fa-building"></i> Tenant Portal</h2>
+                <p>Mweshpra Apartments</p>
+            </div>
+            
+            <div class="sidebar-profile">
+                <img id="sidebar-profile-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-size='24'%3E%3F%3C/text%3E%3C/svg%3E" alt="Profile" onclick="loadPage('profile', event)">
+                <h4 id="sidebar-profile-name">Loading...</h4>
+                <p id="sidebar-profile-email">Loading...</p>
+            </div>
+            
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" onclick="loadPage('dashboard', event); return false;">
+                    <i class="fa-solid fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('finance', event); return false;">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Finance</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('profile', event); return false;">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('announcements', event); return false;">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Announcements</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('maintenance', event); return false;">
+                    <i class="fa-solid fa-tools"></i>
+                    <span>Maintenance</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('community', event); return false;">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Community</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('notifications', event); return false;">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                <a href="#" class="menu-item" onclick="loadPage('visitors', event); return false;">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>Visitors</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="top-bar-actions">
+                    <button class="btn-notifications" onclick="loadPage('notifications', event); return false;" aria-label="Notifications" style="position: relative; background: none; border: none; color: #667eea; font-size: 20px; cursor: pointer; padding: 8px 12px; margin-right: 15px;">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; align-items: center; justify-content: center; font-weight: bold; line-height: 20px; text-align: center;">0</span>
+                    </button>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fa-solid fa-sign-out"></i> Logout
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content-area" id="content-area">
+                <div class="text-center">
+                    <h2>Welcome to Your Portal</h2>
+                    <p>Select a menu item to get started</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load dashboard by default
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPage('dashboard');
+        });
+    </script>
+</body>
+</html>
+

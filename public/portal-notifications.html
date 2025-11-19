@@ -1,0 +1,328 @@
+<div class="notifications-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-bell"></i> Payment Reminders</h3>
+                <p class="text-muted" style="margin-bottom: 20px;">
+                    Automated reminders are sent to your email before payment due dates. 
+                    Reminders are sent 7 days, 3 days, 1 day before, and on the due date.
+                </p>
+                
+                <div id="reminder-status" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 15px;"><i class="fa-solid fa-info-circle"></i> Reminder Status</h4>
+                    <div id="reminder-info">
+                        <p class="text-muted">Loading reminder information...</p>
+                    </div>
+                </div>
+                
+                <div id="reminder-history" style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <h4 style="margin-bottom: 15px;"><i class="fa-solid fa-history"></i> Reminder History</h4>
+                    <div id="reminder-list">
+                        <p class="text-muted">No reminders sent yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-md-12">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-cog"></i> Reminder Settings</h3>
+                <p class="text-muted" style="margin-bottom: 20px;">
+                    Configure when you want to receive payment reminders.
+                </p>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                            <input type="checkbox" id="reminder-7days" checked> 
+                            Remind me 7 days before due date
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                            <input type="checkbox" id="reminder-3days" checked> 
+                            Remind me 3 days before due date
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                            <input type="checkbox" id="reminder-1day" checked> 
+                            Remind me 1 day before due date
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                            <input type="checkbox" id="reminder-0days" checked> 
+                            Remind me on the due date
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveReminderSettings()" style="margin-top: 10px;">
+                        <i class="fa-solid fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.notifications-content {
+    padding: 0;
+}
+
+.dashboard-section {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.dashboard-section h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.reminder-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid #667eea;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reminder-item.past {
+    border-left-color: #6c757d;
+    opacity: 0.7;
+}
+
+.reminder-item.upcoming {
+    border-left-color: #ffc107;
+}
+
+.reminder-item.urgent {
+    border-left-color: #dc3545;
+}
+
+.reminder-item-info {
+    flex: 1;
+}
+
+.reminder-item-date {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+}
+</style>
+
+<script>
+(function() {
+    let retryCount = 0;
+    const maxRetries = 50;
+    
+    function loadNotifications() {
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            retryCount++;
+            if (retryCount < maxRetries) {
+                setTimeout(loadNotifications, 200);
+            }
+            return;
+        }
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) {
+            firebaseAuth.onAuthStateChanged((u) => {
+                if (u) loadNotifications();
+            });
+            return;
+        }
+        
+        // Load tenant data
+        const tenantRef = firebaseDatabase.ref('tenants/' + user.uid);
+        tenantRef.once('value', (snapshot) => {
+            if (!snapshot.exists()) return;
+            
+            const tenantData = snapshot.val();
+            const finance = tenantData.finance || {};
+            const reminderHistory = tenantData.reminderHistory || {};
+            
+            // Display reminder status
+            displayReminderStatus(finance, reminderHistory);
+            
+            // Display reminder history
+            displayReminderHistory(reminderHistory);
+            
+            // Load reminder settings
+            loadReminderSettings(tenantData);
+        });
+    }
+    
+    function displayReminderStatus(finance, reminderHistory) {
+        const infoEl = document.getElementById('reminder-info');
+        if (!infoEl) return;
+        
+        const rentDue = parseFloat(finance.rentDue) || 0;
+        const rentDueDate = finance.rentDueDate;
+        const waterBill = parseFloat(finance.waterBill) || 0;
+        const waterBillDate = finance.waterBillDate;
+        
+        let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">';
+        
+        if (rentDue > 0 && rentDueDate) {
+            const dueDate = new Date(rentDueDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            dueDate.setHours(0, 0, 0, 0);
+            
+            const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+            const remindersSent = Object.keys(reminderHistory).filter(key => key.startsWith('rent_')).length;
+            
+            html += `
+                <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <strong>Rent Payment</strong><br>
+                    <span style="font-size: 18px; color: #667eea;">Ksh ${rentDue.toLocaleString()}</span><br>
+                    <small style="color: #666;">Due: ${formatDate(rentDueDate)}</small><br>
+                    <small style="color: #666;">Days until due: ${daysUntil}</small><br>
+                    <small style="color: #28a745;">Reminders sent: ${remindersSent}</small>
+                </div>
+            `;
+        }
+        
+        if (waterBill > 0 && waterBillDate) {
+            const dueDate = new Date(waterBillDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            dueDate.setHours(0, 0, 0, 0);
+            
+            const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+            const remindersSent = Object.keys(reminderHistory).filter(key => key.startsWith('water_')).length;
+            
+            html += `
+                <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #4facfe;">
+                    <strong>Water Bill</strong><br>
+                    <span style="font-size: 18px; color: #4facfe;">Ksh ${waterBill.toLocaleString()}</span><br>
+                    <small style="color: #666;">Due: ${formatDate(waterBillDate)}</small><br>
+                    <small style="color: #666;">Days until due: ${daysUntil}</small><br>
+                    <small style="color: #28a745;">Reminders sent: ${remindersSent}</small>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        infoEl.innerHTML = html;
+    }
+    
+    function displayReminderHistory(reminderHistory) {
+        const listEl = document.getElementById('reminder-list');
+        if (!listEl) return;
+        
+        const reminders = Object.entries(reminderHistory)
+            .map(([key, data]) => ({
+                key,
+                ...data,
+                sentDate: data.sentDate ? new Date(data.sentDate) : null
+            }))
+            .sort((a, b) => {
+                if (!a.sentDate) return 1;
+                if (!b.sentDate) return -1;
+                return b.sentDate - a.sentDate;
+            });
+        
+        if (reminders.length === 0) {
+            listEl.innerHTML = '<p class="text-muted">No reminders sent yet</p>';
+            return;
+        }
+        
+        let html = '';
+        reminders.forEach(reminder => {
+            const isRent = reminder.key.startsWith('rent_');
+            const type = isRent ? 'Rent Payment' : 'Water Bill';
+            const color = isRent ? '#667eea' : '#4facfe';
+            
+            html += `
+                <div class="reminder-item">
+                    <div class="reminder-item-info">
+                        <strong style="color: ${color};">${type}</strong>
+                        <div class="reminder-item-date">
+                            Sent: ${reminder.sentDate ? formatDate(reminder.sentDate.toISOString()) : 'Unknown'} | 
+                            ${reminder.daysBefore} day${reminder.daysBefore !== 1 ? 's' : ''} before due
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-check-circle" style="color: #28a745;"></i>
+                </div>
+            `;
+        });
+        
+        listEl.innerHTML = html;
+    }
+    
+    function loadReminderSettings(tenantData) {
+        const settings = tenantData.reminderSettings || {
+            days7: true,
+            days3: true,
+            days1: true,
+            days0: true
+        };
+        
+        document.getElementById('reminder-7days').checked = settings.days7 !== false;
+        document.getElementById('reminder-3days').checked = settings.days3 !== false;
+        document.getElementById('reminder-1day').checked = settings.days1 !== false;
+        document.getElementById('reminder-0days').checked = settings.days0 !== false;
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-KE', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
+    }
+    
+    window.saveReminderSettings = function() {
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            alert('Firebase not available');
+            return;
+        }
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) return;
+        
+        const settings = {
+            days7: document.getElementById('reminder-7days').checked,
+            days3: document.getElementById('reminder-3days').checked,
+            days1: document.getElementById('reminder-1day').checked,
+            days0: document.getElementById('reminder-0days').checked
+        };
+        
+        firebaseDatabase.ref(`tenants/${user.uid}/reminderSettings`).set(settings)
+            .then(() => {
+                alert('Reminder settings saved successfully!');
+            })
+            .catch((error) => {
+                console.error('Error saving settings:', error);
+                alert('Error saving settings: ' + error.message);
+            });
+    };
+    
+    // Load notifications when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadNotifications);
+    } else {
+        loadNotifications();
+    }
+})();
+</script>
+

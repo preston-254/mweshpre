@@ -1,0 +1,98 @@
+<div class="announcements-content">
+    <h2><i class="fa-solid fa-bullhorn"></i> Announcements</h2>
+    <div id="announcements-list" class="announcements-list">
+        <div class="text-center" style="padding: 40px;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 48px; color: #667eea;"></i>
+            <p>Loading announcements...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.announcements-list {
+    margin-top: 20px;
+}
+
+.announcement-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    border-left: 5px solid #667eea;
+    transition: transform 0.3s ease;
+}
+
+.announcement-card:hover {
+    transform: translateX(5px);
+}
+
+.announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.announcement-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.announcement-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.announcement-content {
+    color: #555;
+    line-height: 1.6;
+}
+</style>
+
+<script>
+(function() {
+    function loadAnnouncements() {
+        const firebaseDatabase = window.firebase ? window.firebase.database() : (typeof firebase !== 'undefined' ? firebase.database() : null);
+        if (!firebaseDatabase) {
+            setTimeout(loadAnnouncements, 100);
+            return;
+        }
+        
+        const announcementsRef = firebaseDatabase.ref('announcements');
+        announcementsRef.orderByChild('date').limitToLast(20).on('value', (snapshot) => {
+            const announcements = snapshot.val() || {};
+            const container = document.getElementById('announcements-list');
+            
+            if (!container) return;
+            
+            if (Object.keys(announcements).length === 0) {
+                container.innerHTML = '<div class="text-center" style="padding: 40px;"><i class="fa-solid fa-bullhorn" style="font-size: 48px; color: #ccc;"></i><p style="color: #999; margin-top: 20px;">No announcements yet</p></div>';
+                return;
+            }
+            
+            let html = '';
+            Object.entries(announcements).reverse().forEach(([key, announcement]) => {
+                html += `
+                    <div class="announcement-card">
+                        <div class="announcement-header">
+                            <div class="announcement-title">${announcement.title || 'Announcement'}</div>
+                            <div class="announcement-date">${announcement.date || ''}</div>
+                        </div>
+                        <div class="announcement-content">${announcement.content || ''}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadAnnouncements);
+    } else {
+        loadAnnouncements();
+    }
+})();
+</script>
+

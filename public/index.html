@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mweshpra Apartments - Modern Living in Meru</title>
+    <link rel="stylesheet" href="modern-website.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Header Top -->
+    <div class="header-top">
+        <div class="container">
+            <div class="header-top-left">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Kinoru Stadium, Meru, Kenya</span>
+            </div>
+            <div class="header-top-right">
+                <a href="login.html">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">
+                <h1>Mweshpra</h1>
+                <span class="tagline">Apartments</span>
+            </a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle mobile menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="navbar-nav">
+                <li class="active"><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="join.html">Available Houses</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="contact.html" class="btn-contact">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <div class="mobile-sidebar-header">
+            <h2>Menu</h2>
+            <button class="mobile-sidebar-close" id="mobileSidebarClose" aria-label="Close mobile menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="mobile-sidebar-nav">
+            <li class="active"><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="join.html">Available Houses</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="contact.html" class="btn-contact">Contact Us</a></li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const menuToggle = document.getElementById('menuToggle');
+                const mobileSidebar = document.getElementById('mobileSidebar');
+                const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+                const mobileSidebarClose = document.getElementById('mobileSidebarClose');
+
+                function openMobileMenu() {
+                    if (mobileSidebar) mobileSidebar.classList.add('active');
+                    if (mobileMenuOverlay) mobileMenuOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeMobileMenu() {
+                    if (mobileSidebar) mobileSidebar.classList.remove('active');
+                    if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+
+                if (menuToggle) {
+                    menuToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openMobileMenu();
+                    });
+                }
+
+                if (mobileSidebarClose) {
+                    mobileSidebarClose.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeMobileMenu();
+                    });
+                }
+
+                if (mobileMenuOverlay) {
+                    mobileMenuOverlay.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeMobileMenu();
+                    });
+                }
+
+                const mobileNavLinks = document.querySelectorAll('.mobile-sidebar-nav a');
+                mobileNavLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        setTimeout(closeMobileMenu, 100);
+                    });
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && mobileSidebar && mobileSidebar.classList.contains('active')) {
+                        closeMobileMenu();
+                    }
+                });
+            } catch (error) {
+                // Silently fail if there's an error
+            }
+        });
+    </script>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-slider">
+            <div class="hero-slide active" style="background-image: url('images/4.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('images/1.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('images/2.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('images/3.jpg');"></div>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Welcome to Mweshpra Apartments</h1>
+            <p>Experience modern, comfortable living in the heart of Meru</p>
+            <a href="join.html" class="hero-btn">View Available Houses</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <div class="section-title">
+                <h2>Why Choose Us</h2>
+                <p>Discover what makes Mweshpra Apartments the perfect place to call home</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <img src="images/1.jpg" alt="Modern Design" class="card-image">
+                    <div class="card-content">
+                        <h3>Modern Design</h3>
+                        <p>Beautifully designed apartments with contemporary finishes and spacious layouts.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="images/c5.jpg" alt="Prime Location" class="card-image">
+                    <div class="card-content">
+                        <h3>Prime Location</h3>
+                        <p>Located near Kinoru Stadium with easy access to amenities and transportation.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="images/g1.jpg" alt="Secure Living" class="card-image">
+                    <div class="card-content">
+                        <h3>Secure Living</h3>
+                        <p>24/7 security and gated community for your peace of mind.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="images/s2.jpg" alt="Amenities" class="card-image">
+                    <div class="card-content">
+                        <h3>Great Amenities</h3>
+                        <p>Enjoy modern amenities including parking, water, and electricity services.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section" style="background: var(--gradient-primary); color: var(--white);">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px; text-align: center;">
+            <h2 style="color: var(--white); font-size: 42px; margin-bottom: 20px;">Ready to Find Your New Home?</h2>
+            <p style="font-size: 18px; margin-bottom: 30px; opacity: 0.9;">Contact us today to schedule a viewing or learn more about our available apartments.</p>
+            <a href="contact.html" class="hero-btn" style="background: var(--white); color: var(--primary);">Get In Touch</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Mweshpra Apartments</h3>
+                <p>Your trusted partner for modern, comfortable living in Meru, Kenya.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="index.html">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="join.html">Available Houses</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Kinoru Stadium, Meru, Kenya</p>
+                <p><i class="fas fa-envelope"></i> info@mweshpra.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Mweshpra Apartments. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Hero Slider
+                let currentSlide = 0;
+                const slides = document.querySelectorAll('.hero-slide');
+                
+                if (slides.length > 0) {
+                    function nextSlide() {
+                        slides[currentSlide].classList.remove('active');
+                        currentSlide = (currentSlide + 1) % slides.length;
+                        slides[currentSlide].classList.add('active');
+                    }
+                    
+                    setInterval(nextSlide, 5000);
+                }
+
+                // Smooth scroll
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    });
+                });
+            } catch (error) {
+                // Silently fail if there's an error
+            }
+        });
+    </script>
+</body>
+</html>

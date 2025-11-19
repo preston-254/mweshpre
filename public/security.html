@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mweshpra Apartments - Security Portal</title>
+    <link href="bootstrap.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- Notification helpers -->
+    <script src="js/notifications.js"></script>
+
+    <!-- QR Scanning -->
+    <!-- QR Scanner Library - Using jsQR for better mobile compatibility -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .security-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card,
+        .security-app {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card {
+            max-width: 480px;
+            margin: 0 auto;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-card-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .auth-card-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .account-type-selector {
+            display: flex;
+            background: #f5f6fa;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 30px;
+            gap: 5px;
+        }
+
+        .account-type-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .account-type-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .account-type-btn:hover:not(.active) {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .login-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .login-message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .login-message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #e9ecef;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .switch-account-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .switch-account-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .switch-account-link a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .security-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .stat-card p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .dashboard-section {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .dashboard-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .visitor-row {
+            border-bottom: 1px solid #f1f1f1;
+            padding: 12px 0;
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .visitor-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-transform: capitalize;
+        }
+
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.rejected,
+        .status-badge.cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.checked-in {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-badge.checked-out {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status-badge.registered {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        #id-capture-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content-capture {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        #id-capture-video, #id-capture-canvas {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .capture-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .visitor-media {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .visitor-media img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid #f0f0f0;
+        }
+
+        #qr-reader {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .qr-result-card {
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            background: #fdfdfd;
+        }
+
+        .qr-result-card h4 {
+            margin-bottom: 12px;
+        }
+
+        .table-header {
+            font-weight: 600;
+            color: #666;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+        }
+
+        @media(max-width: 900px) {
+            .visitor-row,
+            .table-header {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 600px) {
+            .auth-card {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .auth-card-header h1 {
+                font-size: 24px;
+            }
+
+            .account-type-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="security-container">
+        <div class="auth-card" id="security-login-card">
+            <div class="auth-card-header">
+                <h1><i class="fa-solid fa-building"></i> Mweshpra Apartments</h1>
+                <p>Welcome back! Please sign in to continue</p>
+            </div>
+
+            <div class="account-type-selector">
+                <button type="button" class="account-type-btn" id="tenant-account-btn" onclick="switchAccountType('tenant')">
+                    <i class="fa-solid fa-user"></i> Tenant Account
+                </button>
+                <button type="button" class="account-type-btn active" id="security-account-btn" onclick="switchAccountType('security')">
+                    <i class="fa-solid fa-shield-halved"></i> Security Account
+                </button>
+            </div>
+
+            <form id="security-login-form">
+                <div class="form-group">
+                    <label for="securityEmail"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                    <input type="email" id="securityEmail" class="form-control" placeholder="Enter your email address"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="securityPassword"><i class="fa-solid fa-lock"></i> Password</label>
+                    <input type="password" id="securityPassword" class="form-control" placeholder="Enter your password"
+                        required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+            </form>
+
+            <div id="security-login-message" class="login-message"></div>
+
+            <div class="switch-account-link" id="switch-account-section" style="display: none;">
+                <a href="login.html">
+                    <i class="fa-solid fa-arrow-left"></i> Switch to Tenant Login
+                </a>
+            </div>
+        </div>
+
+        <div class="security-app" id="security-app" style="display: none;">
+            <div class="security-header">
+                <div>
+                    <h2><i class="fa-solid fa-shield"></i> Security Control Center</h2>
+                    <p class="text-muted" id="security-user-email"></p>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" id="start-scan-btn">
+                        <i class="fa-solid fa-qrcode"></i> Scan QR
+                    </button>
+                    <button class="btn btn-danger" id="security-logout-btn">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" id="pending-count-card">
+                    <p>Registered Visitors</p>
+                    <h3 id="pending-count">0</h3>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);">
+                    <p>Visitors Today</p>
+                    <h3 id="today-count">0</h3>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);">
+                    <p>Total Checked In</p>
+                    <h3 id="checked-in-count">0</h3>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-list-check"></i> Registered Visitors (Awaiting Check-In)</h3>
+                <div class="table-header">
+                    <div>Visitor</div>
+                    <div>Tenant / Room</div>
+                    <div>Visit</div>
+                    <div>Status</div>
+                    <div>Actions</div>
+                </div>
+                <div id="pending-requests"></div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-users-viewfinder"></i> All Visitor Requests</h3>
+                <div class="table-header">
+                    <div>Visitor</div>
+                    <div>Tenant / Room</div>
+                    <div>Visit</div>
+                    <div>Status</div>
+                    <div>Actions</div>
+                </div>
+                <div id="all-requests"></div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-qrcode"></i> QR Scanner</h3>
+                <div id="qr-reader" style="display: none;">
+                    <video id="qr-video" autoplay playsinline style="width: 100%; max-width: 500px; border-radius: 8px; background: #000;"></video>
+                    <canvas id="qr-canvas" style="display: none;"></canvas>
+                    <div id="qr-scanning-indicator" style="text-align: center; margin-top: 10px; color: #28a745;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Scanning...
+                    </div>
+                </div>
+                <div id="qr-actions" style="margin-top: 15px; display: none;">
+                    <button class="btn btn-outline-secondary" id="stop-scan-btn">
+                        <i class="fa-solid fa-stop"></i> Stop Scanner
+                    </button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-outline-primary" onclick="showManualQRInput();" style="width: 100%;">
+                        <i class="fa-solid fa-keyboard"></i> Enter QR Code Manually
+                    </button>
+                </div>
+                <div id="manual-qr-input" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; display: none;">
+                    <h4 style="margin-bottom: 15px;"><i class="fa-solid fa-keyboard"></i> Manual Entry</h4>
+                    <p style="color: #666; margin-bottom: 15px;">If camera scanning is not working, you can manually enter the QR code data:</p>
+                    <div style="display: flex; gap: 10px; align-items: flex-start;">
+                        <input type="text" id="manual-qr-code" placeholder="Paste QR code data here..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        <button class="btn btn-primary" id="submit-manual-qr" style="padding: 10px 20px;">
+                            <i class="fa-solid fa-check"></i> Submit
+                        </button>
+                    </div>
+                    <button class="btn btn-link" id="close-manual-input" style="margin-top: 10px; padding: 0; color: #666;">
+                        <i class="fa-solid fa-times"></i> Close
+                    </button>
+                </div>
+                <div class="qr-result-card" id="qr-result-card" style="display: none;">
+                    <div id="qr-result-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ID Capture Modal -->
+    <div id="id-capture-modal">
+        <div class="modal-content-capture"></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCk7rNj_35-C8zrQB0O2S4c9CORNIsqlxQ",
+            authDomain: "mweshpra-apartments.firebaseapp.com",
+            projectId: "mweshpra-apartments",
+            storageBucket: "mweshpra-apartments.firebasestorage.app",
+            messagingSenderId: "8486695233",
+            appId: "1:8486695233:web:fa68793732171d5bfb71c0",
+            measurementId: "G-1FM5TXCL1C",
+            databaseURL: "https://mweshpra-apartments-default-rtdb.firebaseio.com/"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        const securityEmails = [
+            "Preston.mwendwa@riarauniversity.ac.ke",
+            "guard@mweshpra.com"
+        ];
+
+        let visitorRefListener = null;
+        let qrVideoStream = null;
+        let qrScanningInterval = null;
+        let qrVideoElement = null;
+        let qrCanvasElement = null;
+        let qrCanvasContext = null;
+
+        const loginCard = document.getElementById('security-login-card');
+        const appShell = document.getElementById('security-app');
+        const loginForm = document.getElementById('security-login-form');
+        const loginMessage = document.getElementById('security-login-message');
+        const pendingContainer = document.getElementById('pending-requests');
+        const allRequestsContainer = document.getElementById('all-requests');
+        const userEmailEl = document.getElementById('security-user-email');
+        const pendingCountEl = document.getElementById('pending-count');
+        const todayCountEl = document.getElementById('today-count');
+        const checkedInCountEl = document.getElementById('checked-in-count');
+        const startScanBtn = document.getElementById('start-scan-btn');
+        const stopScanBtn = document.getElementById('stop-scan-btn');
+        const qrReaderEl = document.getElementById('qr-reader');
+        const qrActions = document.getElementById('qr-actions');
+        const qrResultCard = document.getElementById('qr-result-card');
+        const qrResultContent = document.getElementById('qr-result-content');
+        qrVideoElement = document.getElementById('qr-video');
+        qrCanvasElement = document.getElementById('qr-canvas');
+        if (qrCanvasElement) {
+            qrCanvasContext = qrCanvasElement.getContext('2d', { willReadFrequently: true });
+        }
+        const tenantBtn = document.getElementById('tenant-account-btn');
+        const securityBtn = document.getElementById('security-account-btn');
+        const switchAccountSection = document.getElementById('switch-account-section');
+        let currentAccountType = 'security';
+
+        // Account type switching function
+        window.switchAccountType = function(type) {
+            currentAccountType = type;
+            
+            if (type === 'tenant') {
+                // Redirect to tenant login page
+                window.location.href = 'login.html';
+                return;
+            } else {
+                // Show security login form
+                tenantBtn.classList.remove('active');
+                securityBtn.classList.add('active');
+                switchAccountSection.style.display = 'none';
+            }
+        };
+
+        // Show message helper
+        function showMessage(message, type) {
+            loginMessage.textContent = message;
+            loginMessage.className = 'login-message ' + (type || 'error');
+            loginMessage.style.display = 'block';
+            setTimeout(() => {
+                loginMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('securityEmail').value.trim().toLowerCase();
+            const password = document.getElementById('securityPassword').value;
+
+            if (!email || !password) {
+                showMessage('Please fill in all fields.', 'error');
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing In...';
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((credential) => {
+                    const emailLower = email.toLowerCase();
+                    const isAuthorized = securityEmails.some(secEmail => secEmail.toLowerCase() === emailLower);
+                    if (!isAuthorized) {
+                        auth.signOut();
+                        throw new Error('This account is not authorized for the security portal.');
+                    }
+
+                    loginMessage.style.display = 'none';
+                    loginCard.style.display = 'none';
+                    appShell.style.display = 'block';
+                    userEmailEl.textContent = credential.user.email;
+                    attachVisitorsListener();
+                })
+                .catch((error) => {
+                    let errorMessage = 'Login failed. Please try again.';
+                    if (error.code === 'auth/user-not-found') {
+                        errorMessage = 'No account found with this email.';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMessage = 'Incorrect password. Please try again.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = 'Invalid email address.';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    showMessage(errorMessage, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                });
+        });
+
+        document.getElementById('security-logout-btn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to log out?')) {
+                detachVisitorsListener();
+                stopQrScanner();
+                auth.signOut().finally(() => {
+                    appShell.style.display = 'none';
+                    loginCard.style.display = 'block';
+                    loginForm.reset();
+                    loginMessage.style.display = 'none';
+                });
+            }
+        });
+
+        // Monitor auth state to prevent unexpected logouts
+        auth.onAuthStateChanged((user) => {
+            if (!user && appShell.style.display !== 'none') {
+                // User was logged out unexpectedly
+                console.log('User logged out, but keeping session if authorized');
+                // Don't redirect if we're in the middle of scanning
+                if (!html5QrCodeInstance) {
+                    appShell.style.display = 'none';
+                    loginCard.style.display = 'block';
+                }
+            } else if (user && appShell.style.display === 'none' && loginCard.style.display === 'none') {
+                // User is logged in, make sure app is visible
+                const emailLower = user.email.toLowerCase();
+                const isAuthorized = securityEmails.some(secEmail => secEmail.toLowerCase() === emailLower);
+                if (isAuthorized) {
+                    appShell.style.display = 'block';
+                    loginCard.style.display = 'none';
+                    userEmailEl.textContent = user.email;
+                    attachVisitorsListener();
+                }
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopQrScanner();
+            detachVisitorsListener();
+        });
+
+        if (startScanBtn) {
+            startScanBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Scan button clicked');
+                startQrScanner();
+            });
+        } else {
+            console.error('Start scan button not found');
+        }
+        
+        if (stopScanBtn) {
+            stopScanBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                stopQrScanner();
+            });
+        } else {
+            console.error('Stop scan button not found');
+        }
+        
+        // Manual QR input handlers
+        const manualQRInput = document.getElementById('manual-qr-input');
+        const manualQRCode = document.getElementById('manual-qr-code');
+        const submitManualQR = document.getElementById('submit-manual-qr');
+        const closeManualInput = document.getElementById('close-manual-input');
+        
+        window.showManualQRInput = function() {
+            if (manualQRInput) {
+                manualQRInput.style.display = 'block';
+                if (qrResultCard) qrResultCard.style.display = 'none';
+                if (manualQRCode) {
+                    manualQRCode.focus();
+                    manualQRCode.value = '';
+                }
+                manualQRInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        };
+        
+        if (submitManualQR && manualQRCode) {
+            submitManualQR.addEventListener('click', function() {
+                const qrData = manualQRCode.value.trim();
+                if (!qrData) {
+                    alert('Please enter QR code data');
+                    return;
+                }
+                try {
+                    handleQrResult(qrData);
+                    if (manualQRInput) manualQRInput.style.display = 'none';
+                } catch (error) {
+                    console.error('Error processing manual QR code:', error);
+                    alert('Error processing QR code: ' + error.message);
+                }
+            });
+            
+            manualQRCode.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitManualQR.click();
+                }
+            });
+        }
+        
+        if (closeManualInput) {
+            closeManualInput.addEventListener('click', function() {
+                if (manualQRInput) manualQRInput.style.display = 'none';
+            });
+        }
+
+        function attachVisitorsListener() {
+            detachVisitorsListener();
+            visitorRefListener = database.ref('visitorRequests');
+            visitorRefListener.on('value', (snapshot) => {
+                const requests = [];
+                snapshot.forEach((child) => requests.push({ id: child.key, ...child.val() }));
+                renderVisitorData(requests);
+            });
+        }
+
+        function detachVisitorsListener() {
+            if (visitorRefListener) {
+                visitorRefListener.off();
+                visitorRefListener = null;
+            }
+        }
+
+        function renderVisitorData(requests) {
+            const today = new Date().toISOString().split('T')[0];
+            let registeredCount = 0;
+            let todayCount = 0;
+            let checkedInCount = 0;
+            let totalVisitorCount = 0;
+
+            const registeredRequests = [];
+            const allRequests = [];
+
+            requests.forEach((req) => {
+                if (req.status === 'registered') registeredCount++;
+                if (req.visitDate === today) todayCount++;
+                if (req.status === 'checked-in') {
+                    checkedInCount++;
+                    totalVisitorCount += (req.numberOfVisitors || 1);
+                }
+
+                if (req.status === 'registered') registeredRequests.push(req);
+                allRequests.push(req);
+            });
+
+            pendingCountEl.textContent = registeredCount;
+            todayCountEl.textContent = todayCount;
+            checkedInCountEl.textContent = totalVisitorCount;
+
+            pendingContainer.innerHTML = registeredRequests.length ? registeredRequests.map(renderVisitorRow).join('') :
+                '<p class="text-muted" style="padding: 15px;">No registered visitors today.</p>';
+
+            allRequestsContainer.innerHTML = allRequests.length ? allRequests.map(renderVisitorRow).join('') :
+                '<p class="text-muted" style="padding: 15px;">No visitor requests found.</p>';
+        }
+
+        function renderVisitorRow(request) {
+            const visitInfo = `${request.visitDate || '-'} ${request.visitTime || ''}`;
+            const statusClass = `status-badge ${request.status || 'registered'}`;
+            const carInfo = request.carPlate ? `<div style="color:#777; font-size:12px;"><i class="fa-solid fa-car-side"></i> ${request.carPlate}</div>` : '';
+            const visitorCount = request.numberOfVisitors ? `<div style="color:#777; font-size:12px;"><i class="fa-solid fa-users"></i> ${request.numberOfVisitors} visitor(s)</div>` : '';
+
+            const mediaHtml = request.idPhoto ? `
+                <div class="visitor-media">
+                    <img src="${request.idPhoto}" alt="ID Photo">
+                </div>
+            ` : '';
+
+            return `
+                <div class="visitor-row">
+                    <div>
+                        <strong>${request.visitorName || 'N/A'}</strong>
+                        <div style="color:#777; font-size:12px;">${request.visitorContact || ''}</div>
+                        ${visitorCount}
+                        ${carInfo}
+                        <div style="color:#999; font-size:12px;">Code: ${request.securityCode || '-'}</div>
+                        ${mediaHtml}
+                    </div>
+                    <div>
+                        <strong>${request.tenantName || 'Tenant'}</strong>
+                        <div style="color:#777; font-size:12px;">${request.tenantEmail || ''}</div>
+                        ${request.roomNumber ? `<div style="color:#999; font-size:12px;">Room: ${request.roomNumber}</div>` : ''}
+                    </div>
+                    <div>${visitInfo}</div>
+                    <div><span class="${statusClass}">${(request.status || 'registered').replace('-', ' ')}</span></div>
+                    <div>
+                        ${renderActionButtons(request)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderActionButtons(request) {
+            const buttons = [];
+            const requestKey = request.id || request.requestId;
+            if (!requestKey) return '<span style="color:#999; font-size:12px;">No actions</span>';
+
+            if (request.status === 'registered') {
+                buttons.push(`<button class="btn btn-sm btn-primary" onclick="checkInVisitor('${requestKey}')"><i class="fa-solid fa-door-open"></i> Check-In</button>`);
+            } else if (request.status === 'checked-in') {
+                buttons.push(`<button class="btn btn-sm btn-secondary" onclick="updateVisitorStatus('${requestKey}', 'checked-out')"><i class="fa-solid fa-door-closed"></i> Check-Out</button>`);
+            }
+
+            if (buttons.length === 0) {
+                return '<span style="color:#999; font-size:12px;">No actions</span>';
+            }
+
+            return buttons.join('&nbsp;');
+        }
+
+        let currentCheckInRequestId = null;
+        let idCaptureStream = null;
+
+        window.checkInVisitor = function(requestId) {
+            currentCheckInRequestId = requestId;
+            database.ref(`visitorRequests/${requestId}`).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) throw new Error('Visitor request not found');
+                    const request = snapshot.val();
+                    showIdCaptureModal(request);
+                })
+                .catch((error) => {
+                    alert('Error loading visitor data: ' + error.message);
+                });
+        };
+
+        function showIdCaptureModal(request) {
+            const modal = document.getElementById('id-capture-modal');
+            const modalContent = modal.querySelector('.modal-content-capture');
+            modalContent.innerHTML = `
+                <h3><i class="fa-solid fa-camera"></i> Check-In Visitor: ${request.visitorName || 'N/A'}</h3>
+                <p><strong>Number of Visitors:</strong> ${request.numberOfVisitors || 1}</p>
+                <p><strong>Tenant:</strong> ${request.tenantName || 'N/A'} (Room: ${request.roomNumber || 'N/A'})</p>
+                <p style="color: #666; margin-bottom: 20px;">Please capture or upload the visitor's ID photo for records.</p>
+                
+                <div id="camera-section">
+                    <video id="id-capture-video" autoplay playsinline style="display: none;"></video>
+                    <div id="camera-error" style="display: none; padding: 20px; background: #fff3cd; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="color: #856404; margin: 0;"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Camera access denied.</strong> Please use the file upload option below or grant camera permissions in your browser settings.</p>
+                    </div>
+                </div>
+                
+                <div id="upload-section" style="margin-top: 15px;">
+                    <label for="id-upload-input" style="display: block; margin-bottom: 10px; font-weight: 600;">
+                        <i class="fa-solid fa-upload"></i> Or Upload ID Photo:
+                    </label>
+                    <input type="file" id="id-upload-input" accept="image/*" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 15px;">
+                </div>
+                
+                <canvas id="id-capture-canvas" style="display: none;"></canvas>
+                <div id="id-capture-preview" style="display: none; text-align: center; margin: 15px 0;">
+                    <img id="id-preview-img" style="max-width: 100%; border-radius: 8px; border: 2px solid #667eea;">
+                    <p style="color: #28a745; margin-top: 10px;"><i class="fa-solid fa-check-circle"></i> ID photo ready</p>
+                </div>
+                
+                <div class="capture-buttons">
+                    <button class="btn btn-primary" id="capture-id-btn" onclick="captureIdPhoto()" style="display: none;">
+                        <i class="fa-solid fa-camera"></i> Capture from Camera
+                    </button>
+                    <button class="btn btn-success" id="confirm-checkin-btn" onclick="confirmCheckIn()" style="display: none;">
+                        <i class="fa-solid fa-check"></i> Confirm Check-In
+                    </button>
+                    <button class="btn btn-secondary" onclick="cancelIdCapture()">
+                        <i class="fa-solid fa-times"></i> Cancel
+                    </button>
+                </div>
+            `;
+            modal.style.display = 'block';
+            
+            // Setup file upload handler
+            const uploadInput = document.getElementById('id-upload-input');
+            if (uploadInput) {
+                uploadInput.addEventListener('change', handleIdUpload);
+            }
+            
+            // Try to start camera
+            startIdCapture();
+        }
+
+        function startIdCapture() {
+            const video = document.getElementById('id-capture-video');
+            const cameraError = document.getElementById('camera-error');
+            const captureBtn = document.getElementById('capture-id-btn');
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                if (cameraError) cameraError.style.display = 'block';
+                if (captureBtn) captureBtn.style.display = 'none';
+                return;
+            }
+
+            // Try rear camera first (environment), then fallback to any camera
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then((stream) => {
+                    idCaptureStream = stream;
+                    if (video) {
+                        video.srcObject = stream;
+                        video.style.display = 'block';
+                    }
+                    if (cameraError) cameraError.style.display = 'none';
+                    if (captureBtn) captureBtn.style.display = 'inline-block';
+                })
+                .catch(() => {
+                    // Try any available camera as fallback
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then((stream) => {
+                            idCaptureStream = stream;
+                            if (video) {
+                                video.srcObject = stream;
+                                video.style.display = 'block';
+                            }
+                            if (cameraError) cameraError.style.display = 'none';
+                            if (captureBtn) captureBtn.style.display = 'inline-block';
+                        })
+                        .catch((error) => {
+                            // Camera access failed - show error and hide camera button
+                            if (cameraError) {
+                                cameraError.style.display = 'block';
+                                let errorMsg = 'Camera access denied. ';
+                                if (error.name === 'NotAllowedError') {
+                                    errorMsg += 'Please allow camera access in your browser settings and refresh.';
+                                } else if (error.name === 'NotFoundError') {
+                                    errorMsg += 'No camera found. Please use the file upload option.';
+                                } else if (error.name === 'NotReadableError') {
+                                    errorMsg += 'Camera is being used by another application. Please close other apps and try again, or use file upload.';
+                                } else {
+                                    errorMsg += 'Please use the file upload option below.';
+                                }
+                                cameraError.querySelector('p').innerHTML = `<i class="fa-solid fa-exclamation-triangle"></i> <strong>${error.name}:</strong> ${errorMsg}`;
+                            }
+                            if (captureBtn) captureBtn.style.display = 'none';
+                            if (video) video.style.display = 'none';
+                        });
+                });
+        }
+        
+        function handleIdUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                event.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const canvas = document.getElementById('id-capture-canvas');
+                const preview = document.getElementById('id-capture-preview');
+                const previewImg = document.getElementById('id-preview-img');
+                const confirmBtn = document.getElementById('confirm-checkin-btn');
+                const video = document.getElementById('id-capture-video');
+                
+                if (canvas && preview && previewImg) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Set canvas size
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Show preview
+                        previewImg.src = e.target.result;
+                        preview.style.display = 'block';
+                        if (video) video.style.display = 'none';
+                        if (confirmBtn) confirmBtn.style.display = 'inline-block';
+                        
+                        // Stop camera if running
+                        if (idCaptureStream) {
+                            idCaptureStream.getTracks().forEach(track => track.stop());
+                            idCaptureStream = null;
+                        }
+                    };
+                    img.src = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.captureIdPhoto = function() {
+            const video = document.getElementById('id-capture-video');
+            const canvas = document.getElementById('id-capture-canvas');
+            const preview = document.getElementById('id-capture-preview');
+            const previewImg = document.getElementById('id-preview-img');
+            const captureBtn = document.getElementById('capture-id-btn');
+            const confirmBtn = document.getElementById('confirm-checkin-btn');
+
+            if (!video || !canvas || !preview || !previewImg) {
+                alert('Camera elements not found. Please refresh and try again.');
+                return;
+            }
+
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                alert('Camera not ready. Please wait a moment and try again.');
+                return;
+            }
+
+            try {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                previewImg.src = imageData;
+                preview.style.display = 'block';
+                video.style.display = 'none';
+                if (captureBtn) captureBtn.style.display = 'none';
+                if (confirmBtn) confirmBtn.style.display = 'inline-block';
+
+                if (idCaptureStream) {
+                    idCaptureStream.getTracks().forEach(track => track.stop());
+                    idCaptureStream = null;
+                }
+            } catch (error) {
+                console.error('Error capturing photo:', error);
+                alert('Error capturing photo: ' + error.message);
+            }
+        };
+
+        window.confirmCheckIn = function() {
+            const canvas = document.getElementById('id-capture-canvas');
+            const previewImg = document.getElementById('id-preview-img');
+            
+            if (!currentCheckInRequestId) {
+                alert('Error: No visitor selected. Please try again.');
+                return;
+            }
+
+            let idPhotoData = null;
+            
+            // Get image data from canvas or preview image
+            if (canvas && canvas.width > 0 && canvas.height > 0) {
+                idPhotoData = canvas.toDataURL('image/jpeg', 0.8);
+            } else if (previewImg && previewImg.src) {
+                idPhotoData = previewImg.src;
+            } else {
+                alert('Please capture or upload an ID photo before checking in.');
+                return;
+            }
+
+            const requestId = currentCheckInRequestId;
+
+            database.ref(`visitorRequests/${requestId}`).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) throw new Error('Visitor request not found');
+                    const request = snapshot.val();
+                    const now = new Date();
+
+                    const updates = {
+                        [`visitorRequests/${requestId}/status`]: 'checked-in',
+                        [`visitorRequests/${requestId}/idPhoto`]: idPhotoData,
+                        [`visitorRequests/${requestId}/checkInTime`]: now.toISOString(),
+                        [`visitorRequests/${requestId}/checkInYear`]: now.getFullYear(),
+                        [`visitorRequests/${requestId}/checkInMonth`]: now.getMonth() + 1,
+                        [`visitorRequests/${requestId}/checkInDay`]: now.getDate(),
+                        [`visitorRequests/${requestId}/checkInHour`]: now.getHours(),
+                        [`visitorRequests/${requestId}/checkInMinute`]: now.getMinutes(),
+                        [`visitorRequests/${requestId}/checkedInBy`]: auth.currentUser ? auth.currentUser.email : 'Security',
+                        [`visitorRequests/${requestId}/updatedAt`]: now.toISOString()
+                    };
+
+                    return database.ref().update(updates).then(() => {
+                        createVisitorNotification(database, request.tenantId, request, 'checked-in');
+                        cancelIdCapture();
+                        alert(`Visitor checked in successfully! Count: ${request.numberOfVisitors || 1}`);
+                    });
+                })
+                .catch((error) => {
+                    alert('Error checking in visitor: ' + error.message);
+                });
+        };
+
+        window.cancelIdCapture = function() {
+            // Stop camera stream
+            if (idCaptureStream) {
+                idCaptureStream.getTracks().forEach(track => track.stop());
+                idCaptureStream = null;
+            }
+            
+            // Reset file input
+            const uploadInput = document.getElementById('id-upload-input');
+            if (uploadInput) {
+                uploadInput.value = '';
+            }
+            
+            // Hide modal
+            const modal = document.getElementById('id-capture-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            currentCheckInRequestId = null;
+        };
+
+        window.updateVisitorStatus = function(requestId, newStatus) {
+            database.ref(`visitorRequests/${requestId}`).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) throw new Error('Visitor request not found');
+                    const request = snapshot.val();
+                    const now = new Date();
+                    const updates = {
+                        [`visitorRequests/${requestId}/status`]: newStatus,
+                        [`visitorRequests/${requestId}/updatedAt`]: now.toISOString()
+                    };
+
+                    if (newStatus === 'checked-out') {
+                        updates[`visitorRequests/${requestId}/checkOutTime`] = now.toISOString();
+                        updates[`visitorRequests/${requestId}/checkOutYear`] = now.getFullYear();
+                        updates[`visitorRequests/${requestId}/checkOutMonth`] = now.getMonth() + 1;
+                        updates[`visitorRequests/${requestId}/checkOutDay`] = now.getDate();
+                        updates[`visitorRequests/${requestId}/checkOutHour`] = now.getHours();
+                        updates[`visitorRequests/${requestId}/checkOutMinute`] = now.getMinutes();
+                        updates[`visitorRequests/${requestId}/checkedOutBy`] = auth.currentUser ? auth.currentUser.email : 'Security';
+                    }
+
+                    return database.ref().update(updates).then(() => {
+                        createVisitorNotification(database, request.tenantId, request, newStatus);
+                    });
+                })
+                .catch((error) => {
+                    alert('Error updating visitor request: ' + error.message);
+                });
+        };
+
+        function createVisitorNotification(database, tenantId, request, status) {
+            if (!window.createNotification) return;
+
+            let title = 'Visitor Update';
+            let message = '';
+
+            if (status === 'checked-in') {
+                title = 'Visitor Checked In';
+                message = `Your visitor ${request.visitorName || ''} (${request.numberOfVisitors || 1} person(s)) has arrived and checked in.`;
+            } else if (status === 'checked-out') {
+                title = 'Visitor Checked Out';
+                message = `Your visitor ${request.visitorName || ''} has checked out.`;
+            } else {
+                return;
+            }
+
+            window.createNotification(database, tenantId, {
+                type: 'visitor',
+                title,
+                message,
+                link: '#visitors'
+            });
+        }
+
+        let isStartingScanner = false;
+        
+        function startQrScanner() {
+            if (qrVideoStream) {
+                console.log('QR scanner already running');
+                return;
+            }
+            
+            if (isStartingScanner) {
+                console.log('QR scanner is already starting, please wait...');
+                return;
+            }
+            
+            isStartingScanner = true;
+
+            // Check if user is still authenticated
+            if (!auth.currentUser) {
+                qrResultCard.style.display = 'block';
+                qrResultContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fa-solid fa-lock" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                        <h4 style="color: #dc3545; margin-bottom: 10px;">Session Expired</h4>
+                        <p style="color: #666; margin-bottom: 20px;">Please log in again to continue.</p>
+                        <button class="btn btn-primary" onclick="window.location.reload();" style="margin-top: 10px;">
+                            <i class="fa-solid fa-sign-in-alt"></i> Go to Login
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                if (!qrReaderEl) {
+                    console.error('QR reader element not found');
+                    alert('QR scanner element not found. Please refresh the page.');
+                    isStartingScanner = false;
+                    return;
+                }
+                
+                if (!qrVideoElement) {
+                    console.error('QR video element not found');
+                    alert('QR video element not found. Please refresh the page.');
+                    isStartingScanner = false;
+                    return;
+                }
+                
+                qrReaderEl.style.display = 'block';
+                if (qrActions) qrActions.style.display = 'block';
+                if (qrResultCard) qrResultCard.style.display = 'none';
+                if (qrResultContent) qrResultContent.innerHTML = '';
+
+                // Scroll to QR scanner section
+                qrReaderEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Stop any existing stream
+                stopQrScanner();
+
+                // Try to get camera access - prefer rear camera on mobile
+                const constraints = {
+                    video: {
+                        facingMode: { ideal: 'environment' }, // Rear camera on mobile
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert('Camera access is not supported in this browser. Please use a modern browser like Chrome, Firefox, or Safari.');
+                    isStartingScanner = false;
+                    if (qrResultCard && qrResultContent) {
+                        qrResultCard.style.display = 'block';
+                        qrResultContent.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                                <h4 style="color: #dc3545; margin-bottom: 10px;">Camera Not Supported</h4>
+                                <p style="color: #666; margin-bottom: 20px;">Your browser does not support camera access. Please use Chrome, Firefox, or Safari.</p>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(stream => {
+                        qrVideoStream = stream;
+                        if (qrVideoElement) {
+                            qrVideoElement.srcObject = stream;
+                            qrVideoElement.setAttribute('playsinline', 'true');
+                            qrVideoElement.setAttribute('webkit-playsinline', 'true');
+                            qrVideoElement.muted = true;
+                            
+                            qrVideoElement.onloadedmetadata = () => {
+                                qrVideoElement.play().then(() => {
+                                    isStartingScanner = false;
+                                    
+                                    // Set canvas size to match video
+                                    if (qrCanvasElement && qrVideoElement) {
+                                        qrCanvasElement.width = qrVideoElement.videoWidth || 640;
+                                        qrCanvasElement.height = qrVideoElement.videoHeight || 480;
+                                    }
+                                    
+                                    // Wait a bit for video to stabilize, then start scanning
+                                    setTimeout(() => {
+                                        startQrScanning();
+                                    }, 500);
+                                }).catch(error => {
+                                    console.error('Error playing video:', error);
+                                    isStartingScanner = false;
+                                    showCameraError(error);
+                                });
+                            };
+                            
+                            qrVideoElement.onerror = (error) => {
+                                console.error('Video element error:', error);
+                                isStartingScanner = false;
+                                showCameraError({ name: 'VideoError', message: 'Failed to load video stream' });
+                            };
+                            
+                            // Force play if metadata doesn't fire
+                            setTimeout(() => {
+                                if (qrVideoElement.paused) {
+                                    qrVideoElement.play().catch(err => {
+                                        console.error('Force play error:', err);
+                                    });
+                                }
+                            }, 1000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('QR scanner start error:', error);
+                        isStartingScanner = false;
+                        
+                        // Try fallback camera if rear camera fails (unless it's a permission or in-use error)
+                        const errorName = error?.name || '';
+                        const errorMessage = error?.message || '';
+                        const isNotAllowed = errorName === 'NotAllowedError' || errorMessage.includes('permission') || errorMessage.includes('denied');
+                        const isNotReadable = errorName === 'NotReadableError' || errorMessage.includes('readable') || errorMessage.includes('Could not start video source');
+                        
+                        if (!isNotAllowed && !isNotReadable) {
+                            // Try front camera as fallback
+                            console.log('Trying fallback camera (front)...');
+                            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+                                .then(stream => {
+                                    qrVideoStream = stream;
+                                    if (qrVideoElement) {
+                                        qrVideoElement.srcObject = stream;
+                                        qrVideoElement.setAttribute('playsinline', 'true');
+                                        qrVideoElement.setAttribute('webkit-playsinline', 'true');
+                                        
+                                        qrVideoElement.onloadedmetadata = () => {
+                                            qrVideoElement.play().then(() => {
+                                                if (qrCanvasElement && qrVideoElement) {
+                                                    qrCanvasElement.width = qrVideoElement.videoWidth || 640;
+                                                    qrCanvasElement.height = qrVideoElement.videoHeight || 480;
+                                                }
+                                                setTimeout(() => {
+                                                    startQrScanning();
+                                                }, 500);
+                                            }).catch(error => {
+                                                console.error('Error playing fallback video:', error);
+                                                showCameraError(error);
+                                            });
+                                        };
+                                    }
+                                })
+                                .catch(fallbackError => {
+                                    console.error('Fallback camera also failed:', fallbackError);
+                                    showCameraError(fallbackError);
+                                });
+                        } else {
+                            // Show error immediately for permission or in-use errors
+                            showCameraError(error);
+                        }
+                    });
+            } catch (error) {
+                console.error('Error initializing QR scanner:', error);
+                isStartingScanner = false; // Reset flag
+                stopQrScanner();
+                
+                // Show error in UI
+                qrResultCard.style.display = 'block';
+                qrResultContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                        <h4 style="color: #dc3545; margin-bottom: 10px;">Error Starting QR Scanner</h4>
+                        <p style="color: #666; margin-bottom: 20px;">${error.message || 'An unexpected error occurred. Please try again.'}</p>
+                        <button class="btn btn-primary" onclick="document.getElementById('qr-result-card').style.display='none'; startQrScanner();" style="margin-top: 10px;">
+                            <i class="fa-solid fa-redo"></i> Try Again
+                        </button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('qr-result-card').style.display='none';" style="margin-top: 10px; margin-left: 10px;">
+                            <i class="fa-solid fa-times"></i> Close
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function showCameraError(error) {
+            // Show user-friendly error message in UI
+            let errorMsg = 'Unable to access camera. ';
+            let detailedMsg = '';
+            
+            if (error.name === 'NotAllowedError' || (error.message && error.message.includes('permission'))) {
+                errorMsg = 'Camera access denied.';
+                detailedMsg = 'Please allow camera access in your browser settings. Click the camera icon in your browser\'s address bar and select "Allow".';
+            } else if (error.name === 'NotFoundError' || (error.message && error.message.includes('not found'))) {
+                errorMsg = 'No camera found.';
+                detailedMsg = 'Please connect a camera device and try again.';
+            } else if (error.name === 'NotReadableError' || (error.message && error.message.includes('readable')) || (error.message && error.message.includes('Could not start video source'))) {
+                errorMsg = 'Camera is in use.';
+                detailedMsg = 'Another application or browser tab is using the camera. Please:\n\n1. Close all other applications that might be using the camera\n2. Close other browser tabs that have camera access\n3. Wait a few seconds for the camera to be released\n4. Try again';
+            } else if (error.name === 'AbortError' || (error.message && error.message.includes('Timeout'))) {
+                errorMsg = 'Camera timeout.';
+                detailedMsg = 'The camera took too long to start. This might be due to:\n\n1. Another app using the camera\n2. The camera being busy\n3. Browser permissions issue\n\nYou can use manual entry instead.';
+            } else if (error.message) {
+                detailedMsg = error.message;
+            } else {
+                detailedMsg = 'Please check camera permissions in your browser settings.';
+            }
+            
+            // Display error in QR result card
+            qrResultCard.style.display = 'block';
+            qrResultContent.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fa-solid fa-exclamation-triangle" style="font-size: 48px; color: #ffc107; margin-bottom: 15px;"></i>
+                    <h4 style="color: #dc3545; margin-bottom: 10px;">${errorMsg}</h4>
+                    <p style="color: #666; margin-bottom: 20px;">${detailedMsg}</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left;">
+                        <p style="margin: 5px 0; font-weight: 600;">To fix this:</p>
+                        ${detailedMsg.includes('\n') ? 
+                            `<div style="white-space: pre-line; margin: 10px 0; padding-left: 5px;">${detailedMsg}</div>` :
+                            `<ol style="margin: 10px 0; padding-left: 20px;">
+                                <li>Check your browser's camera permissions</li>
+                                <li>Look for the camera icon in the address bar</li>
+                                <li>Click it and select "Allow"</li>
+                                <li>Close other apps/tabs using the camera</li>
+                                <li>Wait a few seconds and try again</li>
+                            </ol>`
+                        }
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="document.getElementById('qr-result-card').style.display='none'; startQrScanner();" style="margin-top: 10px;">
+                            <i class="fa-solid fa-redo"></i> Try Again
+                        </button>
+                        ${(error.name === 'AbortError' || error.message?.includes('Timeout') || error.name === 'NotReadableError') ? `
+                        <button class="btn btn-success" onclick="showManualQRInput(); document.getElementById('qr-result-card').style.display='none';" style="margin-top: 10px;">
+                            <i class="fa-solid fa-keyboard"></i> Enter Manually
+                        </button>
+                        ` : ''}
+                        <button class="btn btn-secondary" onclick="document.getElementById('qr-result-card').style.display='none';" style="margin-top: 10px;">
+                            <i class="fa-solid fa-times"></i> Close
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startQrScanning() {
+            // Check if jsQR is loaded
+            if (typeof jsQR === 'undefined') {
+                console.error('jsQR library not loaded. Waiting...');
+                // Retry after a short delay
+                setTimeout(() => {
+                    if (typeof jsQR !== 'undefined') {
+                        startQrScanning();
+                    } else {
+                        console.error('jsQR library failed to load');
+                        qrResultCard.style.display = 'block';
+                        qrResultContent.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fa-solid fa-exclamation-triangle" style="font-size: 48px; color: #ffc107; margin-bottom: 15px;"></i>
+                                <h4 style="color: #dc3545; margin-bottom: 10px;">QR Scanner Library Error</h4>
+                                <p style="color: #666; margin-bottom: 20px;">The QR scanner library failed to load. Please refresh the page and try again.</p>
+                                <button class="btn btn-primary" onclick="window.location.reload();" style="margin-top: 10px;">
+                                    <i class="fa-solid fa-redo"></i> Refresh Page
+                                </button>
+                            </div>
+                        `;
+                        stopQrScanner();
+                    }
+                }, 500);
+                return;
+            }
+            
+            if (!qrVideoElement || !qrCanvasElement || !qrCanvasContext) {
+                console.error('QR scanning setup incomplete');
+                return;
+            }
+            
+            // Clear any existing interval
+            if (qrScanningInterval) {
+                clearInterval(qrScanningInterval);
+            }
+            
+            console.log('Starting QR scanning...', {
+                videoReady: qrVideoElement.readyState,
+                videoWidth: qrVideoElement.videoWidth,
+                videoHeight: qrVideoElement.videoHeight,
+                canvasWidth: qrCanvasElement.width,
+                canvasHeight: qrCanvasElement.height
+            });
+            
+            // Scan for QR codes every 100ms
+            qrScanningInterval = setInterval(() => {
+                if (qrVideoElement.readyState === qrVideoElement.HAVE_ENOUGH_DATA) {
+                    try {
+                        // Ensure canvas size matches video
+                        if (qrCanvasElement.width !== qrVideoElement.videoWidth || 
+                            qrCanvasElement.height !== qrVideoElement.videoHeight) {
+                            qrCanvasElement.width = qrVideoElement.videoWidth;
+                            qrCanvasElement.height = qrVideoElement.videoHeight;
+                        }
+                        
+                        // Draw video frame to canvas
+                        qrCanvasContext.drawImage(qrVideoElement, 0, 0, qrCanvasElement.width, qrCanvasElement.height);
+                        
+                        // Get image data from canvas
+                        const imageData = qrCanvasContext.getImageData(0, 0, qrCanvasElement.width, qrCanvasElement.height);
+                        
+                        // Try to decode QR code
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: 'dontInvert',
+                        });
+                        
+                        if (code) {
+                            console.log('QR Code scanned:', code.data);
+                            // Stop scanning
+                            stopQrScanner();
+                            // Handle the result
+                            try {
+                                handleQrResult(code.data);
+                            } catch (error) {
+                                console.error('Error handling QR result:', error);
+                                qrResultCard.style.display = 'block';
+                                qrResultContent.innerHTML = `
+                                    <div style="text-align: center; padding: 20px;">
+                                        <i class="fa-solid fa-exclamation-circle" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                                        <h4 style="color: #dc3545; margin-bottom: 10px;">Error Processing QR Code</h4>
+                                        <p style="color: #666; margin-bottom: 20px;">${error.message || 'Unable to process the scanned QR code. Please try again.'}</p>
+                                        <button class="btn btn-primary" onclick="document.getElementById('qr-result-card').style.display='none'; startQrScanner();" style="margin-top: 10px;">
+                                            <i class="fa-solid fa-redo"></i> Scan Again
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="document.getElementById('qr-result-card').style.display='none';" style="margin-top: 10px; margin-left: 10px;">
+                                            <i class="fa-solid fa-times"></i> Close
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error during QR scanning:', error);
+                        // Don't stop scanning on individual frame errors
+                    }
+                }
+            }, 100); // Scan every 100ms
+        }
+
+        function stopQrScanner() {
+            isStartingScanner = false;
+            
+            // Stop scanning interval
+            if (qrScanningInterval) {
+                clearInterval(qrScanningInterval);
+                qrScanningInterval = null;
+            }
+            
+            // Stop video stream
+            if (qrVideoStream) {
+                qrVideoStream.getTracks().forEach(track => track.stop());
+                qrVideoStream = null;
+            }
+            
+            // Clear video element
+            if (qrVideoElement) {
+                qrVideoElement.srcObject = null;
+            }
+            
+            // Hide scanner UI
+            qrReaderEl.style.display = 'none';
+            qrActions.style.display = 'none';
+        }
+
+        function handleQrResult(decodedText) {
+            // Check if user is still authenticated
+            if (!auth.currentUser) {
+                qrResultCard.style.display = 'block';
+                qrResultContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fa-solid fa-lock" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                        <h4 style="color: #dc3545; margin-bottom: 10px;">Session Expired</h4>
+                        <p style="color: #666; margin-bottom: 20px;">Please log in again to continue.</p>
+                        <button class="btn btn-primary" onclick="window.location.reload();" style="margin-top: 10px;">
+                            <i class="fa-solid fa-sign-in-alt"></i> Go to Login
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let payload;
+            try {
+                payload = JSON.parse(decodedText);
+            } catch (e) {
+                // If not JSON, treat the whole string as requestId
+                payload = { requestId: decodedText };
+            }
+
+            const requestId = payload.requestId || payload.id || decodedText;
+            if (!requestId) {
+                alert('Invalid QR code. No request ID found.');
+                return;
+            }
+
+            // Show loading state
+            qrResultCard.style.display = 'block';
+            qrResultContent.innerHTML = '<p><i class="fa-solid fa-spinner fa-spin"></i> Loading visitor data...</p>';
+
+            database.ref(`visitorRequests/${requestId}`).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        throw new Error('Visitor request not found. The QR code may be invalid or expired.');
+                    }
+                    const request = snapshot.val();
+                    request.id = requestId;
+                    showQrResult(request);
+                })
+                .catch((error) => {
+                    console.error('Error retrieving visitor data:', error);
+                    qrResultCard.style.display = 'block';
+                    qrResultContent.innerHTML = `
+                        <div style="color: #dc3545; padding: 20px; text-align: center;">
+                            <i class="fa-solid fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
+                            <h4>Error</h4>
+                            <p>${error.message || 'Error retrieving visitor data. Please try again.'}</p>
+                            <button class="btn btn-secondary" onclick="document.getElementById('qr-result-card').style.display='none'; startQrScanner();" style="margin-top: 15px;">
+                                <i class="fa-solid fa-redo"></i> Scan Again
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+
+        function showQrResult(request) {
+            request.id = request.requestId || request.id;
+            qrResultCard.style.display = 'block';
+            qrResultContent.innerHTML = `
+                <h4>${request.visitorName || 'Visitor'}</h4>
+                <p><strong>Tenant:</strong> ${request.tenantName || 'N/A'} (${request.roomNumber || 'Room N/A'})</p>
+                <p><strong>Number of Visitors:</strong> ${request.numberOfVisitors || 1}</p>
+                <p><strong>Visit:</strong> ${request.visitDate || '-'} ${request.visitTime || ''}</p>
+                <p><strong>Security Code:</strong> ${request.securityCode || '-'}</p>
+                ${request.carPlate ? `<p><strong>Car Plate:</strong> ${request.carPlate}</p>` : ''}
+                ${request.reason ? `<p><strong>Reason:</strong> ${request.reason}</p>` : ''}
+                ${request.idPhoto ? `
+                    <div class="visitor-media">
+                        <img src="${request.idPhoto}" alt="ID Photo">
+                    </div>
+                ` : ''}
+                <div style="margin-top: 15px;">
+                    ${renderActionButtons(request)}
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>
+

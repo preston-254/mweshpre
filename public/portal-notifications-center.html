@@ -1,0 +1,431 @@
+<div class="notifications-center-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 style="margin: 0; color: #333;">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                </h2>
+                <button class="btn btn-primary" onclick="markAllAsRead()" id="mark-all-read-btn" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fa-solid fa-check-double"></i> Mark All as Read
+                </button>
+            </div>
+            
+            <div class="notifications-container" id="notifications-container">
+                <div class="text-center" style="padding: 40px;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 32px; color: #667eea;"></i>
+                    <p style="margin-top: 15px; color: #666;">Loading notifications...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.notifications-center-content {
+    padding: 0;
+}
+
+.notifications-container {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    min-height: 400px;
+}
+
+.notification-item {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.notification-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.notification-item.unread {
+    background: #f0f4ff;
+    border-left-width: 5px;
+    font-weight: 600;
+}
+
+.notification-item.read {
+    opacity: 0.8;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.notification-message {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.notification-action-btn {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.notification-action-btn:hover {
+    background: #e9ecef;
+}
+
+.notification-action-btn.delete {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.notification-action-btn.delete:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    background: white;
+    border: 2px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.filter-tab:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.filter-tab.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+</style>
+
+<script>
+(function() {
+    let unsubscribeNotifications = null;
+    let currentFilter = 'all'; // 'all', 'unread', 'read'
+    
+    function loadNotificationsCenter() {
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            setTimeout(loadNotificationsCenter, 200);
+            return;
+        }
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) {
+            firebaseAuth.onAuthStateChanged((u) => {
+                if (u) loadNotificationsCenter();
+            });
+            return;
+        }
+        
+        const container = document.getElementById('notifications-container');
+        if (!container) return;
+        
+        // Load notifications with real-time updates
+        if (window.loadNotifications) {
+            unsubscribeNotifications = window.loadNotifications(firebaseDatabase, user.uid, (notifications) => {
+                displayNotifications(notifications, container);
+                updateMarkAllButton(notifications);
+            });
+        }
+    }
+    
+    function displayNotifications(notifications, container) {
+        if (!notifications || notifications.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-bell-slash"></i>
+                    <h3>No Notifications</h3>
+                    <p>You're all caught up! New notifications will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Filter notifications
+        let filteredNotifications = notifications;
+        if (currentFilter === 'unread') {
+            filteredNotifications = notifications.filter(n => !n.read);
+        } else if (currentFilter === 'read') {
+            filteredNotifications = notifications.filter(n => n.read);
+        }
+        
+        if (filteredNotifications.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <h3>No ${currentFilter === 'all' ? '' : currentFilter} notifications</h3>
+                    <p>Try selecting a different filter.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = `
+            <div class="filter-tabs">
+                <div class="filter-tab ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">
+                    All (${notifications.length})
+                </div>
+                <div class="filter-tab ${currentFilter === 'unread' ? 'active' : ''}" onclick="setFilter('unread')">
+                    Unread (${notifications.filter(n => !n.read).length})
+                </div>
+                <div class="filter-tab ${currentFilter === 'read' ? 'active' : ''}" onclick="setFilter('read')">
+                    Read (${notifications.filter(n => n.read).length})
+                </div>
+            </div>
+        `;
+        
+        filteredNotifications.forEach(notification => {
+            const icon = window.getNotificationIcon ? window.getNotificationIcon(notification.type) : 'fa-solid fa-bell';
+            const color = window.getNotificationColor ? window.getNotificationColor(notification.type) : '#667eea';
+            const time = window.formatNotificationTime ? window.formatNotificationTime(notification.timestamp) : 'Recently';
+            const isUnread = !notification.read;
+            
+            html += `
+                <div class="notification-item ${isUnread ? 'unread' : 'read'}" onclick="handleNotificationClick('${notification.id}', ${isUnread}, '${notification.link || ''}')">
+                    <div class="notification-header">
+                        <div style="display: flex; align-items: flex-start;">
+                            <div class="notification-icon" style="background: ${color};">
+                                <i class="${icon}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">${escapeHtml(notification.title)}</div>
+                                <div class="notification-message">${escapeHtml(notification.message)}</div>
+                                <div class="notification-time">
+                                    <i class="fa-solid fa-clock"></i> ${time}
+                                </div>
+                            </div>
+                        </div>
+                        ${isUnread ? '<div style="width: 10px; height: 10px; background: #667eea; border-radius: 50%; margin-top: 5px;"></div>' : ''}
+                    </div>
+                    <div class="notification-actions" onclick="event.stopPropagation();">
+                        ${isUnread ? `
+                            <button class="notification-action-btn" onclick="markAsRead('${notification.id}')">
+                                <i class="fa-solid fa-check"></i> Mark as Read
+                            </button>
+                        ` : ''}
+                        <button class="notification-action-btn delete" onclick="deleteNotificationItem('${notification.id}')">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    function updateMarkAllButton(notifications) {
+        const unreadCount = notifications.filter(n => !n.read).length;
+        const btn = document.getElementById('mark-all-read-btn');
+        if (btn) {
+            if (unreadCount === 0) {
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+                btn.disabled = true;
+            } else {
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                btn.disabled = false;
+            }
+        }
+    }
+    
+    window.setFilter = function(filter) {
+        currentFilter = filter;
+        loadNotificationsCenter();
+    };
+    
+    window.markAsRead = function(notificationId) {
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) return;
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) return;
+        
+        if (window.markNotificationAsRead) {
+            window.markNotificationAsRead(firebaseDatabase, user.uid, notificationId)
+                .then(() => {
+                    // Update badge
+                    if (window.updateNotificationBadge) {
+                        window.updateNotificationBadge(firebaseDatabase, user.uid);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error marking notification as read:', error);
+                    alert('Error marking notification as read');
+                });
+        }
+    };
+    
+    window.markAllAsRead = function() {
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) return;
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) return;
+        
+        if (window.markAllNotificationsAsRead) {
+            window.markAllNotificationsAsRead(firebaseDatabase, user.uid)
+                .then(() => {
+                    // Update badge
+                    if (window.updateNotificationBadge) {
+                        window.updateNotificationBadge(firebaseDatabase, user.uid);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error marking all as read:', error);
+                    alert('Error marking all notifications as read');
+                });
+        }
+    };
+    
+    window.deleteNotificationItem = function(notificationId) {
+        if (!confirm('Are you sure you want to delete this notification?')) return;
+        
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) return;
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) return;
+        
+        if (window.deleteNotification) {
+            window.deleteNotification(firebaseDatabase, user.uid, notificationId)
+                .then(() => {
+                    // Update badge
+                    if (window.updateNotificationBadge) {
+                        window.updateNotificationBadge(firebaseDatabase, user.uid);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error deleting notification:', error);
+                    alert('Error deleting notification');
+                });
+        }
+    };
+    
+    window.handleNotificationClick = function(notificationId, isUnread, link) {
+        // Mark as read if unread
+        if (isUnread) {
+            window.markAsRead(notificationId);
+        }
+        
+        // Navigate if link provided
+        if (link) {
+            if (link.startsWith('http')) {
+                window.open(link, '_blank');
+            } else {
+                // Internal navigation
+                if (window.loadPage) {
+                    const page = link.replace('#', '').replace('.html', '');
+                    window.loadPage(page, null);
+                }
+            }
+        }
+    };
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Load notifications when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadNotificationsCenter);
+    } else {
+        loadNotificationsCenter();
+    }
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (unsubscribeNotifications) {
+            unsubscribeNotifications();
+        }
+    });
+})();
+</script>
+

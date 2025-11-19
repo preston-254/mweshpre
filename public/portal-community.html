@@ -1,0 +1,1899 @@
+<div class="community-content">
+    <div class="row">
+        <div class="col-md-8">
+            <h2><i class="fa-solid fa-users"></i> Community Forum</h2>
+            <div id="community-posts" class="community-posts">
+                <div class="text-center" style="padding: 40px;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 48px; color: #667eea;"></i>
+                    <p>Loading posts...</p>
+                </div>
+            </div>
+            
+            <!-- Create New Post Section -->
+            <div class="new-post-card">
+                <h3><i class="fa-solid fa-plus"></i> Create New Post</h3>
+                <form id="new-post-form">
+                    <textarea id="post-content" class="post-textarea" rows="4" placeholder="Share something with the community..."></textarea>
+                    <button type="submit" class="btn-post">
+                        <i class="fa-solid fa-paper-plane"></i> Post
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="community-sidebar">
+                <div class="sidebar-card">
+                    <h3><i class="fa-solid fa-gamepad"></i> Quick Games</h3>
+                    <button class="game-btn" onclick="startTicTacToe()">
+                        <i class="fa-solid fa-grid-3x3"></i> Tic Tac Toe
+                    </button>
+                    <button class="game-btn" onclick="startSnake()">
+                        <i class="fa-solid fa-snake"></i> Snake Game
+                    </button>
+                </div>
+                <div class="sidebar-card">
+                    <h3><i class="fa-solid fa-user-group"></i> Online Tenants</h3>
+                    <div id="online-tenants">
+                        <p class="text-muted">Loading...</p>
+                    </div>
+                </div>
+                <div class="sidebar-card">
+                    <h3><i class="fa-solid fa-trophy"></i> Games Leaderboard</h3>
+                    <div id="games-leaderboard">
+                        <p class="text-muted">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.community-content h2 {
+    color: #333;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.community-posts {
+    margin-top: 20px;
+    min-height: 200px;
+}
+
+.post-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.post-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.post-author {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.post-date {
+    color: #999;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.post-content {
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    font-size: 15px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.new-post-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.new-post-card h3 {
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.post-textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.3s ease;
+}
+
+.post-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.community-sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+.sidebar-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.sidebar-card h3 {
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.game-btn {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.game-btn:last-child {
+    margin-bottom: 0;
+}
+
+.btn-post {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    margin-top: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-post:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.online-tenant-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.online-tenant-item:hover {
+    background: #e9ecef;
+}
+
+.online-tenant-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.online-tenant-name {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    font-size: 80px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-state-text {
+    color: #999;
+    font-size: 16px;
+}
+
+/* Game Modal Styles */
+.game-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.game-modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.game-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.game-modal-header h3 {
+    color: #333;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.tictactoe-modal {
+    max-width: 600px;
+}
+
+.game-mode-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.mode-btn:hover {
+    background: #e0e0e0;
+}
+
+.mode-btn.active:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #653a8a 100%);
+}
+
+.play-again-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.play-again-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.online-status-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.invite-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.invite-btn {
+    transition: all 0.2s ease;
+}
+
+.invite-btn:hover {
+    background: #5568d3 !important;
+    transform: scale(1.05);
+}
+
+.close-game {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-game:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+/* Tic Tac Toe Styles */
+.tic-tac-toe-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    background: #333;
+    padding: 5px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.cell {
+    aspect-ratio: 1;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 5px;
+}
+
+.cell:hover {
+    background: #f0f0f0;
+}
+
+.cell.x {
+    color: #667eea;
+}
+
+.cell.o {
+    color: #f5576c;
+}
+
+.game-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.current-player {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.current-player span {
+    color: #667eea;
+    font-size: 24px;
+}
+
+.game-status {
+    font-size: 20px;
+    font-weight: 700;
+    min-height: 30px;
+}
+
+.reset-game-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reset-game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Snake Game Styles */
+.snake-modal {
+    max-width: 500px;
+}
+
+#snake-canvas {
+    border: 3px solid #667eea;
+    border-radius: 10px;
+    display: block;
+    margin: 20px auto;
+    background: #f0f0f0;
+}
+
+.snake-game-info {
+    display: flex;
+    justify-content: space-around;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.snake-game-info span {
+    color: #667eea;
+    font-size: 24px;
+}
+
+.snake-controls {
+    text-align: center;
+}
+
+.game-control-btn {
+    padding: 10px 20px;
+    margin: 5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.snake-instructions {
+    margin-top: 15px;
+    color: #666;
+    font-size: 14px;
+}
+</style>
+
+<script>
+(function() {
+    let retryCount = 0;
+    const maxRetries = 50;
+    let userPresenceRef = null;
+    
+    function initCommunity() {
+        console.log('Initializing community page...', retryCount);
+        
+        // Try multiple ways to get Firebase
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : (typeof firebase !== 'undefined' ? firebase.auth() : null));
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : (typeof firebase !== 'undefined' ? firebase.database() : null));
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            retryCount++;
+            if (retryCount < maxRetries) {
+                setTimeout(initCommunity, 200);
+            } else {
+                console.error('Firebase not available after retries');
+            }
+            return;
+        }
+        
+        retryCount = 0;
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) {
+            firebaseAuth.onAuthStateChanged(u => {
+                if (u) {
+                    console.log('User authenticated, initializing community');
+                    initCommunity();
+                }
+            });
+            return;
+        }
+        
+        console.log('User found:', user.uid);
+        
+        // Load community posts - try with and without orderBy
+        const container = document.getElementById('community-posts');
+        if (container) {
+            const tryLoadPosts = (useOrderBy) => {
+                let postsRef = firebaseDatabase.ref('communityPosts');
+                if (useOrderBy) {
+                    try {
+                        postsRef = postsRef.orderByChild('timestamp');
+                    } catch (e) {
+                        console.log('orderByChild failed, trying without:', e);
+                        useOrderBy = false;
+                    }
+                }
+                
+                postsRef.limitToLast(20).on('value', (snapshot) => {
+                    const posts = snapshot.val() || {};
+                    console.log('Community posts loaded:', Object.keys(posts).length);
+                    
+                    if (Object.keys(posts).length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fa-solid fa-comments"></i>
+                                </div>
+                                <p class="empty-state-text">No posts yet. Be the first to post!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    let html = '';
+                    // Sort by timestamp if available, otherwise by key
+                    const postsArray = Object.entries(posts).map(([key, post]) => ({
+                        key,
+                        ...post,
+                        sortKey: post.timestamp || post.date || key
+                    }));
+                    
+                    postsArray.sort((a, b) => {
+                        if (typeof a.sortKey === 'number' && typeof b.sortKey === 'number') {
+                            return b.sortKey - a.sortKey;
+                        }
+                        if (typeof a.sortKey === 'string' && typeof b.sortKey === 'string') {
+                            return new Date(b.sortKey) - new Date(a.sortKey);
+                        }
+                        return b.key.localeCompare(a.key);
+                    });
+                    
+                    postsArray.forEach((post) => {
+                        const avatarUrl = post.avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Ccircle cx='25' cy='25' r='25' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='bold'%3E${(post.authorName || 'T').charAt(0).toUpperCase()}%3C/text%3E%3C/svg%3E`;
+                        const displayDate = post.date || (post.timestamp ? new Date(post.timestamp).toLocaleString() : '');
+                        
+                        html += `
+                            <div class="post-card">
+                                <div class="post-header">
+                                    <img src="${avatarUrl}" class="post-avatar" alt="${post.authorName || 'Tenant'}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'%3E%3Ccircle cx=\'25\' cy=\'25\' r=\'25\' fill=\'%23667eea\'/%3E%3C/svg%3E'">
+                                    <div>
+                                        <div class="post-author">${post.authorName || 'Tenant'}</div>
+                                        <div class="post-date">${displayDate}</div>
+                                    </div>
+                                </div>
+                                <div class="post-content">${(post.content || '').replace(/\n/g, '<br>')}</div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                }, (error) => {
+                    console.error('Error loading posts:', error);
+                    if (useOrderBy) {
+                        tryLoadPosts(false);
+                    } else {
+                        container.innerHTML = '<div class="empty-state"><p class="empty-state-text">Error loading posts. Please refresh.</p></div>';
+                    }
+                });
+            };
+            
+            tryLoadPosts(true);
+        }
+        
+        // Handle new post
+        const form = document.getElementById('new-post-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const contentInput = document.getElementById('post-content');
+                const content = contentInput.value.trim();
+                
+                if (!content) {
+                    alert('Please enter some content');
+                    return;
+                }
+                
+                const tenantRef = firebaseDatabase.ref('tenants/' + user.uid);
+                tenantRef.once('value', (snapshot) => {
+                    const tenantData = snapshot.val();
+                    const tenantInfo = tenantData ? (tenantData.info || {}) : {};
+                    
+                    const post = {
+                        tenantId: user.uid,
+                        authorName: tenantInfo.fullName || user.email || 'Tenant',
+                        avatar: tenantInfo.profilePicture || '',
+                        content: content,
+                        date: new Date().toLocaleString(),
+                        timestamp: Date.now()
+                    };
+                    
+                    firebaseDatabase.ref('communityPosts').push(post)
+                        .then(() => {
+                            contentInput.value = '';
+                            console.log('Post published successfully');
+                        })
+                        .catch(error => {
+                            console.error('Error posting:', error);
+                            alert('Error posting: ' + error.message);
+                        });
+                });
+            });
+        }
+        
+        // Load online tenants
+        loadOnlineTenants(firebaseDatabase, user.uid);
+        
+        // Load games leaderboard
+        loadGamesLeaderboard(firebaseDatabase);
+        
+        // Refresh leaderboard periodically and on score updates
+        setInterval(() => {
+            loadGamesLeaderboard(firebaseDatabase);
+        }, 10000); // Refresh every 10 seconds
+        
+        // Also listen for score changes
+        if (firebaseDatabase) {
+            firebaseDatabase.ref('ticTacToeWins').on('value', () => {
+                loadGamesLeaderboard(firebaseDatabase);
+            });
+            firebaseDatabase.ref('snakeHighScores').on('value', () => {
+                loadGamesLeaderboard(firebaseDatabase);
+            });
+        }
+        
+        // Set up user presence
+        setupUserPresence(firebaseDatabase, user.uid);
+    }
+    
+    function loadOnlineTenants(database, currentUserId) {
+        const onlineTenantsEl = document.getElementById('online-tenants');
+        if (!onlineTenantsEl) return;
+        
+        // Get all tenants and check their presence
+        const tenantsRef = database.ref('tenants');
+        const presenceRef = database.ref('presence');
+        
+        presenceRef.on('value', (snapshot) => {
+            const presence = snapshot.val() || {};
+            const onlineUserIds = Object.keys(presence).filter(uid => presence[uid] === true || presence[uid] === 'online');
+            
+            if (onlineUserIds.length === 0) {
+                onlineTenantsEl.innerHTML = '<p class="text-muted">No one online</p>';
+                return;
+            }
+            
+            // Get tenant info for online users
+            const tenantPromises = onlineUserIds.map(uid => {
+                return database.ref('tenants/' + uid + '/info').once('value').then(snap => ({
+                    uid,
+                    info: snap.val() || {}
+                }));
+            });
+            
+            Promise.all(tenantPromises).then(tenants => {
+                let html = '';
+                tenants.forEach(({ uid, info }) => {
+                    if (uid === currentUserId) return; // Don't show self
+                    
+                    const name = info.fullName || info.email || 'Tenant';
+                    const avatar = info.profilePicture || '';
+                    const avatarUrl = avatar || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='35'%3E%3Ccircle cx='17.5' cy='17.5' r='17.5' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='14' font-weight='bold'%3E${name.charAt(0).toUpperCase()}%3C/text%3E%3C/svg%3E`;
+                    
+                    html += `
+                        <div class="online-tenant-item">
+                            <img src="${avatarUrl}" class="online-tenant-avatar" alt="${name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'35\' height=\'35\'%3E%3Ccircle cx=\'17.5\' cy=\'17.5\' r=\'17.5\' fill=\'%23667eea\'/%3E%3C/svg%3E'">
+                            <span class="online-tenant-name">${name}</span>
+                        </div>
+                    `;
+                });
+                
+                if (html) {
+                    onlineTenantsEl.innerHTML = html;
+                } else {
+                    onlineTenantsEl.innerHTML = '<p class="text-muted">No other tenants online</p>';
+                }
+            });
+        });
+    }
+    
+    function setupUserPresence(database, userId) {
+        const presenceRef = database.ref('presence/' + userId);
+        
+        // Set user as online
+        presenceRef.set(true);
+        
+        // Set up disconnect handler
+        const connectedRef = database.ref('.info/connected');
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+                presenceRef.set(true);
+                presenceRef.onDisconnect().set(false);
+            }
+        });
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            presenceRef.set(false);
+        });
+    }
+    
+    function loadGamesLeaderboard(database) {
+        const leaderboardEl = document.getElementById('games-leaderboard');
+        if (!leaderboardEl || !database) {
+            console.log('Games leaderboard element or database not available');
+            return;
+        }
+        
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const currentUser = firebaseAuth ? firebaseAuth.currentUser : null;
+        
+        console.log('Loading games leaderboard...', currentUser ? currentUser.uid : 'no user');
+        
+        // Get both Tic Tac Toe wins and Snake high scores
+        Promise.all([
+            database.ref('ticTacToeWins').once('value'),
+            database.ref('snakeHighScores').once('value')
+        ]).then(([tttSnapshot, snakeSnapshot]) => {
+            const tttWins = tttSnapshot.val() || {};
+            const snakeScores = snakeSnapshot.val() || {};
+            
+            console.log('Tic Tac Toe wins:', tttWins);
+            console.log('Snake scores:', snakeScores);
+            
+            // Combine scores - create a map of userId to combined stats
+            const userStats = {};
+            
+            // Add Tic Tac Toe wins
+            Object.entries(tttWins).forEach(([userId, wins]) => {
+                if (!userStats[userId]) {
+                    userStats[userId] = { userId, tttWins: 0, snakeScore: 0, totalPoints: 0 };
+                }
+                userStats[userId].tttWins = parseInt(wins) || 0;
+            });
+            
+            // Add Snake high scores
+            Object.entries(snakeScores).forEach(([userId, score]) => {
+                if (!userStats[userId]) {
+                    userStats[userId] = { userId, tttWins: 0, snakeScore: 0, totalPoints: 0 };
+                }
+                userStats[userId].snakeScore = parseInt(score) || 0;
+            });
+            
+            // If user has played but not in leaderboard yet, add them with 0 scores
+            if (currentUser && !userStats[currentUser.uid]) {
+                userStats[currentUser.uid] = { userId: currentUser.uid, tttWins: 0, snakeScore: 0, totalPoints: 0 };
+            }
+            
+            // Calculate total points (wins * 10 + snake score)
+            Object.values(userStats).forEach(stat => {
+                stat.totalPoints = (stat.tttWins * 10) + stat.snakeScore;
+            });
+            
+            console.log('User stats before sorting:', userStats);
+            
+            // Sort by total points
+            const allSortedStats = Object.values(userStats)
+                .sort((a, b) => b.totalPoints - a.totalPoints);
+            
+            // Get top 5, but ensure current user is included
+            let sortedStats = allSortedStats.slice(0, 5);
+            
+            // If current user is not in top 5, add them
+            if (currentUser) {
+                const userIndex = allSortedStats.findIndex(s => s.userId === currentUser.uid);
+                if (userIndex >= 5) {
+                    // Replace the last one with current user, or add if less than 5
+                    if (sortedStats.length >= 5) {
+                        sortedStats[4] = allSortedStats[userIndex];
+                    } else {
+                        sortedStats.push(allSortedStats[userIndex]);
+                    }
+                }
+            }
+            
+            console.log('Sorted stats:', sortedStats);
+            
+            if (sortedStats.length === 0) {
+                leaderboardEl.innerHTML = '<p class="text-muted" style="text-align: center; padding: 10px;">No games played yet</p>';
+                return;
+            }
+            
+            // Get tenant names
+            const tenantPromises = sortedStats.map(({ userId }) => {
+                return database.ref('tenants/' + userId + '/info').once('value').then(snap => {
+                    const tenantInfo = snap.val();
+                    const name = tenantInfo ? (tenantInfo.fullName || tenantInfo.email || 'Tenant') : 'Tenant';
+                    console.log(`Tenant ${userId}: ${name}`);
+                    return { userId, name };
+                }).catch((error) => {
+                    console.error(`Error loading tenant ${userId}:`, error);
+                    // Try to get from auth if tenant info not found
+                    if (userId === currentUser?.uid && currentUser?.email) {
+                        return { userId, name: currentUser.email };
+                    }
+                    return { userId, name: 'Tenant' };
+                });
+            });
+            
+            Promise.all(tenantPromises).then(tenants => {
+                console.log('Tenants loaded:', tenants);
+                let html = '';
+                tenants.forEach((tenant, index) => {
+                    const statData = sortedStats.find(s => s.userId === tenant.userId);
+                    if (!statData) {
+                        console.warn(`No stat data for tenant ${tenant.userId}`);
+                        return;
+                    }
+                    
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                    const displayName = tenant.name.length > 12 ? tenant.name.substring(0, 12) + '...' : tenant.name;
+                    const gameStats = [];
+                    if (statData.tttWins > 0) gameStats.push(`${statData.tttWins} TTT`);
+                    if (statData.snakeScore > 0) gameStats.push(`${statData.snakeScore} Snake`);
+                    
+                    // Highlight current user
+                    const isCurrentUser = currentUser && statData.userId === currentUser.uid;
+                    const bgColor = isCurrentUser ? '#e3f2fd' : '#f8f9fa';
+                    const borderColor = isCurrentUser ? '#2196f3' : 'transparent';
+                    
+                    html += `
+                        <div style="padding: 8px; background: ${bgColor}; border-radius: 6px; margin-bottom: 6px; font-size: 12px; border-left: 3px solid ${borderColor};">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <div>
+                                    <span style="font-size: 16px; margin-right: 6px;">${medal}</span>
+                                    <strong>${displayName}${isCurrentUser ? ' (You)' : ''}</strong>
+                                </div>
+                                <div style="color: #667eea; font-weight: 700; font-size: 13px;">${statData.totalPoints} pts</div>
+                            </div>
+                            ${gameStats.length > 0 ? `<div style="font-size: 10px; color: #666; margin-top: 2px;">${gameStats.join(' • ')}</div>` : '<div style="font-size: 10px; color: #999; margin-top: 2px;">No games yet</div>'}
+                        </div>
+                    `;
+                });
+                
+                if (html) {
+                    leaderboardEl.innerHTML = html;
+                    console.log('Leaderboard HTML set');
+                } else {
+                    leaderboardEl.innerHTML = '<p class="text-muted" style="text-align: center; padding: 10px;">No games played yet</p>';
+                }
+            }).catch(error => {
+                console.error('Error loading games leaderboard:', error);
+                leaderboardEl.innerHTML = '<p class="text-muted" style="text-align: center; padding: 10px;">Error loading</p>';
+            });
+        }).catch(error => {
+            console.error('Error loading games leaderboard:', error);
+            leaderboardEl.innerHTML = '<p class="text-muted" style="text-align: center; padding: 10px;">Error loading</p>';
+        });
+    }
+    
+    // Tic Tac Toe Game
+    window.startTicTacToe = function() {
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        const user = firebaseAuth ? firebaseAuth.currentUser : null;
+        
+        const gameModal = document.createElement('div');
+        gameModal.className = 'game-modal';
+        gameModal.innerHTML = `
+            <div class="game-modal-content tictactoe-modal">
+                <div class="game-modal-header">
+                    <h3><i class="fa-solid fa-grid-3x3"></i> Tic Tac Toe</h3>
+                    <button class="close-game" onclick="if(typeof window.closeTicTacToe === 'function') window.closeTicTacToe(); else { const modal = this.closest('.game-modal'); if(modal) modal.remove(); }">&times;</button>
+                </div>
+                <div class="game-body">
+                    <div class="game-mode-selector">
+                        <button class="mode-btn active" id="local-mode" onclick="switchGameMode('local')">Local Play</button>
+                        <button class="mode-btn" id="online-mode" onclick="switchGameMode('online')">Online Play</button>
+                        <button class="mode-btn" id="leaderboard-btn" onclick="switchGameMode('leaderboard')">Leaderboard</button>
+                    </div>
+                    <div id="game-area">
+                        <div class="game-info">
+                            <div class="current-player">Current Player: <span id="current-player">X</span></div>
+                            <div class="game-status" id="game-status"></div>
+                            <div id="online-status" class="online-status-box" style="display: none;">
+                                <div id="status-message">Waiting for opponent...</div>
+                                <div id="opponent-name"></div>
+                            </div>
+                            <div id="invite-section" class="invite-section" style="display: none;">
+                                <h4 style="margin: 15px 0 10px 0; font-size: 16px;">Invite a Tenant</h4>
+                                <div id="online-tenants-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px;"></div>
+                                <div id="pending-invites" style="margin-top: 10px;"></div>
+                            </div>
+                        </div>
+                        <div class="tic-tac-toe-board" id="tic-tac-toe-board">
+                            <div class="cell" data-index="0"></div>
+                            <div class="cell" data-index="1"></div>
+                            <div class="cell" data-index="2"></div>
+                            <div class="cell" data-index="3"></div>
+                            <div class="cell" data-index="4"></div>
+                            <div class="cell" data-index="5"></div>
+                            <div class="cell" data-index="6"></div>
+                            <div class="cell" data-index="7"></div>
+                            <div class="cell" data-index="8"></div>
+                        </div>
+                        <div id="game-buttons">
+                            <button class="reset-game-btn" onclick="resetTicTacToe()">Reset Game</button>
+                            <button class="play-again-btn" id="play-again-btn" onclick="playAgainTicTacToe()" style="display: none; margin-top: 10px;">Play Again</button>
+                        </div>
+                    </div>
+                    <div id="leaderboard-area" style="display: none;">
+                        <h4 style="margin-bottom: 20px;">🏆 Top Players</h4>
+                        <div id="leaderboard-list"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(gameModal);
+        window.currentGameModal = gameModal;
+        initTicTacToe(user, firebaseDatabase);
+    };
+    
+    function closeTicTacToe() {
+        // Clean up game state
+        if (window.currentTicTacToeGame) {
+            const game = window.currentTicTacToeGame;
+            if (game.gameRef) {
+                game.gameRef.off();
+                if (game.gameId) {
+                    const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+                    if (firebaseDatabase) {
+                        firebaseDatabase.ref('ticTacToeGames/' + game.gameId).remove();
+                    }
+                }
+            }
+        }
+        
+        // Remove modal
+        const modal = document.querySelector('.game-modal');
+        if (modal) {
+            modal.remove();
+        }
+        
+        if (window.currentGameModal) {
+            window.currentGameModal.remove();
+            window.currentGameModal = null;
+        }
+        
+        // Clean up any event listeners
+        window.currentTicTacToeGame = null;
+    }
+    
+    window.closeTicTacToe = closeTicTacToe;
+    
+    // Snake Game
+    window.startSnake = function() {
+        const gameModal = document.createElement('div');
+        gameModal.className = 'game-modal';
+        gameModal.innerHTML = `
+            <div class="game-modal-content snake-modal">
+                <div class="game-modal-header">
+                    <h3><i class="fa-solid fa-snake"></i> Snake Game</h3>
+                    <button class="close-game" onclick="this.closest('.game-modal').remove()">&times;</button>
+                </div>
+                <div class="game-body">
+                    <div class="snake-game-info">
+                        <div>Score: <span id="snake-score">0</span></div>
+                        <div>High Score: <span id="snake-high-score">0</span></div>
+                    </div>
+                    <canvas id="snake-canvas" width="400" height="400"></canvas>
+                    <div class="snake-controls">
+                        <button class="game-control-btn" onclick="startSnakeGame()">Start Game</button>
+                        <button class="game-control-btn" onclick="resetSnakeGame()">Reset</button>
+                        <div class="snake-instructions">
+                            <p>Use Arrow Keys or WASD to control</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(gameModal);
+        initSnakeGame();
+    };
+    
+    // Tic Tac Toe Logic
+    function initTicTacToe(user, database) {
+        let currentPlayer = 'X';
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let gameMode = 'local';
+        let gameId = null;
+        let playerSymbol = 'X';
+        let opponentId = null;
+        let gameRef = null;
+        
+        const cells = document.querySelectorAll('#tic-tac-toe-board .cell');
+        const currentPlayerEl = document.getElementById('current-player');
+        const gameStatusEl = document.getElementById('game-status');
+        const onlineStatusEl = document.getElementById('online-status');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        
+        window.currentTicTacToeGame = {
+            board,
+            currentPlayer,
+            gameActive,
+            gameMode,
+            gameId,
+            playerSymbol,
+            opponentId,
+            gameRef,
+            reset: function() {
+                board = ['', '', '', '', '', '', '', '', ''];
+                currentPlayer = 'X';
+                gameActive = true;
+                cells.forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('x', 'o');
+                });
+                if (gameStatusEl) {
+                    gameStatusEl.textContent = '';
+                    gameStatusEl.style.color = '';
+                }
+                if (playAgainBtn) playAgainBtn.style.display = 'none';
+                updateDisplay();
+            }
+        };
+        
+        function updateDisplay() {
+            if (currentPlayerEl) {
+                if (gameMode === 'online' && gameActive) {
+                    const isMyTurn = (currentPlayer === playerSymbol);
+                    currentPlayerEl.textContent = isMyTurn ? 'Your Turn (' + playerSymbol + ')' : 'Opponent\'s Turn';
+                    currentPlayerEl.style.color = isMyTurn ? '#4caf50' : '#ff9800';
+                } else {
+                    currentPlayerEl.textContent = currentPlayer;
+                    currentPlayerEl.style.color = '';
+                }
+            }
+        }
+        
+        function checkWinner() {
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6] // diagonals
+            ];
+            
+            for (let condition of winConditions) {
+                const [a, b, c] = condition;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            
+            if (!board.includes('')) {
+                return 'tie';
+            }
+            
+            return null;
+        }
+        
+        function handleCellClick(index) {
+            if (!gameActive || board[index] !== '') return;
+            
+            if (gameMode === 'online') {
+                const isMyTurn = (currentPlayer === playerSymbol);
+                if (!isMyTurn) {
+                    alert('Wait for your opponent\'s turn!');
+                    return;
+                }
+            }
+            
+            board[index] = currentPlayer;
+            cells[index].textContent = currentPlayer;
+            cells[index].classList.add(currentPlayer.toLowerCase());
+            
+            // Update online game if in online mode
+            if (gameMode === 'online' && gameRef && gameId) {
+                gameRef.update({
+                    board: board,
+                    currentPlayer: currentPlayer === 'X' ? 'O' : 'X',
+                    lastMove: { index, player: currentPlayer, timestamp: Date.now() }
+                });
+            }
+            
+            const winner = checkWinner();
+            
+            if (winner) {
+                gameActive = false;
+                if (winner === 'tie') {
+                    if (gameStatusEl) {
+                        gameStatusEl.textContent = "It's a Tie!";
+                        gameStatusEl.style.color = '#ff9800';
+                    }
+                } else {
+                    if (gameStatusEl) {
+                        const winnerText = gameMode === 'online' && winner === playerSymbol 
+                            ? 'You Win!' 
+                            : gameMode === 'online' 
+                                ? 'Opponent Wins!' 
+                                : `Player ${winner} Wins!`;
+                        gameStatusEl.textContent = winnerText;
+                        gameStatusEl.style.color = '#4caf50';
+                    }
+                    
+                    // Record win if online and player won
+                    if (gameMode === 'online' && winner === playerSymbol && user && database) {
+                        recordWin(user.uid, database);
+                    }
+                }
+                if (playAgainBtn) playAgainBtn.style.display = 'block';
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                updateDisplay();
+            }
+        }
+        
+        function recordWin(userId, database) {
+            const winsRef = database.ref('ticTacToeWins/' + userId);
+            winsRef.transaction(current => {
+                return (current || 0) + 1;
+            });
+        }
+        
+        cells.forEach((cell, index) => {
+            cell.addEventListener('click', () => handleCellClick(index));
+        });
+        
+        window.switchGameMode = function(mode) {
+            gameMode = mode;
+            const localModeBtn = document.getElementById('local-mode');
+            const onlineModeBtn = document.getElementById('online-mode');
+            const leaderboardBtn = document.getElementById('leaderboard-btn');
+            
+            if (localModeBtn) localModeBtn.classList.toggle('active', mode === 'local');
+            if (onlineModeBtn) onlineModeBtn.classList.toggle('active', mode === 'online');
+            if (leaderboardBtn) leaderboardBtn.classList.toggle('active', mode === 'leaderboard');
+            
+            const gameArea = document.getElementById('game-area');
+            const leaderboardArea = document.getElementById('leaderboard-area');
+            const inviteSection = document.getElementById('invite-section');
+            
+            if (mode === 'online') {
+                if (gameArea) gameArea.style.display = 'block';
+                if (leaderboardArea) leaderboardArea.style.display = 'none';
+                if (inviteSection) inviteSection.style.display = 'block';
+                loadOnlineTenantsForInvite(user, database);
+                checkPendingInvites(user, database);
+            } else if (mode === 'leaderboard') {
+                if (gameArea) gameArea.style.display = 'none';
+                if (leaderboardArea) leaderboardArea.style.display = 'block';
+                if (inviteSection) inviteSection.style.display = 'none';
+                showLeaderboard();
+            } else {
+                if (gameArea) gameArea.style.display = 'block';
+                if (leaderboardArea) leaderboardArea.style.display = 'none';
+                if (inviteSection) inviteSection.style.display = 'none';
+                if (gameRef) {
+                    gameRef.off();
+                    if (gameId && database) {
+                        database.ref('ticTacToeGames/' + gameId).remove();
+                    }
+                }
+                if (onlineStatusEl) onlineStatusEl.style.display = 'none';
+                window.currentTicTacToeGame.reset();
+            }
+        };
+        
+        function loadOnlineTenantsForInvite(user, database) {
+            if (!user || !database) return;
+            
+            const onlineListEl = document.getElementById('online-tenants-list');
+            if (!onlineListEl) return;
+            
+            // Get all tenants
+            const tenantsRef = database.ref('tenants');
+            const presenceRef = database.ref('presence');
+            
+            presenceRef.on('value', (presenceSnap) => {
+                const presence = presenceSnap.val() || {};
+                const onlineUserIds = Object.keys(presence).filter(uid => presence[uid] === true || presence[uid] === 'online');
+                
+                tenantsRef.once('value', (tenantsSnap) => {
+                    const tenants = tenantsSnap.val() || {};
+                    let html = '';
+                    
+                    onlineUserIds.forEach(uid => {
+                        if (uid === user.uid) return; // Don't show self
+                        
+                        const tenantData = tenants[uid];
+                        if (!tenantData) return;
+                        
+                        const tenantInfo = tenantData.info || {};
+                        const name = tenantInfo.fullName || tenantInfo.email || 'Tenant';
+                        
+                        html += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 5px;">
+                                <span style="font-weight: 500;">${name}</span>
+                                <button onclick="inviteToGame('${uid}', '${name.replace(/'/g, "\\'")}')" class="invite-btn" style="padding: 5px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Invite</button>
+                            </div>
+                        `;
+                    });
+                    
+                    if (html) {
+                        onlineListEl.innerHTML = html;
+                    } else {
+                        onlineListEl.innerHTML = '<p style="color: #999; text-align: center; padding: 10px;">No other tenants online</p>';
+                    }
+                });
+            });
+        }
+        
+        function inviteToGame(opponentId, opponentName, database) {
+            const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+            const currentUser = firebaseAuth ? firebaseAuth.currentUser : null;
+            
+            if (!currentUser || !database) {
+                alert('You must be logged in to invite!');
+                return;
+            }
+            
+            // Get tenant name
+            database.ref('tenants/' + currentUser.uid + '/info').once('value', (snap) => {
+                const tenantInfo = snap.val() || {};
+                const fromName = tenantInfo.fullName || tenantInfo.email || currentUser.email || 'Tenant';
+                
+                const inviteRef = database.ref('ticTacToeInvites').push({
+                    from: currentUser.uid,
+                    to: opponentId,
+                    fromName: fromName,
+                    status: 'pending',
+                    createdAt: Date.now()
+                });
+                
+                alert(`Invitation sent to ${opponentName}! They will be notified when they come online.`);
+                checkPendingInvites(currentUser, database);
+            });
+        }
+        
+        window.inviteToGame = function(opponentId, opponentName) {
+            const database = window.database || (window.firebase ? window.firebase.database() : null);
+            inviteToGame(opponentId, opponentName, database);
+        };
+        
+        function checkPendingInvites(user, database) {
+            if (!user || !database) return;
+            
+            const pendingInvitesEl = document.getElementById('pending-invites');
+            if (!pendingInvitesEl) return;
+            
+            // Check for invites sent to me
+            database.ref('ticTacToeInvites')
+                .orderByChild('to')
+                .equalTo(user.uid)
+                .on('value', (snapshot) => {
+                    const invites = snapshot.val() || {};
+                    const pending = Object.entries(invites).filter(([key, invite]) => invite.status === 'pending');
+                    
+                    if (pending.length > 0) {
+                        let html = '<div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;"><strong>Pending Invitations:</strong>';
+                        pending.forEach(([key, invite]) => {
+                            html += `
+                                <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${invite.fromName} wants to play!</span>
+                                    <div>
+                                        <button onclick="acceptInvite('${key}', '${invite.from}')" style="padding: 5px 15px; background: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 5px; font-size: 12px;">Accept</button>
+                                        <button onclick="rejectInvite('${key}')" style="padding: 5px 15px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Decline</button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        pendingInvitesEl.innerHTML = html;
+                    } else {
+                        pendingInvitesEl.innerHTML = '';
+                    }
+                });
+        }
+        
+        window.acceptInvite = function(inviteKey, fromUserId) {
+            const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+            const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+            const currentUser = firebaseAuth ? firebaseAuth.currentUser : null;
+            
+            if (!currentUser || !firebaseDatabase) return;
+            
+            // Update invite status
+            firebaseDatabase.ref('ticTacToeInvites/' + inviteKey).update({ status: 'accepted' });
+            
+            // Create game with the inviter
+            const newGameRef = firebaseDatabase.ref('ticTacToeGames').push({
+                player1: fromUserId,
+                player2: currentUser.uid,
+                board: ['', '', '', '', '', '', '', '', ''],
+                currentPlayer: 'X',
+                status: 'active',
+                createdAt: Date.now()
+            });
+            
+            gameId = newGameRef.key;
+            playerSymbol = 'O';
+            opponentId = fromUserId;
+            
+            // Switch to online mode
+            switchGameMode('online');
+            loadGameState(gameId, firebaseDatabase);
+            
+            alert('Game started!');
+        };
+        
+        window.rejectInvite = function(inviteKey) {
+            const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+            if (firebaseDatabase) {
+                firebaseDatabase.ref('ticTacToeInvites/' + inviteKey).update({ status: 'rejected' });
+            }
+        };
+        
+        function startOnlineGame(user, database) {
+            if (!user || !database) {
+                alert('You must be logged in to play online!');
+                return;
+            }
+            
+            if (onlineStatusEl) {
+                onlineStatusEl.style.display = 'block';
+                const statusMsg = document.getElementById('status-message');
+                if (statusMsg) statusMsg.textContent = 'Searching for opponent...';
+            }
+            
+            // Look for available games
+            const gamesRef = database.ref('ticTacToeGames');
+            gamesRef.orderByChild('status').equalTo('waiting').limitToFirst(1).once('value', (snapshot) => {
+                const availableGames = snapshot.val();
+                
+                if (availableGames && Object.keys(availableGames).length > 0) {
+                    // Join existing game
+                    const gameKey = Object.keys(availableGames)[0];
+                    const game = availableGames[gameKey];
+                    gameId = gameKey;
+                    playerSymbol = 'O';
+                    opponentId = game.player1;
+                    
+                    database.ref('ticTacToeGames/' + gameKey).update({
+                        player2: user.uid,
+                        status: 'active',
+                        currentPlayer: 'X'
+                    });
+                    
+                    loadGameState(gameKey, database);
+                } else {
+                    // Create new game
+                    const newGameRef = gamesRef.push({
+                        player1: user.uid,
+                        player2: null,
+                        board: ['', '', '', '', '', '', '', '', ''],
+                        currentPlayer: 'X',
+                        status: 'waiting',
+                        createdAt: Date.now()
+                    });
+                    
+                    gameId = newGameRef.key;
+                    playerSymbol = 'X';
+                    
+                    // Wait for opponent
+                    newGameRef.on('value', (snap) => {
+                        const gameData = snap.val();
+                        if (!gameData) return;
+                        
+                        if (gameData.status === 'active' && gameData.player2) {
+                            opponentId = gameData.player2;
+                            const statusMsg = document.getElementById('status-message');
+                            if (statusMsg) statusMsg.textContent = 'Opponent joined!';
+                            if (onlineStatusEl) onlineStatusEl.style.display = 'block';
+                            loadGameState(gameId, database);
+                        }
+                    });
+                }
+            });
+        }
+        
+        function loadGameState(gameKey, database) {
+            gameRef = database.ref('ticTacToeGames/' + gameKey);
+            
+            gameRef.on('value', (snapshot) => {
+                const gameData = snapshot.val();
+                if (!gameData || gameData.status !== 'active') return;
+                
+                board = gameData.board || ['', '', '', '', '', '', '', '', ''];
+                currentPlayer = gameData.currentPlayer || 'X';
+                
+                // Update board display
+                cells.forEach((cell, index) => {
+                    cell.textContent = board[index] || '';
+                    cell.classList.remove('x', 'o');
+                    if (board[index]) {
+                        cell.classList.add(board[index].toLowerCase());
+                    }
+                });
+                
+                updateDisplay();
+                
+                // Check for winner
+                const winner = checkWinner();
+                if (winner) {
+                    gameActive = false;
+                    if (winner === 'tie') {
+                        if (gameStatusEl) {
+                            gameStatusEl.textContent = "It's a Tie!";
+                            gameStatusEl.style.color = '#ff9800';
+                        }
+                    } else {
+                        if (gameStatusEl) {
+                            const winnerText = winner === playerSymbol ? 'You Win!' : 'Opponent Wins!';
+                            gameStatusEl.textContent = winnerText;
+                            gameStatusEl.style.color = winner === playerSymbol ? '#4caf50' : '#f44336';
+                        }
+                        if (winner === playerSymbol && user) {
+                            recordWin(user.uid, database);
+                        }
+                    }
+                    if (playAgainBtn) playAgainBtn.style.display = 'block';
+                } else {
+                    gameActive = true;
+                }
+            });
+        }
+        
+        window.resetTicTacToe = function() {
+            window.currentTicTacToeGame.reset();
+            if (gameMode === 'online' && gameRef && gameId) {
+                const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+                if (firebaseDatabase) {
+                    firebaseDatabase.ref('ticTacToeGames/' + gameId).update({
+                        board: ['', '', '', '', '', '', '', '', ''],
+                        currentPlayer: 'X',
+                        status: 'active'
+                    });
+                }
+            }
+        };
+        
+        window.playAgainTicTacToe = function() {
+            window.resetTicTacToe();
+        };
+        
+        window.showLeaderboard = function() {
+            const gameArea = document.getElementById('game-area');
+            const leaderboardArea = document.getElementById('leaderboard-area');
+            const database = window.database || (window.firebase ? window.firebase.database() : null);
+            
+            if (!gameArea || !leaderboardArea) {
+                console.error('Game area or leaderboard area not found');
+                return;
+            }
+            
+            gameArea.style.display = 'none';
+            leaderboardArea.style.display = 'block';
+            
+            const leaderboardList = document.getElementById('leaderboard-list');
+            if (!leaderboardList) {
+                console.error('Leaderboard list not found');
+                return;
+            }
+            
+            leaderboardList.innerHTML = '<p style="text-align: center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading leaderboard...</p>';
+            
+            if (database) {
+                database.ref('ticTacToeWins').once('value', (snapshot) => {
+                    const wins = snapshot.val() || {};
+                    
+                    if (Object.keys(wins).length === 0) {
+                        leaderboardList.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No games played yet! Be the first to play online.</p>';
+                        return;
+                    }
+                    
+                    const sortedWins = Object.entries(wins)
+                        .map(([userId, winCount]) => ({ userId, wins: winCount }))
+                        .sort((a, b) => b.wins - a.wins)
+                        .slice(0, 10); // Top 10
+                    
+                    // Get tenant names
+                    const tenantPromises = sortedWins.map(({ userId }) => {
+                        return database.ref('tenants/' + userId + '/info').once('value').then(snap => ({
+                            userId,
+                            name: snap.val() ? (snap.val().fullName || snap.val().email || 'Tenant') : 'Tenant'
+                        })).catch(() => ({ userId, name: 'Tenant' }));
+                    });
+                    
+                    Promise.all(tenantPromises).then(tenants => {
+                        let html = '';
+                        tenants.forEach((tenant, index) => {
+                            const winData = sortedWins.find(w => w.userId === tenant.userId);
+                            if (!winData) return;
+                            
+                            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                            html += `
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <span style="font-size: 24px; margin-right: 10px;">${medal}</span>
+                                        <strong>${tenant.name}</strong>
+                                    </div>
+                                    <div style="color: #667eea; font-weight: 700; font-size: 18px;">${winData.wins} ${winData.wins === 1 ? 'win' : 'wins'}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        if (html) {
+                            leaderboardList.innerHTML = html;
+                        } else {
+                            leaderboardList.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No games played yet!</p>';
+                        }
+                    }).catch(error => {
+                        console.error('Error loading leaderboard:', error);
+                        leaderboardList.innerHTML = '<p style="color: #f44336; text-align: center; padding: 20px;">Error loading leaderboard. Please try again.</p>';
+                    });
+                }).catch(error => {
+                    console.error('Error fetching wins:', error);
+                    leaderboardList.innerHTML = '<p style="color: #f44336; text-align: center; padding: 20px;">Error loading leaderboard. Please try again.</p>';
+                });
+            } else {
+                leaderboardList.innerHTML = '<p style="color: #f44336; text-align: center; padding: 20px;">Database not available.</p>';
+            }
+        };
+        
+        // Initialize invite checking when user comes online
+        if (user && database) {
+            const presenceRef = database.ref('presence/' + user.uid);
+            presenceRef.set(true);
+            
+            // Check for pending invites when user comes online
+            database.ref('ticTacToeInvites')
+                .orderByChild('to')
+                .equalTo(user.uid)
+                .once('value', (snapshot) => {
+                    const invites = snapshot.val() || {};
+                    const pendingInvites = Object.entries(invites).filter(([key, invite]) => invite.status === 'pending');
+                    
+                    if (pendingInvites.length > 0) {
+                        const [inviteKey, invite] = pendingInvites[0];
+                        if (confirm(`${invite.fromName} wants to play Tic Tac Toe! Accept?`)) {
+                            window.acceptInvite(inviteKey, invite.from);
+                        } else {
+                            window.rejectInvite(inviteKey);
+                        }
+                    }
+                });
+            
+            // Also listen for new invites in real-time
+            database.ref('ticTacToeInvites')
+                .orderByChild('to')
+                .equalTo(user.uid)
+                .on('child_added', (snapshot) => {
+                    const invite = snapshot.val();
+                    if (invite && invite.status === 'pending') {
+                        if (confirm(`${invite.fromName} wants to play Tic Tac Toe! Accept?`)) {
+                            window.acceptInvite(snapshot.key, invite.from);
+                        } else {
+                            window.rejectInvite(snapshot.key);
+                        }
+                    }
+                });
+        }
+        
+        updateDisplay();
+    }
+    
+    // Snake Game Logic
+    function initSnakeGame() {
+        const canvas = document.getElementById('snake-canvas');
+        if (!canvas) {
+            console.error('Snake canvas not found');
+            return;
+        }
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            console.error('Could not get canvas context');
+            return;
+        }
+        
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+        
+        let snake = [{ x: 10, y: 10 }];
+        let food = { x: 15, y: 15 };
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let gameRunning = false;
+        let gameLoop = null;
+        let nextDirection = null;
+        
+        // Load high score from localStorage
+        let highScore = parseInt(localStorage.getItem('snakeHighScore') || '0');
+        const highScoreEl = document.getElementById('snake-high-score');
+        if (highScoreEl) highScoreEl.textContent = highScore;
+        
+        function drawGame() {
+            clearCanvas();
+            drawFood();
+            drawSnake();
+            drawScore();
+        }
+        
+        function clearCanvas() {
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function drawSnake() {
+            ctx.fillStyle = '#4caf50';
+            snake.forEach((segment, index) => {
+                if (index === 0) {
+                    // Head
+                    ctx.fillStyle = '#2e7d32';
+                } else {
+                    ctx.fillStyle = '#4caf50';
+                }
+                ctx.fillRect(segment.x * gridSize + 1, segment.y * gridSize + 1, gridSize - 2, gridSize - 2);
+            });
+        }
+        
+        function drawFood() {
+            ctx.fillStyle = '#f44336';
+            ctx.beginPath();
+            ctx.arc(
+                food.x * gridSize + gridSize / 2,
+                food.y * gridSize + gridSize / 2,
+                gridSize / 2 - 2,
+                0,
+                2 * Math.PI
+            );
+            ctx.fill();
+        }
+        
+        function drawScore() {
+            const scoreEl = document.getElementById('snake-score');
+            if (scoreEl) scoreEl.textContent = score;
+        }
+        
+        function moveSnake() {
+            // Apply queued direction change
+            if (nextDirection) {
+                const { newDx, newDy } = nextDirection;
+                // Prevent reversing into itself
+                if (!(dx === -newDx && dy === -newDy) && !(dx === newDx && dy === newDy)) {
+                    dx = newDx;
+                    dy = newDy;
+                }
+                nextDirection = null;
+            }
+            
+            // Don't move if no direction set
+            if (dx === 0 && dy === 0) return;
+            
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            
+            // Check wall collision
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver();
+                return;
+            }
+            
+            // Check self collision
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+            
+            snake.unshift(head);
+            
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                generateFood();
+            } else {
+                snake.pop();
+            }
+        }
+        
+        function generateFood() {
+            do {
+                food = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+            } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('snakeHighScore', highScore.toString());
+                if (highScoreEl) highScoreEl.textContent = highScore;
+                
+                // Save to Firebase if user is logged in
+                const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+                const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+                const currentUser = firebaseAuth ? firebaseAuth.currentUser : null;
+                
+                if (currentUser && firebaseDatabase) {
+                    const snakeScoresRef = firebaseDatabase.ref('snakeHighScores/' + currentUser.uid);
+                    snakeScoresRef.transaction(current => {
+                        return Math.max(current || 0, score);
+                    });
+                }
+            }
+            
+            setTimeout(() => {
+                alert(`Game Over! Your score: ${score}`);
+            }, 100);
+        }
+        
+        function gameStep() {
+            if (!gameRunning) return;
+            moveSnake();
+            drawGame();
+        }
+        
+        // Keyboard controls - use a single listener
+        let keyHandler = function(e) {
+            if (!gameRunning) return;
+            
+            e.preventDefault();
+            const key = e.key.toLowerCase();
+            let newDx = dx;
+            let newDy = dy;
+            
+            if ((key === 'arrowup' || key === 'w') && dy !== 1) {
+                newDx = 0;
+                newDy = -1;
+            } else if ((key === 'arrowdown' || key === 's') && dy !== -1) {
+                newDx = 0;
+                newDy = 1;
+            } else if ((key === 'arrowleft' || key === 'a') && dx !== 1) {
+                newDx = -1;
+                newDy = 0;
+            } else if ((key === 'arrowright' || key === 'd') && dx !== -1) {
+                newDx = 1;
+                newDy = 0;
+            } else {
+                return; // Ignore other keys
+            }
+            
+            // Queue direction change to prevent multiple changes in one frame
+            nextDirection = { newDx, newDy };
+        };
+        
+        document.addEventListener('keydown', keyHandler);
+        
+        // Store handler for cleanup
+        window.snakeKeyHandler = keyHandler;
+        
+        window.startSnakeGame = function() {
+            if (gameRunning) return;
+            
+            snake = [{ x: 10, y: 10 }];
+            dx = 1; // Start moving right
+            dy = 0;
+            nextDirection = null;
+            score = 0;
+            gameRunning = true;
+            generateFood();
+            drawGame();
+            
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(gameStep, 150);
+        };
+        
+        window.resetSnakeGame = function() {
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+            gameRunning = false;
+            snake = [{ x: 10, y: 10 }];
+            dx = 0;
+            dy = 0;
+            nextDirection = null;
+            score = 0;
+            generateFood();
+            drawGame();
+            const scoreEl = document.getElementById('snake-score');
+            if (scoreEl) scoreEl.textContent = '0';
+        };
+        
+        // Initial draw
+        generateFood();
+        drawGame();
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCommunity);
+    } else {
+        initCommunity();
+    }
+})();
+</script>
+

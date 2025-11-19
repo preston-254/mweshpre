@@ -1,0 +1,729 @@
+<div class="visitors-page">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-id-card"></i> Register Visitor</h3>
+                <p class="text-muted">Register your visitor and generate a QR code pass. Share the QR code with your visitor for easy check-in at the gate.</p>
+                <form id="visitor-request-form">
+                    <div class="form-group">
+                        <label for="visitorName">Visitor Full Name <span style="color: #dc3545">*</span></label>
+                        <input type="text" id="visitorName" placeholder="Enter visitor's full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitorContact">Visitor Contact <span style="color: #dc3545">*</span></label>
+                        <input type="text" id="visitorContact" placeholder="Phone or Email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="numberOfVisitors">Number of Visitors <span style="color: #dc3545">*</span></label>
+                        <input type="number" id="numberOfVisitors" min="1" max="20" value="1" required>
+                        <small class="text-muted">How many people are visiting?</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitDate">Visit Date <span style="color: #dc3545">*</span></label>
+                        <input type="date" id="visitDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitTime">Visit Time <span style="color: #dc3545">*</span></label>
+                        <input type="time" id="visitTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitorCarPlate">Car Number Plate (optional)</label>
+                        <input type="text" id="visitorCarPlate" placeholder="KAA 123A">
+                        <small class="text-muted">Only if the visitor is driving.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitReason">Reason / Notes</label>
+                        <textarea id="visitReason" rows="3" placeholder="Reason for visit (optional)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; background: #667eea; border: none;">
+                        <i class="fa-solid fa-qrcode"></i> Generate Visitor Pass
+                    </button>
+                    <div id="visitor-form-message" style="margin-top: 10px; display: none;"></div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-shield-halved"></i> Visitor Pass & QR Code</h3>
+                <p class="text-muted">Each registered visitor receives a secure pass containing:</p>
+                <ul style="padding-left: 20px; color: #555; line-height: 1.7;">
+                    <li>A unique QR code that security will scan at the gate.</li>
+                    <li>A security code for manual verification if needed.</li>
+                    <li>Your house/room number for easy guidance.</li>
+                    <li>Car plate details for parking management.</li>
+                    <li>Visitor count for accurate tracking.</li>
+                </ul>
+                <div class="visitor-qr-info">
+                    <h4><i class="fa-solid fa-qrcode"></i> How It Works</h4>
+                    <p><strong>1.</strong> Register your visitor and a QR code is generated instantly.</p>
+                    <p><strong>2.</strong> Share the QR code with your visitor (screenshot or print).</p>
+                    <p><strong>3.</strong> At the gate, security scans the QR code to view visitor details.</p>
+                    <p><strong>4.</strong> Security captures the visitor's ID photo during check-in.</p>
+                    <p><strong>5.</strong> Visitor is checked in and the count is recorded.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-md-12">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-calendar-check"></i> Upcoming Visitors</h3>
+                <div id="upcoming-visitors">
+                    <p class="text-muted">Loading upcoming visitors...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-md-12">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Visitor History</h3>
+                <div id="visitor-history">
+                    <p class="text-muted">Loading visitor history...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.visitors-page .form-group {
+    margin-bottom: 15px;
+}
+
+.visitors-page .form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.visitors-page input,
+.visitors-page textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.visitor-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid #667eea;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.visitor-card .visitor-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    text-transform: capitalize;
+    margin-top: 5px;
+}
+
+.visitor-status.registered {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.visitor-status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.visitor-status.approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.visitor-status.rejected,
+.visitor-status.cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.visitor-status.checked-in {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.visitor-status.checked-out {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.visitor-actions button {
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+.visitor-pass-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 12px;
+}
+
+.visitor-qr {
+    width: 96px;
+    height: 96px;
+}
+
+.visitor-pass-note {
+    font-size: 12px;
+    color: #777;
+}
+
+.security-code {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 16px;
+    letter-spacing: 2px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.visitor-photo-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.visitor-photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+}
+
+.visitor-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.visitor-photo span {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+    padding: 5px;
+}
+
+.visitor-qr-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+</style>
+
+<script>
+(function() {
+    let firebaseAuth = null;
+    let firebaseDatabase = null;
+    let currentUser = null;
+    let tenantInfo = null;
+    let visitorsListener = null;
+    
+    function initVisitorsPage() {
+        firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : null);
+        firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : null);
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            setTimeout(initVisitorsPage, 200);
+            return;
+        }
+        
+        currentUser = firebaseAuth.currentUser;
+        if (!currentUser) {
+            firebaseAuth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    initVisitorsPage();
+                }
+            });
+            return;
+        }
+        
+        const form = document.getElementById('visitor-request-form');
+        if (form) {
+            form.addEventListener('submit', submitVisitorRequest);
+        }
+        
+        // Load tenant info first
+        firebaseDatabase.ref(`tenants/${currentUser.uid}/info`).once('value')
+            .then((snapshot) => {
+                tenantInfo = snapshot.val() || window.currentTenantInfo || {};
+                loadVisitorRequests();
+            })
+            .catch(() => loadVisitorRequests());
+    }
+    
+    function submitVisitorRequest(event) {
+        event.preventDefault();
+        
+        const visitorName = document.getElementById('visitorName').value.trim();
+        const visitorContact = document.getElementById('visitorContact').value.trim();
+        const numberOfVisitors = parseInt(document.getElementById('numberOfVisitors').value) || 1;
+        const visitDate = document.getElementById('visitDate').value;
+        const visitTime = document.getElementById('visitTime').value;
+        const visitReason = document.getElementById('visitReason').value.trim();
+        const visitorCarPlate = document.getElementById('visitorCarPlate').value.trim();
+        const messageEl = document.getElementById('visitor-form-message');
+        
+        if (!visitorName || !visitorContact || !visitDate || !visitTime || !numberOfVisitors) {
+            showFormMessage('Please fill in all required fields.', 'danger');
+            return;
+        }
+        
+        if (!currentUser || !firebaseDatabase) {
+            showFormMessage('Authentication error. Please reload the page.', 'danger');
+            return;
+        }
+        
+        const securityCode = generateSecurityCode();
+        const requestRef = firebaseDatabase.ref('visitorRequests').push();
+        const qrPayload = JSON.stringify({
+            requestId: requestRef.key,
+            securityCode,
+        });
+        
+        const now = new Date();
+        const requestData = {
+            tenantId: currentUser.uid,
+            tenantName: (tenantInfo && tenantInfo.fullName) || currentUser.displayName || tenantInfo?.email || currentUser.email || 'Tenant',
+            tenantEmail: currentUser.email,
+            roomNumber: tenantInfo?.houseNumber || tenantInfo?.house || '',
+            visitorName,
+            visitorContact,
+            numberOfVisitors: numberOfVisitors,
+            visitDate,
+            visitTime,
+            reason: visitReason,
+            carPlate: visitorCarPlate || '',
+            status: 'registered',
+            securityCode,
+            qrCodeData: qrPayload,
+            createdAt: now.toISOString(),
+            createdYear: now.getFullYear(),
+            createdMonth: now.getMonth() + 1,
+            createdDay: now.getDate(),
+            createdHour: now.getHours(),
+            createdMinute: now.getMinutes(),
+            updatedAt: now.toISOString(),
+            requestId: requestRef.key
+        };
+        
+        requestRef.set(requestData)
+            .then(() => {
+                showFormMessage('Visitor pass generated successfully! Share the QR code with your visitor.', 'success');
+                document.getElementById('visitor-request-form').reset();
+                document.getElementById('numberOfVisitors').value = 1;
+            })
+            .catch((error) => {
+                console.error('Error submitting visitor request:', error);
+                showFormMessage('Error generating pass: ' + error.message, 'danger');
+            });
+    }
+    
+    function loadVisitorRequests() {
+        if (!firebaseDatabase || !currentUser) return;
+        
+        const upcomingContainer = document.getElementById('upcoming-visitors');
+        const historyContainer = document.getElementById('visitor-history');
+        
+        if (visitorsListener) {
+            visitorsListener.off();
+        }
+        
+        const userRequestsRef = firebaseDatabase.ref('visitorRequests');
+        const query = userRequestsRef.orderByChild('tenantId').equalTo(currentUser.uid);
+        
+        query.on('value', (snapshot) => {
+            const requests = [];
+            snapshot.forEach((childSnapshot) => {
+                requests.push(childSnapshot.val());
+            });
+            
+            // Separate upcoming vs history
+            const now = new Date();
+            const upcoming = [];
+            const history = [];
+            
+            requests.sort((a, b) => {
+                const dateA = new Date(a.visitDate + ' ' + (a.visitTime || '00:00'));
+                const dateB = new Date(b.visitDate + ' ' + (b.visitTime || '00:00'));
+                return dateB - dateA;
+            });
+            
+            requests.forEach(request => {
+                const visitDateTime = new Date(request.visitDate + ' ' + (request.visitTime || '00:00'));
+                
+                if (request.status === 'checked-out' || request.status === 'cancelled') {
+                    history.push(request);
+                } else if (request.status === 'checked-in' && visitDateTime < now) {
+                    history.push(request);
+                } else if (request.status === 'registered' && visitDateTime < now) {
+                    history.push(request);
+                } else {
+                    upcoming.push(request);
+                }
+            });
+            
+            renderVisitorList(upcoming, upcomingContainer, true);
+            renderVisitorList(history, historyContainer, false, true);
+        });
+        
+        visitorsListener = query;
+    }
+    
+    function renderVisitorList(list, container, allowActions = false, isHistory = false) {
+        if (!container) return;
+        
+        if (!list || list.length === 0) {
+            container.innerHTML = `
+                <div class="text-center" style="padding: 30px;">
+                    <i class="fa-solid fa-user-clock" style="font-size: 40px; color: #ccc;"></i>
+                    <p style="margin-top: 10px; color: #666;">${allowActions ? 'No upcoming visitors' : 'No visitor history yet'}</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const qrQueue = [];
+        let html = '';
+        list.forEach(request => {
+            const visitorDate = formatDate(request.visitDate);
+            const visitorStatus = request.status || 'registered';
+            const statusClass = `visitor-status ${visitorStatus}`;
+            const isRegistered = visitorStatus === 'registered';
+            
+            if (!request.qrCodeData && request.requestId && request.securityCode) {
+                const qrPayload = JSON.stringify({ requestId: request.requestId, securityCode: request.securityCode });
+                request.qrCodeData = qrPayload;
+                firebaseDatabase.ref(`visitorRequests/${request.requestId}/qrCodeData`).set(qrPayload);
+            }
+            
+            const qrElementId = `visitor-qr-${request.requestId}-${allowActions ? 'up' : 'history'}`;
+            
+            html += `
+                <div class="visitor-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <h4 style="margin: 0; color: #333;">${request.visitorName}</h4>
+                            <p style="margin: 5px 0; color: #666;">
+                                <i class="fa-solid fa-phone"></i> ${request.visitorContact || 'N/A'}
+                            </p>
+                            ${request.carPlate ? `<p style="margin: 4px 0; color: #666;"><i class="fa-solid fa-car-side"></i> Car: ${request.carPlate}</p>` : ''}
+                            ${request.roomNumber ? `<p style="margin: 4px 0; color: #666;"><i class="fa-solid fa-door-open"></i> Room: ${request.roomNumber}</p>` : ''}
+                        </div>
+                        <div class="${statusClass}">
+                            <i class="fa-solid fa-circle"></i> ${visitorStatus.replace('-', ' ')}
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; color: #555;">
+                        <p style="margin: 4px 0;">
+                            <i class="fa-solid fa-calendar"></i> ${visitorDate} at ${request.visitTime || 'N/A'}
+                        </p>
+                        ${request.reason ? `<p style="margin: 4px 0;"><i class="fa-solid fa-note-sticky"></i> ${request.reason}</p>` : ''}
+                        <p style="margin: 4px 0;">
+                            <i class="fa-solid fa-users"></i> Number of Visitors: 
+                            <strong>${request.numberOfVisitors || 1}</strong>
+                        </p>
+                        <p style="margin: 4px 0;">
+                            <i class="fa-solid fa-shield-halved"></i> Security Code: 
+                            <span class="security-code">${request.securityCode || 'N/A'}</span>
+                        </p>
+                        ${request.checkInTime ? `<p style="margin: 4px 0; color: #28a745;"><i class="fa-solid fa-door-open"></i> Checked In: ${formatDateTime(request.checkInTime)}</p>` : ''}
+                        ${request.checkOutTime ? `<p style="margin: 4px 0; color: #6c757d;"><i class="fa-solid fa-door-closed"></i> Checked Out: ${formatDateTime(request.checkOutTime)}</p>` : ''}
+                    </div>
+                    <div class="visitor-pass-section">
+                        <div>
+                            <div class="visitor-qr" id="${qrElementId}"></div>
+                            <div class="visitor-pass-note">Security will scan this QR on arrival.</div>
+                            ${request.qrCodeData ? `
+                                <button class="btn btn-sm btn-primary" id="download-qr-${request.requestId}-${allowActions ? 'up' : 'history'}" data-request-id="${request.requestId}" data-qr-data="${encodeURIComponent(request.qrCodeData)}" data-visitor-name="${(request.visitorName || 'Visitor').replace(/"/g, '&quot;')}" style="margin-top: 10px; width: 100%;">
+                                    <i class="fa-solid fa-download"></i> Download QR Code (Large)
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ${allowActions && isRegistered ? `
+                        <div class="visitor-actions">
+                            <button class="btn btn-warning" onclick="cancelVisitorRequest('${request.requestId}')">
+                                <i class="fa-solid fa-ban"></i> Cancel Registration
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            if (request.qrCodeData) {
+                qrQueue.push({ elementId: qrElementId, data: request.qrCodeData });
+            }
+        });
+        
+        container.innerHTML = html;
+        
+        // Function to wait for QRCode library and generate QR codes
+        function generateQRCodes() {
+            const maxRetries = 20;
+            let retries = 0;
+            
+            function tryGenerate() {
+                if (typeof QRCode !== 'undefined' && QRCode) {
+                    qrQueue.forEach(({ elementId, data }) => {
+                        const target = document.getElementById(elementId);
+                        if (target) {
+                            target.innerHTML = '';
+                            try {
+                                const qr = new QRCode(target, {
+                                    text: data,
+                                    width: 96,
+                                    height: 96,
+                                    colorDark: '#000000',
+                                    colorLight: '#ffffff',
+                                    correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.H : 2
+                                });
+                            } catch (error) {
+                                console.error('Error generating QR code:', error);
+                                target.innerHTML = '<p style="color: #999; font-size: 12px;">QR code error</p>';
+                            }
+                        }
+                    });
+                } else {
+                    retries++;
+                    if (retries < maxRetries) {
+                        setTimeout(tryGenerate, 300);
+                    } else {
+                        // Show error message if library never loads
+                        qrQueue.forEach(({ elementId }) => {
+                            const target = document.getElementById(elementId);
+                            if (target) {
+                                target.innerHTML = '<p style="color: #dc3545; font-size: 12px;">QR code library not loaded. Please refresh the page.</p>';
+                            }
+                        });
+                    }
+                }
+            }
+            
+            tryGenerate();
+        }
+        
+        // Start generating QR codes
+        generateQRCodes();
+        
+        // Attach download button event listeners
+        setTimeout(() => {
+            // Find all download buttons and attach event listeners
+            const downloadButtons = container.querySelectorAll('button[id^="download-qr-"]');
+            downloadButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const requestId = this.getAttribute('data-request-id');
+                    const qrData = decodeURIComponent(this.getAttribute('data-qr-data') || '');
+                    const visitorName = this.getAttribute('data-visitor-name') || 'Visitor';
+                    if (requestId && qrData) {
+                        downloadQRCode(requestId, qrData, visitorName);
+                    } else {
+                        alert('QR code data not available. Please refresh the page.');
+                    }
+                });
+            });
+        }, 800);
+    }
+    
+    function cancelVisitorRequest(requestId) {
+        if (!confirm('Are you sure you want to cancel this visitor request?')) return;
+        
+        if (!firebaseDatabase || !currentUser) return;
+        
+        firebaseDatabase.ref(`visitorRequests/${requestId}/status`).set('cancelled')
+            .then(() => {
+                firebaseDatabase.ref(`visitorRequests/${requestId}/updatedAt`).set(new Date().toISOString());
+                alert('Visitor request cancelled successfully.');
+            })
+            .catch((error) => {
+                console.error('Error cancelling request:', error);
+                alert('Error cancelling request: ' + error.message);
+            });
+    }
+    
+    function showFormMessage(message, type) {
+        const messageEl = document.getElementById('visitor-form-message');
+        if (!messageEl) return;
+        
+        messageEl.textContent = message;
+        messageEl.style.display = 'block';
+        messageEl.style.color = type === 'success' ? '#28a745' : '#dc3545';
+    }
+    
+    function generateSecurityCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-KE', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+    
+    function formatDateTime(dateTimeString) {
+        if (!dateTimeString) return 'N/A';
+        const date = new Date(dateTimeString);
+        return date.toLocaleString('en-KE', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    // Function to download QR code as a larger image
+    window.downloadQRCode = function(requestId, qrData, visitorName) {
+        if (typeof QRCode === 'undefined' || !QRCode) {
+            alert('QR code library not loaded. Please wait a moment and try again.');
+            setTimeout(() => {
+                if (typeof QRCode !== 'undefined' && QRCode) {
+                    window.downloadQRCode(requestId, qrData, visitorName);
+                } else {
+                    alert('QR code library failed to load. Please refresh the page.');
+                }
+            }, 1000);
+            return;
+        }
+
+        // Create a temporary container for the larger QR code
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '0';
+        tempContainer.style.width = '500px';
+        tempContainer.style.height = '500px';
+        tempContainer.style.backgroundColor = '#ffffff';
+        document.body.appendChild(tempContainer);
+
+        try {
+            // Generate larger QR code (500x500 for high quality)
+            const qr = new QRCode(tempContainer, {
+                text: qrData,
+                width: 500,
+                height: 500,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.H : 2
+            });
+
+            // Wait for QR code to render
+            setTimeout(() => {
+                const canvas = tempContainer.querySelector('canvas');
+                if (canvas) {
+                    // Convert canvas to blob and download
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            const safeName = (visitorName || 'Visitor').replace(/[^a-z0-9]/gi, '_');
+                            link.download = `Visitor_QR_${safeName}_${requestId.substring(0, 8)}.png`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            setTimeout(() => URL.revokeObjectURL(url), 100);
+                        } else {
+                            alert('Error generating QR code image. Please try again.');
+                        }
+                    }, 'image/png', 1.0);
+                } else {
+                    // Fallback: try to get img element
+                    const img = tempContainer.querySelector('img');
+                    if (img) {
+                        // Create canvas from image
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 500;
+                        canvas.height = 500;
+                        const ctx = canvas.getContext('2d');
+                        
+                        const loadHandler = () => {
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillRect(0, 0, 500, 500);
+                            ctx.drawImage(img, 0, 0, 500, 500);
+                            canvas.toBlob((blob) => {
+                                if (blob) {
+                                    const url = URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    const safeName = (visitorName || 'Visitor').replace(/[^a-z0-9]/gi, '_');
+                                    link.download = `Visitor_QR_${safeName}_${requestId.substring(0, 8)}.png`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                                } else {
+                                    alert('Error generating QR code image. Please try again.');
+                                }
+                            }, 'image/png', 1.0);
+                            img.removeEventListener('load', loadHandler);
+                        };
+                        
+                        if (img.complete) {
+                            loadHandler();
+                        } else {
+                            img.addEventListener('load', loadHandler);
+                            img.src = img.src; // Trigger load if not already loaded
+                        }
+                    } else {
+                        alert('Error generating QR code for download. Please try again.');
+                    }
+                }
+                
+                // Cleanup
+                setTimeout(() => {
+                    if (tempContainer.parentNode) {
+                        document.body.removeChild(tempContainer);
+                    }
+                }, 2000);
+            }, 800);
+        } catch (error) {
+            console.error('Error generating QR code for download:', error);
+            alert('Error generating QR code: ' + error.message);
+            if (tempContainer.parentNode) {
+                document.body.removeChild(tempContainer);
+            }
+        }
+    };
+
+    // Expose cancel function globally
+    window.cancelVisitorRequest = cancelVisitorRequest;
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVisitorsPage);
+    } else {
+        initVisitorsPage();
+    }
+})();
+</script>
+

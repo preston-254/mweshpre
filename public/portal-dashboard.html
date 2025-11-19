@@ -1,0 +1,365 @@
+<div class="dashboard-content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                <h3 id="dashboard-days-stayed">0</h3>
+                <p>Days Stayed</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="card-icon"><i class="fa-solid fa-tools"></i></div>
+                <h3 id="dashboard-maintenance-count">0</h3>
+                <p>Active Maintenance Tickets</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-calendar"></i> Upcoming Payments</h3>
+                <div id="upcoming-payments">
+                    <p class="text-muted">No upcoming payments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-wrench"></i> Active Maintenance Requests</h3>
+                <div id="active-maintenance">
+                    <p class="text-muted">No active requests</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-bullhorn"></i> Recent Announcements</h3>
+                <div id="recent-announcements">
+                    <p class="text-muted">No recent announcements</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-clock"></i> Quick Actions</h3>
+                <div id="quick-actions" style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="quick-action-btn" onclick="if(window.loadPage) window.loadPage('finance', event);" style="background: #667eea; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; text-align: left;">
+                        <i class="fa-solid fa-wallet"></i> View Finance Details
+                    </button>
+                    <button class="quick-action-btn" onclick="if(window.loadPage) window.loadPage('maintenance', event);" style="background: #f5576c; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; text-align: left;">
+                        <i class="fa-solid fa-tools"></i> Submit Maintenance Request
+                    </button>
+                    <button class="quick-action-btn" onclick="if(window.loadPage) window.loadPage('profile', event);" style="background: #4facfe; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; text-align: left;">
+                        <i class="fa-solid fa-user"></i> Update Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-card {
+    padding: 30px;
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.dashboard-card h3 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.dashboard-section {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.dashboard-section h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.quick-action-btn {
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.quick-action-btn:hover {
+    transform: translateX(5px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.quick-action-btn i {
+    margin-right: 10px;
+}
+</style>
+
+<script>
+// Load dashboard data - use window.firebase if available
+(function() {
+    let retryCount = 0;
+    const maxRetries = 50;
+    
+    function loadDashboardData() {
+        console.log('Loading dashboard data...', retryCount);
+        
+        // Try multiple ways to get Firebase
+        const firebaseAuth = window.auth || (window.firebase ? window.firebase.auth() : (typeof firebase !== 'undefined' ? firebase.auth() : null));
+        const firebaseDatabase = window.database || (window.firebase ? window.firebase.database() : (typeof firebase !== 'undefined' ? firebase.database() : null));
+        
+        if (!firebaseAuth || !firebaseDatabase) {
+            retryCount++;
+            if (retryCount < maxRetries) {
+                setTimeout(loadDashboardData, 200);
+            } else {
+                console.error('Firebase not available after retries');
+            }
+            return;
+        }
+        
+        // Reset retry count on success
+        retryCount = 0;
+        
+        const user = firebaseAuth.currentUser;
+        if (!user) {
+            // Wait for auth state
+            firebaseAuth.onAuthStateChanged(u => {
+                if (u) {
+                    console.log('User authenticated, loading dashboard data');
+                    loadDashboardData();
+                }
+            });
+            return;
+        }
+        
+        console.log('User found:', user.uid);
+        
+        // Load tenant data with real-time listener
+        const tenantRef = firebaseDatabase.ref('tenants/' + user.uid);
+        tenantRef.on('value', (snapshot) => {
+            console.log('Tenant data snapshot received');
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const finance = data.finance || {};
+                const info = data.info || {};
+                
+                console.log('Tenant info:', info);
+                console.log('Finance data:', finance);
+                
+                // Calculate and update days stayed (matching finance page calculation)
+                const daysStayedEl = document.getElementById('dashboard-days-stayed');
+                if (info.moveInDate) {
+                    try {
+                        const moveIn = new Date(info.moveInDate);
+                        const today = new Date();
+                        // Reset time to midnight for accurate day calculation (matching finance page)
+                        moveIn.setHours(0, 0, 0, 0);
+                        today.setHours(0, 0, 0, 0);
+                        const daysStayed = Math.floor((today - moveIn) / (1000 * 60 * 60 * 24));
+                        console.log('Days stayed calculated:', daysStayed);
+                        if (daysStayedEl) {
+                            daysStayedEl.textContent = daysStayed >= 0 ? daysStayed : 0;
+                        }
+                    } catch (e) {
+                        console.error('Error calculating days stayed:', e);
+                        if (daysStayedEl) daysStayedEl.textContent = '0';
+                    }
+                } else {
+                    console.log('No move-in date found');
+                    if (daysStayedEl) daysStayedEl.textContent = '0';
+                }
+                
+                // Load upcoming payments
+                const upcomingPaymentsEl = document.getElementById('upcoming-payments');
+                if (upcomingPaymentsEl) {
+                    let payments = [];
+                    const rentDue = parseFloat(finance.rentDue || 0);
+                    const waterBill = parseFloat(finance.waterBill || 0);
+                    const otherFees = finance.otherFees || [];
+                    
+                    if (rentDue > 0 && finance.rentDueDate) {
+                        payments.push({ name: 'Rent', amount: rentDue, date: finance.rentDueDate });
+                    }
+                    if (waterBill > 0 && finance.waterBillDate) {
+                        payments.push({ name: 'Water Bill', amount: waterBill, date: finance.waterBillDate });
+                    }
+                    if (Array.isArray(otherFees)) {
+                        otherFees.forEach(fee => {
+                            if (fee && fee.amount > 0 && fee.dueDate) {
+                                payments.push({ name: fee.name || 'Other Fee', amount: fee.amount, date: fee.dueDate });
+                            }
+                        });
+                    }
+                    
+                    if (payments.length > 0) {
+                        payments.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        let html = '';
+                        payments.slice(0, 5).forEach(payment => {
+                            html += `
+                                <div style="padding: 10px; background: white; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #667eea;">
+                                    <strong style="font-size: 14px;">${payment.name}</strong>
+                                    <p style="margin: 5px 0; font-size: 12px; color: #666;">Ksh ${payment.amount.toLocaleString()} - Due: ${payment.date}</p>
+                                </div>
+                            `;
+                        });
+                        upcomingPaymentsEl.innerHTML = html;
+                    } else {
+                        upcomingPaymentsEl.innerHTML = '<p class="text-muted">No upcoming payments</p>';
+                    }
+                }
+            } else {
+                console.log('No tenant data found');
+            }
+        }, (error) => {
+            console.error('Error loading tenant data:', error);
+        });
+        
+        // Load maintenance requests count (from maintenanceRequests node, matching maintenance page)
+        const maintenanceRef = firebaseDatabase.ref('maintenanceRequests').orderByChild('tenantId').equalTo(user.uid);
+        maintenanceRef.on('value', (snapshot) => {
+            console.log('Maintenance requests snapshot received');
+            const requests = snapshot.val() || {};
+            const requestsArray = Object.values(requests);
+            console.log('Total maintenance requests:', requestsArray.length);
+            
+            // Count only active requests (pending or in-progress, not completed/closed)
+            const activeCount = requestsArray.filter(r => {
+                const status = (r.status || '').toLowerCase();
+                return status === 'pending' || status === 'in-progress' || status === 'in progress';
+            }).length;
+            
+            console.log('Active maintenance requests:', activeCount);
+            
+            const maintenanceCountEl = document.getElementById('dashboard-maintenance-count');
+            if (maintenanceCountEl) {
+                maintenanceCountEl.textContent = activeCount;
+                console.log('Updated maintenance count to:', activeCount);
+            }
+            
+            // Show active maintenance requests
+            const activeMaintenanceEl = document.getElementById('active-maintenance');
+            if (activeMaintenanceEl) {
+                const activeRequests = requestsArray.filter(r => {
+                    const status = (r.status || '').toLowerCase();
+                    return status === 'pending' || status === 'in-progress' || status === 'in progress';
+                });
+                
+                if (activeRequests.length > 0) {
+                    // Sort by date (newest first) - try multiple date fields
+                    activeRequests.sort((a, b) => {
+                        const dateA = a.submittedAt || a.timestamp || a.date || 0;
+                        const dateB = b.submittedAt || b.timestamp || b.date || 0;
+                        if (typeof dateA === 'string' && typeof dateB === 'string') {
+                            return new Date(dateB) - new Date(dateA);
+                        }
+                        return dateB - dateA;
+                    });
+                    
+                    let html = '';
+                    activeRequests.slice(0, 5).forEach(request => {
+                        const status = (request.status || 'pending').toLowerCase();
+                        const statusColor = status === 'in-progress' || status === 'in progress' ? '#17a2b8' : '#ffc107';
+                        const statusText = status === 'in-progress' || status === 'in progress' ? 'In Progress' : 'Pending';
+                        const ticketNum = request.ticketNumber || 'N/A';
+                        const type = request.type || 'Maintenance';
+                        const description = request.description ? (request.description.length > 40 ? request.description.substring(0, 40) + '...' : request.description) : 'No description';
+                        
+                        html += `
+                            <div style="padding: 10px; background: white; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid ${statusColor};">
+                                <strong style="font-size: 14px;">Ticket #${ticketNum}</strong>
+                                <p style="margin: 5px 0; font-size: 12px; color: #666;">${type} - ${description}</p>
+                                <small style="color: ${statusColor}; font-weight: 600;">${statusText}</small>
+                            </div>
+                        `;
+                    });
+                    activeMaintenanceEl.innerHTML = html;
+                } else {
+                    activeMaintenanceEl.innerHTML = '<p class="text-muted">No active requests</p>';
+                }
+            }
+        }, (error) => {
+            console.error('Error loading maintenance requests:', error);
+        });
+        
+        // Load announcements - try with and without orderBy
+        const recentAnnEl = document.getElementById('recent-announcements');
+        if (recentAnnEl) {
+            const announcementsRef = firebaseDatabase.ref('announcements');
+            
+            // Try with orderBy first, fallback to without if it fails
+            const tryLoadAnnouncements = (useOrderBy) => {
+                let query = announcementsRef;
+                if (useOrderBy) {
+                    try {
+                        query = announcementsRef.orderByChild('date');
+                    } catch (e) {
+                        console.log('orderByChild failed, trying without:', e);
+                        useOrderBy = false;
+                    }
+                }
+                
+                query.limitToLast(10).once('value', (snapshot) => {
+                    const announcements = snapshot.val() || {};
+                    console.log('Announcements loaded:', Object.keys(announcements).length);
+                    
+                    const recentAnnouncements = Object.entries(announcements).reverse().slice(0, 3);
+                    if (recentAnnouncements.length > 0) {
+                        let html = '';
+                        recentAnnouncements.forEach(([key, ann]) => {
+                            html += `
+                                <div style="padding: 10px; background: white; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #667eea;">
+                                    <strong style="font-size: 14px;">${ann.title || 'Announcement'}</strong>
+                                    <p style="margin: 5px 0; font-size: 12px; color: #666;">${ann.content ? (ann.content.length > 50 ? ann.content.substring(0, 50) + '...' : ann.content) : ''}</p>
+                                    <small style="color: #999;">${ann.date || ''}</small>
+                                </div>
+                            `;
+                        });
+                        recentAnnEl.innerHTML = html;
+                    } else {
+                        recentAnnEl.innerHTML = '<p class="text-muted">No recent announcements</p>';
+                    }
+                }, (error) => {
+                    console.error('Error loading announcements:', error);
+                    if (useOrderBy) {
+                        // Retry without orderBy
+                        tryLoadAnnouncements(false);
+                    } else {
+                        recentAnnEl.innerHTML = '<p class="text-muted">No recent announcements</p>';
+                    }
+                });
+            };
+            
+            tryLoadAnnouncements(true);
+        }
+    }
+    
+    // Try to load immediately, or wait for DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    } else {
+        loadDashboardData();
+    }
+})();
+</script>
