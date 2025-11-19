@@ -91,6 +91,11 @@
     color: #383d41;
 }
 
+.visitor-status.pending-verification {
+    background: #fff3cd;
+    color: #856404;
+}
+
 .visitor-actions button {
     margin-right: 10px;
     margin-top: 10px;
@@ -241,6 +246,9 @@
                 } else if (request.status === 'checked-in') {
                     // Include all checked-in visitors in history (including those checked in at gate)
                     history.push(request);
+                } else if (request.status === 'pending-verification') {
+                    // Visitors waiting for verification go to upcoming
+                    upcoming.push(request);
                 } else if (request.status === 'registered' && visitDateTime < now) {
                     history.push(request);
                 } else {
@@ -275,6 +283,7 @@
             const visitorStatus = request.status || 'registered';
             const statusClass = `visitor-status ${visitorStatus}`;
             const isRegistered = visitorStatus === 'registered';
+            const isPendingVerification = visitorStatus === 'pending-verification';
             
             if (!request.qrCodeData && request.requestId && request.securityCode) {
                 const qrPayload = JSON.stringify({ requestId: request.requestId, securityCode: request.securityCode });
@@ -316,7 +325,22 @@
                         ${request.checkOutTime ? `<p style="margin: 4px 0; color: #6c757d;"><i class="fa-solid fa-door-closed"></i> Checked Out: ${formatDateTime(request.checkOutTime)}</p>` : ''}
                         ${request.idPhoto ? `<p style="margin: 4px 0; color: #667eea;"><i class="fa-solid fa-id-card"></i> ID Photo Captured</p>` : ''}
                         ${request.idPhotoBack ? `<p style="margin: 4px 0; color: #667eea;"><i class="fa-solid fa-id-card"></i> ID Back Photo Captured</p>` : ''}
+                        ${request.registeredAt ? `<p style="margin: 4px 0; color: #ffc107;"><i class="fa-solid fa-clock"></i> Registered at gate: ${formatDateTime(request.registeredAt)}</p>` : ''}
                     </div>
+                    ${isPendingVerification && allowActions ? `
+                        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 15px; margin-top: 15px;">
+                            <p style="margin: 0 0 10px 0; color: #856404; font-weight: 600;"><i class="fa-solid fa-exclamation-triangle"></i> Verification Required</p>
+                            <p style="margin: 0 0 15px 0; color: #856404; font-size: 14px;">This visitor has arrived at the gate. Please verify that you were expecting this visitor.</p>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-success" onclick="verifyVisitor('${request.requestId || request.id}')" style="flex: 1; background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    <i class="fa-solid fa-check-circle"></i> Verify Visitor
+                                </button>
+                                <button class="btn btn-danger" onclick="rejectVisitor('${request.requestId || request.id}')" style="flex: 1; background: #dc3545; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    <i class="fa-solid fa-times-circle"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
                     <div class="visitor-pass-section">
                         <div>
                             <div class="visitor-qr" id="${qrElementId}"></div>
@@ -412,6 +436,57 @@
                 });
             });
         }, 800);
+    }
+    
+    function verifyVisitor(requestId) {
+        if (!confirm('Verify this visitor? They will be checked in.')) return;
+        
+        if (!firebaseDatabase || !currentUser) {
+            alert('Authentication error. Please reload the page.');
+            return;
+        }
+        
+        const updates = {
+            status: 'checked-in',
+            checkedInAt: new Date().toISOString(),
+            verifiedAt: new Date().toISOString(),
+            verifiedBy: currentUser.uid,
+            updatedAt: new Date().toISOString()
+        };
+        
+        firebaseDatabase.ref(`visitorRequests/${requestId}`).update(updates)
+            .then(() => {
+                alert('Visitor verified and checked in successfully!');
+            })
+            .catch((error) => {
+                console.error('Error verifying visitor:', error);
+                alert('Error verifying visitor: ' + error.message);
+            });
+    }
+    
+    function rejectVisitor(requestId) {
+        if (!confirm('Reject this visitor? They will not be allowed entry.')) return;
+        
+        if (!firebaseDatabase || !currentUser) {
+            alert('Authentication error. Please reload the page.');
+            return;
+        }
+        
+        const updates = {
+            status: 'rejected',
+            rejectedAt: new Date().toISOString(),
+            rejectedBy: currentUser.uid,
+            updatedAt: new Date().toISOString()
+        };
+        
+        firebaseDatabase.ref(`visitorRequests/${requestId}`).update(updates)
+            .then(() => {
+                alert('Visitor rejected. Security has been notified.');
+            })
+            .catch((error) => {
+                console.error('Error rejecting visitor:', error);
+                alert('Error rejecting visitor: ' + error.message);
+            });
     }
     
     function cancelVisitorRequest(requestId) {
@@ -586,6 +661,10 @@
     };
 
     // Expose cancel function globally
+    window.verifyVisitor = verifyVisitor;
+    window.rejectVisitor = rejectVisitor;
+    window.verifyVisitor = verifyVisitor;
+    window.rejectVisitor = rejectVisitor;
     window.cancelVisitorRequest = cancelVisitorRequest;
     
     if (document.readyState === 'loading') {

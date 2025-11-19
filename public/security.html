@@ -583,7 +583,9 @@
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">House Number *</label>
-                            <input type="text" id="gate-house-number" required placeholder="e.g., A101" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <select id="gate-house-number" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                                <option value="">Select house number...</option>
+                            </select>
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Vehicle Registration (if applicable)</label>
@@ -778,6 +780,7 @@
                     userEmailEl.textContent = credential.user.email;
                     attachVisitorsListener();
                     setTimeout(() => {
+                        loadHouseNumbers();
                         loadExpectedVisitors();
                         loadPackageRequests();
                         loadParkingData();
@@ -1720,25 +1723,28 @@
                         const tenantsSnapshot = await tenantsRef.once('value');
                         let tenantId = null;
                         let tenantEmail = null;
+                        let tenantName = null;
 
                         tenantsSnapshot.forEach((child) => {
                             const tenant = child.val();
-                            if (tenant.houseNumber === houseNumber) {
+                            const tenantHouseNumber = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
+                            if (tenantHouseNumber === houseNumber) {
                                 tenantId = child.key;
                                 tenantEmail = tenant.email;
+                                tenantName = tenant.name || tenant.info?.fullName || tenant.info?.name || hostName;
                             }
                         });
 
                         if (!tenantId) {
-                            alert('House number not found. Please verify the house number.');
+                            alert('House number not found. Please select a valid house number from the list.');
                             return;
                         }
 
-                        // Create visitor request
+                        // Create visitor request - status is 'pending-verification' until tenant verifies
                         const visitorRequest = {
                             visitorName: visitorName,
                             visitorContact: visitorPhone,
-                            tenantName: hostName,
+                            tenantName: tenantName || hostName,
                             tenantId: tenantId,
                             tenantEmail: tenantEmail,
                             roomNumber: houseNumber,
@@ -1746,11 +1752,11 @@
                             carPlate: carReg || null,
                             idPhoto: idFrontBase64,
                             idPhotoBack: idBackBase64,
-                            status: 'checked-in',
+                            status: 'pending-verification',
                             visitDate: new Date().toISOString().split('T')[0],
                             visitTime: new Date().toTimeString().split(' ')[0].substring(0, 5),
-                            checkedInAt: new Date().toISOString(),
-                            checkedInBy: auth.currentUser ? auth.currentUser.email : 'Security',
+                            registeredAt: new Date().toISOString(),
+                            registeredBy: auth.currentUser ? auth.currentUser.email : 'Security',
                             numberOfVisitors: 1
                         };
 
@@ -1772,17 +1778,17 @@
                             await database.ref(`parkingSpaces/${parkingSlot}`).update(parkingUpdate);
                         }
 
-                        // Notify tenant
+                        // Notify tenant to verify visitor
                         if (window.createNotification && tenantId) {
                             window.createNotification(database, tenantId, {
                                 type: 'visitor',
-                                title: 'Visitor Checked In',
-                                message: `${visitorName} has arrived and checked in at the gate.`,
+                                title: 'Visitor Arrived - Verification Required',
+                                message: `${visitorName} has arrived at the gate. Please verify this visitor.`,
                                 link: '#visitors'
                             });
                         }
 
-                        alert('Visitor checked in successfully!');
+                        alert('Visitor registered successfully! Waiting for tenant verification before check-in.');
                         form.reset();
                         idFrontPreview.style.display = 'none';
                         idBackPreview.style.display = 'none';
@@ -1794,6 +1800,48 @@
                     }
                 });
             }
+        }
+
+        function loadHouseNumbers() {
+            const houseNumberSelect = document.getElementById('gate-house-number');
+            if (!houseNumberSelect) return;
+
+            database.ref('tenants').once('value').then(snapshot => {
+                const houseNumbers = [];
+                snapshot.forEach((child) => {
+                    const tenant = child.val();
+                    const houseNumber = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
+                    const tenantName = tenant.name || tenant.info?.fullName || tenant.info?.name || 'Unknown';
+                    
+                    if (houseNumber && !houseNumbers.find(h => h.number === houseNumber)) {
+                        houseNumbers.push({
+                            number: houseNumber,
+                            name: tenantName
+                        });
+                    }
+                });
+
+                // Sort house numbers
+                houseNumbers.sort((a, b) => {
+                    // Sort by block first (A, B, C), then by number
+                    const blockA = a.number.charAt(0);
+                    const blockB = b.number.charAt(0);
+                    if (blockA !== blockB) {
+                        return blockA.localeCompare(blockB);
+                    }
+                    const numA = parseInt(a.number.substring(1)) || 0;
+                    const numB = parseInt(b.number.substring(1)) || 0;
+                    return numA - numB;
+                });
+
+                houseNumberSelect.innerHTML = '<option value="">Select house number...</option>';
+                houseNumbers.forEach(house => {
+                    const option = document.createElement('option');
+                    option.value = house.number;
+                    option.textContent = `${house.number} - ${house.name}`;
+                    houseNumberSelect.appendChild(option);
+                });
+            });
         }
 
         function loadAvailableParkingSlots() {
