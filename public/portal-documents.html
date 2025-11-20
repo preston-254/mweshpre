@@ -1,0 +1,47 @@
+<div style="padding: 20px;">
+    <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-file-alt"></i> My Documents</h2>
+    <div style="display: grid; gap: 20px;">
+        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-file-contract" style="color: #667eea; margin-right: 10px;"></i>Lease Agreement</h4>
+                <p style="color: #666; font-size: 14px;">Signed on: January 15, 2024</p>
+            </div>
+            <button style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                <i class="fa-solid fa-download"></i> Download
+            </button>
+        </div>
+        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-receipt" style="color: #667eea; margin-right: 10px;"></i>Payment Receipts</h4>
+                <p style="color: #666; font-size: 14px;">View all payment receipts</p>
+            </div>
+            <button class="open-finance-btn" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                View
+            </button>
+        </div>
+        <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-id-card" style="color: #667eea; margin-right: 10px;"></i>ID Copy</h4>
+                <p style="color: #666; font-size: 14px;">Uploaded: January 10, 2024</p>
+            </div>
+            <button style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                <i class="fa-solid fa-download"></i> Download
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const financeButtons = document.querySelectorAll('.open-finance-btn');
+        financeButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (typeof loadPage === 'function') {
+                    loadPage('finance', e);
+                }
+            });
+        });
+    })();
+</script>
+

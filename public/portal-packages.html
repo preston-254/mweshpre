@@ -1,0 +1,49 @@
+<div style="padding: 15px;">
+    <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;"><i class="fa-solid fa-box"></i> Package Delivery</h2>
+    
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-calendar-plus"></i> Schedule Package Collection</h3>
+        <form id="package-collection-form" style="display: grid; gap: 15px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;">Package Description</label>
+                <input type="text" id="package-description" placeholder="e.g., Package from Jumia" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;">Expected Delivery Date</label>
+                <input type="date" id="package-date" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;">Preferred Collection Time</label>
+                <input type="time" id="package-time" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+            </div>
+            <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                <i class="fa-solid fa-paper-plane"></i> Notify Security
+            </button>
+        </form>
+    </div>
+    
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-box-open"></i> Pending Pickups</h3>
+        <div id="packages-list" style="display: grid; gap: 15px;">
+            <p style="text-align: center; color: #666; padding: 20px;">No pending packages</p>
+        </div>
+    </div>
+    
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-history"></i> Package History</h3>
+        <div id="package-history" style="display: grid; gap: 15px;">
+            <p style="text-align: center; color: #666; padding: 20px;">No package history</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        if (typeof initializePackageForm === 'function') {
+            initializePackageForm();
+        } else {
+            console.warn('initializePackageForm is not available yet.');
+        }
+    })();
+</script>
+

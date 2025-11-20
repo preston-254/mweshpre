@@ -1,0 +1,77 @@
+<div style="padding: 15px;">
+    <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;"><i class="fa-solid fa-parking"></i> Parking Management</h2>
+    
+    <div id="parking-map-section" style="margin-bottom: 20px;"></div>
+    
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-car"></i> My Assigned Parking</h3>
+        <div id="my-parking-spaces" style="display: grid; gap: 15px;">
+            <p style="text-align: center; color: #666; padding: 20px;">Loading your parking allocation...</p>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 30px;">
+        <h3 style="color: #667eea; margin-bottom: 25px;"><i class="fa-solid fa-car-side"></i> Register Vehicle</h3>
+        <form id="vehicle-registration-form" style="display: grid; gap: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Registration Number</label>
+                <input type="text" placeholder="e.g., KCA 123A" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Type</label>
+                <select required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                    <option value="">Select vehicle type</option>
+                    <option value="sedan">Sedan</option>
+                    <option value="suv">SUV</option>
+                    <option value="hatchback">Hatchback</option>
+                    <option value="pickup">Pickup Truck</option>
+                    <option value="motorcycle">Motorcycle</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Color</label>
+                <input type="text" placeholder="e.g., White" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">Vehicle Make & Model</label>
+                <input type="text" placeholder="e.g., Toyota Corolla" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+            </div>
+            <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                <i class="fa-solid fa-check"></i> Register Vehicle
+            </button>
+        </form>
+    </div>
+
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <h3 style="color: #667eea; margin-bottom: 25px;"><i class="fa-solid fa-info-circle"></i> Parking Rules & Guidelines</h3>
+        <div style="display: grid; gap: 15px;">
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                <p style="color: #333; margin: 0;"><strong>1.</strong> Park only in your assigned parking space.</p>
+            </div>
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                <p style="color: #333; margin: 0;"><strong>2.</strong> Visitor parking is available for guests (max 2 hours).</p>
+            </div>
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                <p style="color: #333; margin: 0;"><strong>3.</strong> All vehicles must be registered with management.</p>
+            </div>
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                <p style="color: #333; margin: 0;"><strong>4.</strong> Report any parking violations to security.</p>
+            </div>
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                <p style="color: #333; margin: 0;"><strong>5.</strong> Do not block access roads or fire lanes.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        if (typeof initializeParkingMap === 'function') {
+            initializeParkingMap();
+        } else {
+            console.warn('initializeParkingMap is not available yet.');
+        }
+    })();
+</script>
+
