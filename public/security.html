@@ -564,6 +564,15 @@
                 <div id="all-requests"></div>
             </div>
 
+            <!-- Manage Visitor Requests Section -->
+            <div class="dashboard-section">
+                <h3><i class="fa-solid fa-user-check"></i> Manage Visitor Requests</h3>
+                <p class="text-muted" style="margin-bottom: 15px;">View and manage all visitor requests. Approve or reject visitors pre-registered by tenants.</p>
+                <div id="visitorRequestsList">
+                    <p style="color: #666; padding: 15px;">Loading visitor requests...</p>
+                </div>
+            </div>
+
             <!-- Register New Visitor Section -->
             <div class="dashboard-section">
                 <h3><i class="fa-solid fa-user-plus"></i> Register New Visitor at Gate</h3>
@@ -2065,6 +2074,153 @@
                 });
             }
         }
+
+        // Load visitor requests for management table
+        function loadVisitorRequestsTable() {
+            const container = document.getElementById('visitorRequestsList');
+            if (!container) return;
+            
+            database.ref('visitorRequests').orderByChild('createdAt').on('value', (snapshot) => {
+                const requests = snapshot.val() || {};
+                if (Object.keys(requests).length === 0) {
+                    container.innerHTML = '<p style="color: #666; padding: 15px;">No visitor requests yet.</p>';
+                    return;
+                }
+                
+                let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; margin-top: 10px;"><thead><tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;"><th style="padding: 12px; text-align: left; font-weight: 600;">Visitor</th><th style="padding: 12px; text-align: left; font-weight: 600;">Tenant</th><th style="padding: 12px; text-align: left; font-weight: 600;">Visit Date</th><th style="padding: 12px; text-align: left; font-weight: 600;">Time</th><th style="padding: 12px; text-align: left; font-weight: 600;">Status</th><th style="padding: 12px; text-align: left; font-weight: 600;">Security Code</th><th style="padding: 12px; text-align: left; font-weight: 600;">Actions</th></tr></thead><tbody>';
+                
+                Object.entries(requests).reverse().forEach(([key, request]) => {
+                    const status = request.status || 'pending';
+                    const visitDate = request.visitDate || '-';
+                    const visitTime = request.visitTime || '-';
+                    
+                    // Determine status badge color
+                    let statusBadge = '';
+                    if (status === 'pending-verification') {
+                        statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Pending Verification</span>';
+                    } else if (status === 'checked-in' && !request.checkedInAt) {
+                        statusBadge = '<span style="background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Approved</span>';
+                    } else if (status === 'checked-in' && request.checkedInAt) {
+                        statusBadge = '<span style="background: #cce5ff; color: #004085; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Checked In</span>';
+                    } else if (status === 'rejected') {
+                        statusBadge = '<span style="background: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Rejected</span>';
+                    } else if (status === 'registered') {
+                        statusBadge = '<span style="background: #d1ecf1; color: #0c5460; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Registered</span>';
+                    } else if (status === 'checked-out') {
+                        statusBadge = '<span style="background: #e2e3e5; color: #383d41; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Checked Out</span>';
+                    } else {
+                        statusBadge = `<span style="background: #e9ecef; color: #495057; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">${status}</span>`;
+                    }
+                    
+                    html += `
+                        <tr style="border-bottom: 1px solid #e9ecef;">
+                            <td style="padding: 12px;">
+                                <strong>${request.visitorName || 'N/A'}</strong><br>
+                                <small style="color: #666;">${request.visitorContact || ''}</small>
+                                ${request.carPlate ? `<br><small style="color:#999;"><i class="fa-solid fa-car-side"></i> ${request.carPlate}</small>` : ''}
+                            </td>
+                            <td style="padding: 12px;">${request.tenantName || 'Tenant'}<br><small style="color: #666;">${request.tenantEmail || ''}</small><br><small style="color: #999;">${request.roomNumber || ''}</small></td>
+                            <td style="padding: 12px;">${visitDate}</td>
+                            <td style="padding: 12px;">${visitTime}</td>
+                            <td style="padding: 12px;">${statusBadge}</td>
+                            <td style="padding: 12px;"><strong>${request.securityCode || '-'}</strong></td>
+                            <td style="padding: 12px;">
+                                ${status === 'pending-verification' ? `
+                                    <button class="btn btn-sm" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 2px; font-weight: 600;" onclick="securityApproveVisitor('${key}')">
+                                        <i class="fa-solid fa-check"></i> Approve
+                                    </button>
+                                    <button class="btn btn-sm" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 2px; font-weight: 600;" onclick="securityRejectVisitor('${key}')">
+                                        <i class="fa-solid fa-times"></i> Reject
+                                    </button>
+                                ` : ''}
+                                ${status === 'checked-in' && !request.checkedInAt ? `
+                                    <span style="color: #28a745; font-size: 12px; font-weight: 600;"><i class="fa-solid fa-check-circle"></i> Approved</span>
+                                ` : ''}
+                                ${status === 'rejected' ? `
+                                    <span style="color: #dc3545; font-size: 12px; font-weight: 600;"><i class="fa-solid fa-times-circle"></i> Rejected</span>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            }, (error) => {
+                container.innerHTML = '<p style="color: #dc3545; padding: 15px;">Error loading visitor requests: ' + error.message + '</p>';
+            });
+        }
+
+        // Security approve visitor (overrides tenant verification if needed)
+        window.securityApproveVisitor = function(requestId) {
+            if (!confirm('Approve this visitor? They will be allowed entry.')) return;
+            
+            database.ref(`visitorRequests/${requestId}`).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) throw new Error('Visitor request not found');
+                    const request = snapshot.val();
+                    
+                    const updates = {
+                        status: 'checked-in', // Approved - ready for check-in
+                        approvedBy: auth.currentUser ? auth.currentUser.email : 'Security',
+                        approvedAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
+                        // Notify tenant
+                        if (window.createNotification && request.tenantId) {
+                            window.createNotification(database, request.tenantId, {
+                                type: 'visitor',
+                                title: 'Visitor Approved',
+                                message: `${request.visitorName || 'Visitor'} has been approved by security.`,
+                                link: '#visitors'
+                            });
+                        }
+                    });
+                })
+                .then(() => {
+                    alert('Visitor approved successfully!');
+                })
+                .catch((error) => {
+                    alert('Error approving visitor: ' + error.message);
+                });
+        };
+
+        // Security reject visitor
+        window.securityRejectVisitor = function(requestId) {
+            if (!confirm('Reject this visitor? They will not be allowed entry.')) return;
+            
+            database.ref(`visitorRequests/${requestId}`).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) throw new Error('Visitor request not found');
+                    const request = snapshot.val();
+                    
+                    const updates = {
+                        status: 'rejected',
+                        rejectedBy: auth.currentUser ? auth.currentUser.email : 'Security',
+                        rejectedAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
+                        // Notify tenant
+                        if (window.createNotification && request.tenantId) {
+                            window.createNotification(database, request.tenantId, {
+                                type: 'visitor',
+                                title: 'Visitor Rejected',
+                                message: `${request.visitorName || 'Visitor'} was rejected by security.`,
+                                link: '#visitors'
+                            });
+                        }
+                    });
+                })
+                .then(() => {
+                    alert('Visitor rejected successfully!');
+                })
+                .catch((error) => {
+                    alert('Error rejecting visitor: ' + error.message);
+                });
+        };
 
         function loadHouseNumbers() {
             const houseNumberSelect = document.getElementById('gate-house-number');
