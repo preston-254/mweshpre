@@ -241,17 +241,11 @@
             requests.forEach(request => {
                 const visitDateTime = new Date(request.visitDate + ' ' + (request.visitTime || '00:00'));
                 
+                // Only checked-out visitors go to history
                 if (request.status === 'checked-out' || request.status === 'cancelled') {
                     history.push(request);
-                } else if (request.status === 'checked-in') {
-                    // Include all checked-in visitors in history (including those checked in at gate)
-                    history.push(request);
-                } else if (request.status === 'pending-verification') {
-                    // Visitors waiting for verification go to upcoming
-                    upcoming.push(request);
-                } else if (request.status === 'registered' && visitDateTime < now) {
-                    history.push(request);
                 } else {
+                    // All other visitors (registered, checked-in, pending-verification) go to upcoming
                     upcoming.push(request);
                 }
             });
@@ -283,7 +277,6 @@
             const visitorStatus = request.status || 'registered';
             const statusClass = `visitor-status ${visitorStatus}`;
             const isRegistered = visitorStatus === 'registered';
-            const isPendingVerification = visitorStatus === 'pending-verification';
             
             if (!request.qrCodeData && request.requestId && request.securityCode) {
                 const qrPayload = JSON.stringify({ requestId: request.requestId, securityCode: request.securityCode });
@@ -293,18 +286,18 @@
             
             const qrElementId = `visitor-qr-${request.requestId}-${allowActions ? 'up' : 'history'}`;
             
-            // Determine approval status text
-            let approvalStatusText = '';
-            if (visitorStatus === 'checked-in' && !request.checkedInAt) {
-                approvalStatusText = 'Approved';
-            } else if (visitorStatus === 'checked-in' && request.checkedInAt) {
-                approvalStatusText = 'Approved & Checked In';
-            } else if (visitorStatus === 'rejected') {
-                approvalStatusText = 'Not Approved';
+            // Determine status text
+            let statusText = '';
+            if (visitorStatus === 'checked-in' && request.checkedInAt) {
+                statusText = 'Checked In';
+            } else if (visitorStatus === 'checked-out') {
+                statusText = 'Checked Out';
+            } else if (visitorStatus === 'registered') {
+                statusText = 'Registered';
             } else if (visitorStatus === 'pending-verification') {
-                approvalStatusText = 'Awaiting Approval';
+                statusText = 'Registered';
             } else {
-                approvalStatusText = visitorStatus.replace('-', ' ');
+                statusText = visitorStatus.replace('-', ' ');
             }
             
             // Compact styling for history
@@ -326,7 +319,7 @@
                             ${request.carPlate ? `<p style="margin: ${marginItem} 0; color: #666; font-size: ${fontSize};"><i class="fa-solid fa-car-side"></i> ${request.carPlate}</p>` : ''}
                         </div>
                         <div class="${statusClass}" style="font-size: ${isCompact ? '11px' : '12px'}; padding: ${isCompact ? '4px 8px' : '6px 12px'};">
-                            <i class="fa-solid fa-circle"></i> ${approvalStatusText}
+                            <i class="fa-solid fa-circle"></i> ${statusText}
                         </div>
                     </div>
                     <div style="color: #555; font-size: ${fontSize};">
@@ -341,20 +334,6 @@
                         ${request.checkOutTime ? `<p style="margin: ${marginItem} 0; color: #6c757d; font-size: ${fontSize};"><i class="fa-solid fa-door-closed"></i> Checked Out: ${formatDateTime(request.checkOutTime)}</p>` : ''}
                         ${!isCompact && request.idPhoto ? `<p style="margin: ${marginItem} 0; color: #667eea; font-size: ${fontSize};"><i class="fa-solid fa-id-card"></i> ID Photo Captured</p>` : ''}
                     </div>
-                    ${isPendingVerification && allowActions ? `
-                        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 15px; margin-top: 15px;">
-                            <p style="margin: 0 0 10px 0; color: #856404; font-weight: 600;"><i class="fa-solid fa-exclamation-triangle"></i> Verification Required</p>
-                            <p style="margin: 0 0 15px 0; color: #856404; font-size: 14px;">This visitor has arrived at the gate. Please verify that you were expecting this visitor.</p>
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-success" onclick="verifyVisitor('${request.requestId || request.id}')" style="flex: 1; background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                    <i class="fa-solid fa-check-circle"></i> Verify Visitor
-                                </button>
-                                <button class="btn btn-danger" onclick="rejectVisitor('${request.requestId || request.id}')" style="flex: 1; background: #dc3545; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                    <i class="fa-solid fa-times-circle"></i> Reject
-                                </button>
-                            </div>
-                        </div>
-                    ` : ''}
                     <div class="visitor-pass-section">
                         <div>
                             <div class="visitor-qr" id="${qrElementId}"></div>
@@ -452,83 +431,6 @@
         }, 800);
     }
     
-    function verifyVisitor(requestId) {
-        if (!confirm('Verify this visitor? They will be approved for check-in.')) return;
-        
-        if (!firebaseDatabase || !currentUser) {
-            alert('Authentication error. Please reload the page.');
-            return;
-        }
-        
-        const updates = {
-            status: 'checked-in', // This means tenant approved - security can now check them in
-            verifiedAt: new Date().toISOString(),
-            verifiedBy: currentUser.uid,
-            updatedAt: new Date().toISOString()
-        };
-        
-        firebaseDatabase.ref(`visitorRequests/${requestId}`).update(updates)
-            .then(() => {
-                // Update UI immediately to show "Approved" status
-                const visitorCard = document.querySelector(`[data-request-id="${requestId}"]`);
-                if (visitorCard) {
-                    const statusEl = visitorCard.querySelector('.visitor-status');
-                    if (statusEl) {
-                        statusEl.className = 'visitor-status approved';
-                        statusEl.innerHTML = '<i class="fa-solid fa-circle"></i> Approved';
-                    }
-                    // Remove verification buttons
-                    const verificationSection = visitorCard.querySelector('[style*="background: #fff3cd"]');
-                    if (verificationSection) {
-                        verificationSection.remove();
-                    }
-                }
-                alert('Visitor approved! Status updated. Security can now check them in.');
-            })
-            .catch((error) => {
-                console.error('Error verifying visitor:', error);
-                alert('Error verifying visitor: ' + error.message);
-            });
-    }
-    
-    function rejectVisitor(requestId) {
-        if (!confirm('Reject this visitor? They will not be allowed entry.')) return;
-        
-        if (!firebaseDatabase || !currentUser) {
-            alert('Authentication error. Please reload the page.');
-            return;
-        }
-        
-        const updates = {
-            status: 'rejected',
-            rejectedAt: new Date().toISOString(),
-            rejectedBy: currentUser.uid,
-            updatedAt: new Date().toISOString()
-        };
-        
-        firebaseDatabase.ref(`visitorRequests/${requestId}`).update(updates)
-            .then(() => {
-                // Update UI immediately to show "Not Approved" status
-                const visitorCard = document.querySelector(`[data-request-id="${requestId}"]`);
-                if (visitorCard) {
-                    const statusEl = visitorCard.querySelector('.visitor-status');
-                    if (statusEl) {
-                        statusEl.className = 'visitor-status rejected';
-                        statusEl.innerHTML = '<i class="fa-solid fa-circle"></i> Not Approved';
-                    }
-                    // Remove verification buttons
-                    const verificationSection = visitorCard.querySelector('[style*="background: #fff3cd"]');
-                    if (verificationSection) {
-                        verificationSection.remove();
-                    }
-                }
-                alert('Visitor rejected. Status updated. Security has been notified.');
-            })
-            .catch((error) => {
-                console.error('Error rejecting visitor:', error);
-                alert('Error rejecting visitor: ' + error.message);
-            });
-    }
     
     function cancelVisitorRequest(requestId) {
         if (!confirm('Are you sure you want to cancel this visitor request?')) return;
@@ -702,10 +604,6 @@
     };
 
     // Expose cancel function globally
-    window.verifyVisitor = verifyVisitor;
-    window.rejectVisitor = rejectVisitor;
-    window.verifyVisitor = verifyVisitor;
-    window.rejectVisitor = rejectVisitor;
     window.cancelVisitorRequest = cancelVisitorRequest;
     
     if (document.readyState === 'loading') {

@@ -1062,25 +1062,8 @@
                         <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;"><i class="fa-solid fa-parking"></i> Parking Management</h2>
                         
                         <!-- Parking Map -->
-                        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;"><i class="fa-solid fa-map"></i> Parking Map</h3>
-                            <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="width: 20px; height: 20px; background: #28a745; border-radius: 4px;"></div>
-                                    <span style="font-size: 14px; color: #666;">Available</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="width: 20px; height: 20px; background: #dc3545; border-radius: 4px;"></div>
-                                    <span style="font-size: 14px; color: #666;">Occupied</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="width: 20px; height: 20px; background: #ffc107; border-radius: 4px;"></div>
-                                    <span style="font-size: 14px; color: #666;">Your Space</span>
-                                </div>
-                            </div>
-                            <div id="parking-map" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; min-height: 300px;">
-                                <!-- Parking spaces will be generated here -->
-                            </div>
+                        <div id="parking-map-section" style="margin-bottom: 20px;">
+                            <!-- Parking map will be loaded here -->
                         </div>
                         
                         <!-- My Parking Spaces -->
@@ -1156,7 +1139,7 @@
                 if (page === 'packages') {
                     initializePackageForm();
                 } else if (page === 'parking') {
-                    loadParkingMap();
+                    initializeParkingMap();
                 }
             }, 100);
         }
@@ -1208,72 +1191,341 @@
             }
         }
         
-        function loadParkingMap() {
-            fetch('parking-map.html')
-                .then(response => response.text())
-                .then(html => {
-                    const container = document.getElementById('content-area');
-                    if (container) {
-                        // Extract scripts before setting innerHTML
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const scripts = doc.querySelectorAll('script');
-                        const htmlWithoutScripts = html.replace(/<script[\s\S]*?<\/script>/gi, '');
-                        
-                        container.innerHTML = htmlWithoutScripts;
-                        
-                        // Execute scripts after a short delay
-                        setTimeout(() => {
-                            scripts.forEach(script => {
-                                const newScript = document.createElement('script');
-                                if (script.src) {
-                                    newScript.src = script.src;
-                                } else {
-                                    newScript.textContent = script.textContent;
-                                }
-                                document.body.appendChild(newScript);
-                            });
-                            
-                            // Set current user apartment for parking map and initialize Firebase parking data
-                            if (typeof auth !== 'undefined' && auth.currentUser && typeof database !== 'undefined') {
-                                const userRef = database.ref('tenants').orderByChild('email').equalTo(auth.currentUser.email);
-                                userRef.once('value', snapshot => {
-                                    if (snapshot.exists()) {
-                                        const tenantData = Object.values(snapshot.val())[0];
-                                        const houseNumber = tenantData.houseNumber || tenantData.info?.houseNumber || tenantData.info?.house;
-                                        if (houseNumber) {
-                                            window.currentUserApartment = houseNumber;
-                                        }
-                                    }
-                                });
-                                
-                                // Load parking data from Firebase
-                                if (typeof loadParkingDataFromFirebase === 'function') {
-                                    loadParkingDataFromFirebase();
-                                } else {
-                                    // Wait for function to be available
-                                    setTimeout(() => {
-                                        if (typeof loadParkingDataFromFirebase === 'function') {
-                                            loadParkingDataFromFirebase();
-                                        }
-                                    }, 500);
-                                }
-                            }
-                        }, 50);
+        function initializeParkingMap() {
+            const container = document.getElementById('parking-map-section');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="parking-map-container" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 25px; margin-top: 20px; position: relative; overflow: hidden;">
+                    <style>
+                        .parking-map-container::before {
+                            content: '';
+                            position: absolute;
+                            top: -50%;
+                            right: -50%;
+                            width: 200%;
+                            height: 200%;
+                            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                            animation: rotate 20s linear infinite;
+                        }
+                        @keyframes rotate {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                        .parking-legend {
+                            background: rgba(255,255,255,0.95);
+                            padding: 15px 20px;
+                            border-radius: 12px;
+                            margin-bottom: 20px;
+                            display: flex;
+                            gap: 20px;
+                            flex-wrap: wrap;
+                            align-items: center;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                            position: relative;
+                            z-index: 1;
+                        }
+                        .parking-block-selector {
+                            background: rgba(255,255,255,0.95);
+                            padding: 15px 20px;
+                            border-radius: 12px;
+                            margin-bottom: 20px;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                            position: relative;
+                            z-index: 1;
+                        }
+                        .parking-block-btn {
+                            padding: 12px 25px;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                            margin-right: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        }
+                        .parking-block-btn.active {
+                            transform: scale(1.05);
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                        }
+                        .parking-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                            gap: 15px;
+                            background: rgba(255,255,255,0.95);
+                            padding: 20px;
+                            border-radius: 12px;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                            position: relative;
+                            z-index: 1;
+                        }
+                        .parking-space {
+                            aspect-ratio: 1;
+                            border-radius: 10px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            position: relative;
+                            overflow: hidden;
+                            border: 3px solid transparent;
+                            font-weight: 600;
+                            color: white;
+                            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        }
+                        .parking-space::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                            transition: left 0.5s;
+                        }
+                        .parking-space:hover::before {
+                            left: 100%;
+                        }
+                        .parking-space:hover {
+                            transform: scale(1.1) rotate(2deg);
+                            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                            z-index: 10;
+                        }
+                        .parking-space.available {
+                            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                            animation: pulse 2s ease-in-out infinite;
+                        }
+                        .parking-space.occupied {
+                            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                        }
+                        .parking-space.visitor {
+                            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+                        }
+                        .parking-space.my-space {
+                            background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%);
+                            color: #4a3200;
+                            text-shadow: none;
+                            border: 3px solid #ffb300;
+                            box-shadow: 0 0 20px rgba(255, 193, 7, 0.7);
+                        }
+                        .parking-space-allocation {
+                            font-size: 10px;
+                            margin-top: 4px;
+                            opacity: 0.9;
+                            text-align: center;
+                        }
+                        .parking-space.my-space .parking-space-allocation {
+                            color: #4a3200;
+                            font-weight: 600;
+                            opacity: 1;
+                        }
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.8; }
+                        }
+                        .parking-space-number {
+                            font-size: 18px;
+                            font-weight: 700;
+                            margin-bottom: 5px;
+                        }
+                        .parking-space-status {
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            opacity: 0.9;
+                        }
+                    </style>
+                    <div class="parking-legend">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                            <span style="color: #333; font-weight: 600;">Available</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                            <span style="color: #333; font-weight: 600;">Occupied</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                            <span style="color: #333; font-weight: 600;">Visitor</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 5px; border: 3px solid #ffc107; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                            <span style="color: #333; font-weight: 600;">My Space</span>
+                        </div>
+                    </div>
+                    <div class="parking-block-selector">
+                        <h4 style="color: #333; margin-bottom: 15px;"><i class="fa-solid fa-building"></i> Select Block</h4>
+                        <button class="parking-block-btn active" id="tenant-parking-block-btn-A" onclick="showTenantParkingBlock('A')" style="background: #667eea; color: white;">Block A</button>
+                        <button class="parking-block-btn" id="tenant-parking-block-btn-B" onclick="showTenantParkingBlock('B')" style="background: #e0e0e0; color: #333;">Block B</button>
+                        <button class="parking-block-btn" id="tenant-parking-block-btn-C" onclick="showTenantParkingBlock('C')" style="background: #e0e0e0; color: #333;">Block C</button>
+                    </div>
+                    <div id="tenant-parking-map-grid" class="parking-grid"></div>
+                </div>
+            `;
+
+            loadTenantParkingData();
+        }
+
+        let tenantParkingData = {};
+        let currentTenantParkingBlock = 'A';
+        let currentUserApartment = null;
+
+        function normalizeTenantBlock(value, fallbackId) {
+            if (value) {
+                let normalized = value.toString().trim().toUpperCase();
+                if (normalized.startsWith('BLOCK')) {
+                    normalized = normalized.replace('BLOCK', '').trim();
+                }
+                if (normalized.includes('-')) {
+                    normalized = normalized.split('-')[0].trim();
+                }
+                return normalized.charAt(0) || '';
+            }
+            if (fallbackId && fallbackId.includes('-')) {
+                return fallbackId.split('-')[0].trim().toUpperCase();
+            }
+            return '';
+        }
+
+        function loadTenantParkingData() {
+            if (!window.database) {
+                setTimeout(loadTenantParkingData, 500);
+                return;
+            }
+
+            // Get user's apartment number
+            if (window.auth && window.auth.currentUser) {
+                window.database.ref('tenants').orderByChild('email').equalTo(window.auth.currentUser.email).once('value')
+                    .then(snapshot => {
+                        snapshot.forEach(child => {
+                            const tenant = child.val();
+                            currentUserApartment = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
+                        });
+                        renderTenantParkingMap(currentTenantParkingBlock);
+                        renderMyParkingSpaces();
+                    });
+            }
+
+            window.database.ref('parkingSpaces').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    tenantParkingData = snapshot.val();
+                }
+                renderTenantParkingMap(currentTenantParkingBlock);
+            });
+        }
+
+        window.showTenantParkingBlock = function(block) {
+            if (!block) return;
+            currentTenantParkingBlock = block;
+            ['A', 'B', 'C'].forEach(b => {
+                const btn = document.getElementById(`tenant-parking-block-btn-${b}`);
+                if (btn) {
+                    if (b === block) {
+                        btn.classList.add('active');
+                        btn.style.background = '#667eea';
+                        btn.style.color = 'white';
+                        btn.style.transform = 'scale(1.05)';
+                    } else {
+                        btn.classList.remove('active');
+                        btn.style.background = '#e0e0e0';
+                        btn.style.color = '#333';
+                        btn.style.transform = 'scale(1)';
                     }
+                }
+            });
+            renderTenantParkingMap(block);
+        }
+
+        function renderTenantParkingMap(block) {
+            const grid = document.getElementById('tenant-parking-map-grid');
+            if (!grid) return;
+
+            const normalizedBlock = (block || '').toString().trim().toUpperCase();
+
+            const blockSpaces = Object.entries(tenantParkingData || {})
+                .filter(([id, space]) => {
+                    const derivedBlock = normalizeTenantBlock(space && space.block, id);
+                    return derivedBlock === normalizedBlock;
                 })
-                .catch(() => {
-                    // Fallback: show inline parking content
-                    const container = document.getElementById('content-area');
-                    if (container) {
-                        container.innerHTML = `
-                            <div style="padding: 20px;">
-                                <h2 style="margin-bottom: 30px; color: #333;"><i class="fa-solid fa-map"></i> Parking Map</h2>
-                                <p style="color: #666; text-align: center; padding: 40px;">Parking map will be available soon. Please contact management for parking information.</p>
-                            </div>
-                        `;
-                    }
+                .sort((a, b) => {
+                    const numA = parseInt(a[0].split('-')[1]) || 0;
+                    const numB = parseInt(b[0].split('-')[1]) || 0;
+                    return numA - numB;
                 });
+
+            if (blockSpaces.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #666; padding: 40px; grid-column: 1 / -1;">No parking spaces found for Block ' + normalizedBlock + '.</p>';
+                return;
+            }
+
+            const normalizedApartment = currentUserApartment ? currentUserApartment.toString().trim().toLowerCase() : '';
+
+            grid.innerHTML = blockSpaces.map(([id, space]) => {
+                const spaceData = space || {};
+                const spaceStatus = spaceData.status || 'available';
+                const allocation = spaceData.tenant || spaceData.owner || '';
+                const allocationNormalized = allocation ? allocation.toString().trim().toLowerCase() : '';
+                const isMySpace = allocationNormalized && normalizedApartment && allocationNormalized === normalizedApartment;
+                const statusClass = isMySpace ? 'my-space' : spaceStatus;
+                const statusLabel = isMySpace ? 'MY SPACE' : spaceStatus.replace('-', ' ').toUpperCase();
+                const vehicleInfo = spaceData.vehicle ? `<div style="font-size: 10px; margin-top: 3px; opacity: 0.9;">${spaceData.vehicle}</div>` : '';
+                const allocationText = allocation
+                    ? `<div class="parking-space-allocation">${isMySpace ? 'Allocated to you' : 'Allocated: ' + allocation}</div>`
+                    : '';
+                
+                return `
+                    <div class="parking-space ${statusClass}" data-space-id="${id}">
+                        <div class="parking-space-number">${id}</div>
+                        <div class="parking-space-status">${statusLabel}</div>
+                        ${vehicleInfo}
+                        ${allocationText}
+                    </div>
+                `;
+            }).join('');
+
+            renderMyParkingSpaces();
+        }
+
+        function renderMyParkingSpaces() {
+            const list = document.getElementById('my-parking-spaces');
+            if (!list) return;
+
+            const normalizedApartment = currentUserApartment ? currentUserApartment.toString().trim().toLowerCase() : '';
+
+            if (!normalizedApartment) {
+                list.innerHTML = '<div style="padding: 20px; background: #f8f9fa; border-radius: 12px; color: #666;">We are confirming your parking allocation...</div>';
+                return;
+            }
+
+            const mySpaces = Object.entries(tenantParkingData || {}).filter(([id, space]) => {
+                if (!space) return false;
+                const allocation = space.tenant || space.owner;
+                if (!allocation) return false;
+                return allocation.toString().trim().toLowerCase() === normalizedApartment;
+            });
+
+            if (!mySpaces.length) {
+                list.innerHTML = '<div style="padding: 20px; background: #fff7e0; border-radius: 12px; color: #8a6d00;">No parking allocation has been assigned to you yet.</div>';
+                return;
+            }
+
+            list.innerHTML = mySpaces.map(([id, space]) => {
+                const statusText = (space.status || 'available').replace('-', ' ').toUpperCase();
+                const vehicle = space.vehicle || 'Vehicle not registered';
+                const lastUpdate = space.updatedAt ? new Date(space.updatedAt).toLocaleString() : 'Not updated';
+
+                return `
+                    <div style="border: 1px solid rgba(255,179,0,0.3); border-radius: 14px; padding: 20px; background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); box-shadow: 0 10px 25px rgba(255,179,0,0.15);">
+                        <div style="font-size: 20px; font-weight: 700; color: #a26700; margin-bottom: 6px;">${id}</div>
+                        <div style="color: #444; margin-bottom: 4px;"><strong>Status:</strong> ${statusText}</div>
+                        <div style="color: #444; margin-bottom: 4px;"><strong>Allocated To:</strong> ${space.tenant || space.owner || currentUserApartment}</div>
+                        <div style="color: #444; margin-bottom: 4px;"><strong>Vehicle:</strong> ${vehicle}</div>
+                        ${space.parkingNotes ? `<div style="color: #444; margin-bottom: 4px;"><strong>Notes:</strong> ${space.parkingNotes}</div>` : ''}
+                        <div style="color: #7a7a7a; font-size: 12px;">Updated: ${lastUpdate}</div>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </head>

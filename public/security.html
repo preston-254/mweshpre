@@ -1,24 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mweshpra Apartments - Security Portal</title>
     <link href="bootstrap.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <!-- Firebase SDKs -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-    <!-- Notification helpers -->
     <script src="js/notifications.js"></script>
-
-    <!-- QR Scanner removed - using manual visitor check-in -->
-
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -30,7 +22,6 @@
             position: relative;
             overflow-x: hidden;
         }
-
         body::before {
             content: '';
             position: absolute;
@@ -41,7 +32,6 @@
             background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
             opacity: 0.3;
         }
-
         .security-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -49,9 +39,7 @@
             position: relative;
             z-index: 1;
         }
-
-        .auth-card,
-        .security-app {
+        .auth-card, .security-app {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -59,29 +47,19 @@
             position: relative;
             z-index: 1;
         }
-
         .auth-card {
             max-width: 480px;
             margin: 0 auto;
             animation: slideUp 0.6s ease-out;
         }
-
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         .auth-card-header {
             text-align: center;
             margin-bottom: 30px;
         }
-
         .auth-card-header h1 {
             font-size: 32px;
             font-weight: 700;
@@ -91,12 +69,10 @@
             background-clip: text;
             margin-bottom: 10px;
         }
-
         .auth-card-header p {
             color: #666;
             font-size: 14px;
         }
-
         .account-type-selector {
             display: flex;
             background: #f5f6fa;
@@ -105,7 +81,6 @@
             margin-bottom: 30px;
             gap: 5px;
         }
-
         .account-type-btn {
             flex: 1;
             padding: 12px 20px;
@@ -122,22 +97,18 @@
             justify-content: center;
             gap: 8px;
         }
-
         .account-type-btn.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
-
         .account-type-btn:hover:not(.active) {
             background: #e9ecef;
             color: #333;
         }
-
         .form-group {
             margin-bottom: 20px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -145,7 +116,6 @@
             color: #333;
             font-size: 14px;
         }
-
         .form-control {
             width: 100%;
             border: 2px solid #e9ecef;
@@ -155,13 +125,11 @@
             transition: all 0.3s ease;
             box-sizing: border-box;
         }
-
         .form-control:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
-
         .btn-primary {
             width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -176,16 +144,13 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             margin-top: 10px;
         }
-
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
-
         .btn-primary:active {
             transform: translateY(0);
         }
-
         .login-message {
             margin-top: 15px;
             padding: 12px;
@@ -194,25 +159,21 @@
             font-size: 14px;
             display: none;
         }
-
         .login-message.error {
             background: #fee;
             color: #c33;
             border: 1px solid #fcc;
         }
-
         .login-message.success {
             background: #efe;
             color: #3c3;
             border: 1px solid #cfc;
         }
-
         .divider {
             text-align: center;
             margin: 25px 0;
             position: relative;
         }
-
         .divider::before {
             content: '';
             position: absolute;
@@ -222,7 +183,6 @@
             height: 1px;
             background: #e9ecef;
         }
-
         .divider span {
             background: white;
             padding: 0 15px;
@@ -230,14 +190,12 @@
             color: #999;
             font-size: 13px;
         }
-
         .switch-account-link {
             text-align: center;
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #e9ecef;
         }
-
         .switch-account-link a {
             color: #667eea;
             text-decoration: none;
@@ -245,26 +203,22 @@
             font-size: 14px;
             transition: color 0.3s ease;
         }
-
         .switch-account-link a:hover {
             color: #764ba2;
             text-decoration: underline;
         }
-
         .security-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin-bottom: 30px;
         }
-
         .stat-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -272,45 +226,25 @@
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
         }
-
         .stat-card h3 {
             margin: 0;
             font-size: 32px;
         }
-
         .stat-card p {
             margin: 5px 0 0 0;
             opacity: 0.9;
         }
-
         .dashboard-section {
             background: white;
-            border-radius: 16px;
-            padding: 25px;
+            border-radius: 14px;
+            padding: 20px;
             margin-bottom: 25px;
-            border: 1px solid #e9ecef;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
         }
-
-        .dashboard-section:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
         .dashboard-section h3 {
             margin-bottom: 15px;
             color: #333;
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
-
-        .dashboard-section h3 i {
-            color: #667eea;
-        }
-
         .visitor-row {
             border-bottom: 1px solid #f1f1f1;
             padding: 12px 0;
@@ -318,12 +252,171 @@
             grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
             gap: 10px;
             align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-
+        .visitor-row:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
         .visitor-row:last-child {
             border-bottom: none;
         }
-
+        .visitor-details-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .visitor-details-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .parking-map-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .parking-map-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .parking-legend {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .parking-block-selector {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .parking-block-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .parking-block-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .parking-space {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid transparent;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .parking-space::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .parking-space:hover::before {
+            left: 100%;
+        }
+        .parking-space:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .parking-space.available {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .parking-space.occupied {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        .parking-space.visitor {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .parking-space-number {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .parking-space-status {
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+        .parking-details-modal {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
         .status-badge {
             display: inline-block;
             padding: 4px 10px;
@@ -331,38 +424,30 @@
             font-size: 12px;
             text-transform: capitalize;
         }
-
         .status-badge.pending {
             background: #fff3cd;
             color: #856404;
         }
-
         .status-badge.approved {
             background: #d4edda;
             color: #155724;
         }
-
-        .status-badge.rejected,
-        .status-badge.cancelled {
+        .status-badge.rejected, .status-badge.cancelled {
             background: #f8d7da;
             color: #721c24;
         }
-
         .status-badge.checked-in {
             background: #cce5ff;
             color: #004085;
         }
-
         .status-badge.checked-out {
             background: #e2e3e5;
             color: #383d41;
         }
-
         .status-badge.registered {
             background: #d1ecf1;
             color: #0c5460;
         }
-
         #id-capture-modal {
             display: none;
             position: fixed;
@@ -373,7 +458,6 @@
             height: 100%;
             background-color: rgba(0,0,0,0.5);
         }
-
         .modal-content-capture {
             background-color: white;
             margin: 5% auto;
@@ -383,26 +467,22 @@
             max-width: 600px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-
         #id-capture-video, #id-capture-canvas {
             width: 100%;
             max-width: 500px;
             border-radius: 8px;
             margin: 15px 0;
         }
-
         .capture-buttons {
             display: flex;
             gap: 10px;
             margin-top: 15px;
         }
-
         .visitor-media {
             display: flex;
             gap: 10px;
             margin-top: 8px;
         }
-
         .visitor-media img {
             width: 70px;
             height: 70px;
@@ -410,13 +490,11 @@
             object-fit: cover;
             border: 1px solid #f0f0f0;
         }
-
         #qr-reader {
             width: 100%;
             max-width: 450px;
             margin: 0 auto;
         }
-
         .qr-result-card {
             border: 1px solid #f0f0f0;
             border-radius: 12px;
@@ -424,11 +502,9 @@
             margin-top: 20px;
             background: #fdfdfd;
         }
-
         .qr-result-card h4 {
             margin-bottom: 12px;
         }
-
         .table-header {
             font-weight: 600;
             color: #666;
@@ -437,36 +513,88 @@
             display: grid;
             grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
         }
-
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        .btn-outline-primary:hover {
+            background: #667eea;
+            color: white;
+        }
+        .btn-outline-secondary {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+        .btn-outline-secondary:hover {
+            background: #6c757d;
+            color: white;
+        }
         @media(max-width: 900px) {
-            .visitor-row,
-            .table-header {
+            .visitor-row, .table-header {
                 grid-template-columns: 1fr;
             }
         }
-
         @media(max-width: 600px) {
             .auth-card {
                 padding: 30px 20px;
                 margin: 20px;
             }
-
             .auth-card-header h1 {
                 font-size: 24px;
             }
-
             .account-type-btn {
                 padding: 10px 15px;
                 font-size: 13px;
             }
-
             body {
                 padding: 10px;
             }
         }
     </style>
 </head>
-
 <body>
     <div class="security-container">
         <div class="auth-card" id="security-login-card">
@@ -474,7 +602,6 @@
                 <h1><i class="fa-solid fa-building"></i> Mweshpra Apartments</h1>
                 <p>Welcome back! Please sign in to continue</p>
             </div>
-
             <div class="account-type-selector">
                 <button type="button" class="account-type-btn" id="tenant-account-btn" onclick="switchAccountType('tenant')">
                     <i class="fa-solid fa-user"></i> Tenant Account
@@ -483,25 +610,20 @@
                     <i class="fa-solid fa-shield-halved"></i> Security Account
                 </button>
             </div>
-
             <form id="security-login-form">
                 <div class="form-group">
                     <label for="securityEmail"><i class="fa-solid fa-envelope"></i> Email Address</label>
-                    <input type="email" id="securityEmail" class="form-control" placeholder="Enter your email address"
-                        required>
+                    <input type="email" id="securityEmail" class="form-control" placeholder="Enter your email address" required>
                 </div>
                 <div class="form-group">
                     <label for="securityPassword"><i class="fa-solid fa-lock"></i> Password</label>
-                    <input type="password" id="securityPassword" class="form-control" placeholder="Enter your password"
-                        required>
+                    <input type="password" id="securityPassword" class="form-control" placeholder="Enter your password" required>
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fa-solid fa-right-to-bracket"></i> Sign In
                 </button>
             </form>
-
             <div id="security-login-message" class="login-message"></div>
-
             <div class="switch-account-link" id="switch-account-section" style="display: none;">
                 <a href="login.html">
                     <i class="fa-solid fa-arrow-left"></i> Switch to Tenant Login
@@ -512,13 +634,11 @@
         <div class="security-app" id="security-app" style="display: none;">
             <div class="security-header">
                 <div>
-                    <h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; font-size: 32px;">
-                        <i class="fa-solid fa-shield-halved"></i> Security Control Center
-                    </h2>
-                    <p class="text-muted" id="security-user-email" style="margin: 5px 0 0 0;"></p>
+                    <h2><i class="fa-solid fa-shield"></i> Security Control Center</h2>
+                    <p class="text-muted" id="security-user-email"></p>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-danger" id="security-logout-btn" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; padding: 12px 24px; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); transition: all 0.3s ease;">
+                <div>
+                    <button class="btn btn-secondary" id="security-logout-btn">
                         <i class="fa-solid fa-right-from-bracket"></i> Logout
                     </button>
                 </div>
@@ -526,34 +646,25 @@
 
             <div class="stats-grid">
                 <div class="stat-card" id="pending-count-card">
-                    <p>Registered Visitors</p>
+                    <p><i class="fa-solid fa-users"></i> Active Visitors</p>
                     <h3 id="pending-count">0</h3>
+                    <small style="opacity: 0.8; font-size: 12px;">On premises now</small>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);">
-                    <p>Visitors Today</p>
+                    <p><i class="fa-solid fa-calendar-day"></i> Today's Visitors</p>
                     <h3 id="today-count">0</h3>
+                    <small style="opacity: 0.8; font-size: 12px;">Visited today</small>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);">
-                    <p>Total Checked In</p>
+                    <p><i class="fa-solid fa-door-open"></i> Currently Checked In</p>
                     <h3 id="checked-in-count">0</h3>
+                    <small style="opacity: 0.8; font-size: 12px;">People count</small>
                 </div>
             </div>
 
             <div class="dashboard-section">
-                <h3><i class="fa-solid fa-list-check"></i> Visitors Awaiting Approval/Check-In</h3>
-                <p class="text-muted" style="margin-bottom: 15px;">Visitors waiting for tenant approval or ready to check in</p>
-                <div class="table-header">
-                    <div>Visitor</div>
-                    <div>Tenant / Room</div>
-                    <div>Visit</div>
-                    <div>Approval Status</div>
-                    <div>Actions</div>
-                </div>
-                <div id="pending-requests"></div>
-            </div>
-
-            <div class="dashboard-section">
-                <h3><i class="fa-solid fa-users-viewfinder"></i> All Visitor Requests</h3>
+                <h3><i class="fa-solid fa-list-check"></i> Active Visitors (Registered & Checked-In)</h3>
+                <p class="text-muted" style="margin-bottom: 15px;">Visitors currently on premises - click on any visitor to view full details</p>
                 <div class="table-header">
                     <div>Visitor</div>
                     <div>Tenant / Room</div>
@@ -561,16 +672,30 @@
                     <div>Status</div>
                     <div>Actions</div>
                 </div>
-                <div id="all-requests"></div>
+                <div id="pending-requests"></div>
             </div>
 
-            <!-- Manage Visitor Requests Section -->
             <div class="dashboard-section">
-                <h3><i class="fa-solid fa-user-check"></i> Manage Visitor Requests</h3>
-                <p class="text-muted" style="margin-bottom: 15px;">View and manage all visitor requests. Approve or reject visitors pre-registered by tenants.</p>
-                <div id="visitorRequestsList">
-                    <p style="color: #666; padding: 15px;">Loading visitor requests...</p>
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Visitor History</h3>
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: center;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">Filter by Date:</label>
+                        <input type="date" id="history-date-filter" class="form-control" style="max-width: 200px;">
+                    </div>
+                    <div style="margin-top: 25px;">
+                        <button class="btn btn-secondary" onclick="clearHistoryFilter()" style="padding: 10px 20px;">
+                            <i class="fa-solid fa-times"></i> Clear Filter
+                        </button>
+                    </div>
                 </div>
+                <div class="table-header">
+                    <div>Visitor</div>
+                    <div>Tenant / Room</div>
+                    <div>Visit</div>
+                    <div>Status</div>
+                    <div>Actions</div>
+                </div>
+                <div id="visitor-history"></div>
             </div>
 
             <!-- Register New Visitor Section -->
@@ -581,113 +706,54 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Visitor Name *</label>
-                            <input type="text" id="gate-visitor-name" required placeholder="Full name" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <input type="text" id="gate-visitor-name" class="form-control" placeholder="Enter visitor name" required>
                         </div>
                         <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Phone Number *</label>
-                            <input type="tel" id="gate-visitor-phone" required placeholder="0712345678" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Visitor Phone *</label>
+                            <input type="tel" id="gate-visitor-phone" class="form-control" placeholder="Enter phone number" required>
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Host Name *</label>
-                            <select id="gate-host-name" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
-                                <option value="">Select host name...</option>
-                            </select>
+                            <input type="text" id="gate-host-name" class="form-control" placeholder="Enter host name" required>
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">House Number *</label>
-                            <select id="gate-house-number" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <select id="gate-house-number" class="form-control" required>
                                 <option value="">Select house number...</option>
                             </select>
                         </div>
                         <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Vehicle Registration (if applicable)</label>
-                            <input type="text" id="gate-car-reg" placeholder="e.g., KCA 123A" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
-                        </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">ID Photo (Front) *</label>
-                            <input type="file" id="gate-id-front" accept="image/*" capture="environment" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
-                            <div id="gate-id-front-preview" style="margin-top: 10px; display: none;">
-                                <img id="gate-id-front-img" style="max-width: 200px; border-radius: 8px; border: 2px solid #667eea;">
-                            </div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Car Registration (Optional)</label>
+                            <input type="text" id="gate-car-reg" class="form-control" placeholder="Enter car registration">
                         </div>
                         <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">ID Photo (Back) *</label>
-                            <input type="file" id="gate-id-back" accept="image/*" capture="environment" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
-                            <div id="gate-id-back-preview" style="margin-top: 10px; display: none;">
-                                <img id="gate-id-back-img" style="max-width: 200px; border-radius: 8px; border: 2px solid #667eea;">
-                            </div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Parking Slot (if car provided)</label>
+                            <select id="gate-parking-slot" class="form-control">
+                                <option value="">Select parking slot...</option>
+                            </select>
                         </div>
                     </div>
-                    
-                    <div id="gate-parking-assignment" style="display: none; padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Assign Parking Slot</label>
-                        <select id="gate-parking-slot" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
-                            <option value="">Select parking slot...</option>
-                        </select>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">ID Photo (Front) *</label>
+                        <input type="file" id="gate-id-front" accept="image/*" required>
+                        <div id="gate-id-front-preview" style="margin-top: 10px;"></div>
                     </div>
-                    
-                    <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                        <i class="fa-solid fa-check"></i> Check In Visitor
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">ID Photo (Back) *</label>
+                        <input type="file" id="gate-id-back" accept="image/*" required>
+                        <div id="gate-id-back-preview" style="margin-top: 10px;"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="max-width: 300px;">
+                        <i class="fa-solid fa-check"></i> Register Visitor
                     </button>
                 </form>
             </div>
 
-            <!-- Expected Visitors Section -->
+            <!-- Parking Map Section -->
             <div class="dashboard-section">
-                <h3><i class="fa-solid fa-calendar-check"></i> Expected Visitors Today</h3>
-                <p class="text-muted" style="margin-bottom: 15px;">Visitors registered by tenants for today</p>
-                <div class="table-header">
-                    <div>Visitor</div>
-                    <div>Tenant / Room</div>
-                    <div>Visit Time</div>
-                    <div>ID Status</div>
-                    <div>Actions</div>
-                </div>
-                <div id="expected-visitors"></div>
-            </div>
-
-            <!-- Package Management Section -->
-            <div class="dashboard-section">
-                <h3><i class="fa-solid fa-box"></i> Package Delivery Management</h3>
-                <div id="package-requests-list">
-                    <p style="color: #666; text-align: center; padding: 20px;">Loading package requests...</p>
-                </div>
-            </div>
-
-            <!-- Parking Management Section -->
-            <div class="dashboard-section">
-                <h3><i class="fa-solid fa-parking"></i> Parking Map Management</h3>
-                <p class="text-muted" style="margin-bottom: 20px;">Update parking space status and assign vehicles</p>
-                
-                <!-- Block Selector -->
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <button onclick="showParkingBlock('A')" id="parking-block-A" class="btn btn-outline-primary" style="flex: 1; min-width: 100px;">Block A</button>
-                    <button onclick="showParkingBlock('B')" id="parking-block-B" class="btn btn-outline-primary" style="flex: 1; min-width: 100px;">Block B</button>
-                    <button onclick="showParkingBlock('C')" id="parking-block-C" class="btn btn-outline-primary" style="flex: 1; min-width: 100px;">Block C</button>
-                </div>
-
-                <!-- Parking Map -->
-                <div id="security-parking-map" style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;" id="parking-spaces-grid">
-                        <!-- Parking spaces will be generated here -->
-                    </div>
-                </div>
-
-                <!-- Parking Space Details Modal -->
-                <div id="parking-edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
-                    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h3 style="color: #333; margin: 0;">Edit Parking Space</h3>
-                            <button onclick="closeParkingEditModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
-                        </div>
-                        <div id="parking-edit-form">
-                            <!-- Form will be populated here -->
-                        </div>
-                    </div>
-                </div>
+                <h3><i class="fa-solid fa-map-location-dot"></i> Parking Map Management</h3>
+                <p class="text-muted" style="margin-bottom: 20px;">View and manage parking spaces - click on any space to update details</p>
+                <div id="parking-map-section"></div>
             </div>
         </div>
     </div>
@@ -695,6 +761,32 @@
     <!-- ID Capture Modal -->
     <div id="id-capture-modal">
         <div class="modal-content-capture"></div>
+    </div>
+
+    <!-- Visitor Details Modal -->
+    <div id="visitor-details-modal" class="visitor-details-modal">
+        <div class="visitor-details-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #333; margin: 0;"><i class="fa-solid fa-user"></i> Visitor Details</h3>
+                <button onclick="closeVisitorDetailsModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            <div id="visitor-details-content">
+                <!-- Details will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Parking Details Modal -->
+    <div id="parking-details-modal" class="parking-details-modal">
+        <div class="visitor-details-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #333; margin: 0;"><i class="fa-solid fa-car"></i> Parking Space Details</h3>
+                <button onclick="closeParkingModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            <div id="parking-details-content">
+                <!-- Details will be shown here -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -725,8 +817,10 @@
         const loginForm = document.getElementById('security-login-form');
         const loginMessage = document.getElementById('security-login-message');
         const pendingContainer = document.getElementById('pending-requests');
-        const allRequestsContainer = document.getElementById('all-requests');
+        const visitorHistoryContainer = document.getElementById('visitor-history');
+        const historyDateFilter = document.getElementById('history-date-filter');
         const userEmailEl = document.getElementById('security-user-email');
+        let allVisitorsData = [];
         const pendingCountEl = document.getElementById('pending-count');
         const todayCountEl = document.getElementById('today-count');
         const checkedInCountEl = document.getElementById('checked-in-count');
@@ -735,23 +829,18 @@
         const switchAccountSection = document.getElementById('switch-account-section');
         let currentAccountType = 'security';
 
-        // Account type switching function
         window.switchAccountType = function(type) {
             currentAccountType = type;
-            
             if (type === 'tenant') {
-                // Redirect to tenant login page
                 window.location.href = 'login.html';
                 return;
             } else {
-                // Show security login form
                 tenantBtn.classList.remove('active');
                 securityBtn.classList.add('active');
                 switchAccountSection.style.display = 'none';
             }
         };
 
-        // Show message helper
         function showMessage(message, type) {
             loginMessage.textContent = message;
             loginMessage.className = 'login-message ' + (type || 'error');
@@ -771,7 +860,6 @@
                 return;
             }
 
-            // Show loading state
             const submitBtn = loginForm.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -793,14 +881,9 @@
                     attachVisitorsListener();
                     setTimeout(() => {
                         loadHouseNumbers();
-                        loadExpectedVisitors();
-                        loadPackageRequests();
-                        loadParkingData();
+                        loadAvailableParkingSlots();
                         initializeGateVisitorForm();
-                        // Initialize parking block A by default
-                        if (document.getElementById('parking-block-A')) {
-                            showParkingBlock('A');
-                        }
+                        loadParkingMap();
                     }, 500);
                 })
                 .catch((error) => {
@@ -832,18 +915,11 @@
             }
         });
 
-        // Monitor auth state to prevent unexpected logouts
         auth.onAuthStateChanged((user) => {
             if (!user && appShell.style.display !== 'none') {
-                // User was logged out unexpectedly
-                console.log('User logged out, but keeping session if authorized');
-                // Don't redirect if we're in the middle of scanning
-                if (!html5QrCodeInstance) {
-                    appShell.style.display = 'none';
-                    loginCard.style.display = 'block';
-                }
+                appShell.style.display = 'none';
+                loginCard.style.display = 'block';
             } else if (user && appShell.style.display === 'none' && loginCard.style.display === 'none') {
-                // User is logged in, make sure app is visible
                 const emailLower = user.email.toLowerCase();
                 const isAuthorized = securityEmails.some(secEmail => secEmail.toLowerCase() === emailLower);
                 if (isAuthorized) {
@@ -855,7 +931,6 @@
             }
         });
 
-        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             detachVisitorsListener();
         });
@@ -865,24 +940,8 @@
             visitorRefListener = database.ref('visitorRequests');
             visitorRefListener.on('value', (snapshot) => {
                 const requests = [];
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        const data = child.val();
-                        if (data) {
-                            requests.push({ id: child.key, requestId: child.key, ...data });
-                        }
-                    });
-                }
-                // Sort by registeredAt or createdAt (most recent first)
-                requests.sort((a, b) => {
-                    const dateA = new Date(a.registeredAt || a.createdAt || 0);
-                    const dateB = new Date(b.registeredAt || b.createdAt || 0);
-                    return dateB - dateA; // Most recent first
-                });
+                snapshot.forEach((child) => requests.push({ id: child.key, ...child.val() }));
                 renderVisitorData(requests);
-            }, (error) => {
-                console.error('Error loading visitors:', error);
-                alert('Error loading visitors: ' + error.message);
             });
         }
 
@@ -894,93 +953,107 @@
         }
 
         function renderVisitorData(requests) {
+            allVisitorsData = requests;
             const today = new Date().toISOString().split('T')[0];
             let registeredCount = 0;
             let todayCount = 0;
             let checkedInCount = 0;
             let totalVisitorCount = 0;
 
-            const pendingRequests = []; // Visitors awaiting approval or check-in
-            const allRequests = [];
+            const activeVisitors = [];
+            const historyVisitors = [];
 
             requests.forEach((req) => {
-                // Normalize status (handle null/undefined)
-                const status = req.status || 'pending';
+                const status = req.status || 'registered';
                 
-                // Count pending-verification, registered, and approved (awaiting check-in) visitors
-                if (status === 'pending-verification' || status === 'registered' || status === 'pending' || (status === 'checked-in' && !req.checkedInAt)) {
+                if (status === 'registered' || status === 'pending-verification') {
                     registeredCount++;
                 }
                 if (req.visitDate === today) todayCount++;
-                if (status === 'checked-in' && req.checkedInAt) {
+                if (status === 'checked-in' && req.checkedInAt && !req.checkedOutAt) {
                     checkedInCount++;
                     totalVisitorCount += (req.numberOfVisitors || 1);
                 }
 
-                // Show pending-verification, registered, and approved (awaiting security check-in) visitors in pending section
-                if (status === 'pending-verification' || status === 'registered' || status === 'pending' || (status === 'checked-in' && !req.checkedInAt)) {
-                    pendingRequests.push(req);
+                // Active visitors: registered or checked-in (not checked out)
+                if ((status === 'registered' || status === 'pending-verification' || 
+                     (status === 'checked-in' && req.checkedInAt && !req.checkedOutAt))) {
+                    activeVisitors.push(req);
+                } else if (status === 'checked-out' || status === 'cancelled') {
+                    historyVisitors.push(req);
                 }
-                allRequests.push(req);
             });
-            
-            // Sort pending requests by date (most recent first)
-            pendingRequests.sort((a, b) => {
-                const dateA = new Date(a.registeredAt || a.createdAt || 0);
-                const dateB = new Date(b.registeredAt || b.createdAt || 0);
+
+            pendingCountEl.textContent = activeVisitors.length;
+            todayCountEl.textContent = todayCount;
+            checkedInCountEl.textContent = totalVisitorCount;
+
+            pendingContainer.innerHTML = activeVisitors.length ? activeVisitors.map(renderVisitorRow).join('') :
+                '<p class="text-muted" style="padding: 15px;">No active visitors.</p>';
+
+            filterAndRenderHistory();
+        }
+
+        function filterAndRenderHistory() {
+            const filterDate = historyDateFilter ? historyDateFilter.value : '';
+            let historyVisitors = allVisitorsData.filter(req => {
+                const status = req.status || 'registered';
+                return status === 'checked-out' || status === 'cancelled';
+            });
+
+            if (filterDate) {
+                historyVisitors = historyVisitors.filter(req => req.visitDate === filterDate || req.checkOutDate === filterDate);
+            }
+
+            // Sort by date (most recent first)
+            historyVisitors.sort((a, b) => {
+                const dateA = new Date(a.checkOutDate || a.visitDate || 0);
+                const dateB = new Date(b.checkOutDate || b.visitDate || 0);
                 return dateB - dateA;
             });
 
-            if (pendingCountEl) pendingCountEl.textContent = registeredCount;
-            if (todayCountEl) todayCountEl.textContent = todayCount;
-            if (checkedInCountEl) checkedInCountEl.textContent = totalVisitorCount;
-
-            if (pendingContainer) {
-                pendingContainer.innerHTML = pendingRequests.length ? pendingRequests.map(renderVisitorRow).join('') :
-                    '<p class="text-muted" style="padding: 15px; text-align: center;">No visitors awaiting approval or check-in.</p>';
-            }
-
-            if (allRequestsContainer) {
-                allRequestsContainer.innerHTML = allRequests.length ? allRequests.map(renderVisitorRow).join('') :
-                    '<p class="text-muted" style="padding: 15px;">No visitor requests found.</p>';
-            }
-
-            // Also update expected visitors
-            loadExpectedVisitors();
+            visitorHistoryContainer.innerHTML = historyVisitors.length ? historyVisitors.map(renderVisitorRow).join('') :
+                '<p class="text-muted" style="padding: 15px;">No visitor history found' + (filterDate ? ' for selected date' : '') + '.</p>';
         }
 
+        if (historyDateFilter) {
+            historyDateFilter.addEventListener('change', filterAndRenderHistory);
+        }
+
+        window.clearHistoryFilter = function() {
+            if (historyDateFilter) {
+                historyDateFilter.value = '';
+                filterAndRenderHistory();
+            }
+        };
+
         function renderVisitorRow(request) {
-            // Normalize status
-            const status = request.status || 'pending';
             const visitInfo = `${request.visitDate || '-'} ${request.visitTime || ''}`;
+            const status = request.status || 'registered';
             const statusClass = `status-badge ${status}`;
             const carInfo = request.carPlate ? `<div style="color:#777; font-size:12px;"><i class="fa-solid fa-car-side"></i> ${request.carPlate}</div>` : '';
             const visitorCount = request.numberOfVisitors ? `<div style="color:#777; font-size:12px;"><i class="fa-solid fa-users"></i> ${request.numberOfVisitors} visitor(s)</div>` : '';
 
             const mediaHtml = request.idPhoto ? `
                 <div class="visitor-media">
-                    <img src="${request.idPhoto}" alt="ID Photo" style="cursor: pointer;" onclick="showIdImage('${request.idPhoto}', '${request.idPhotoBack || ''}')">
+                    <img src="${request.idPhoto}" alt="ID Photo">
                 </div>
             ` : '';
 
-            // Determine approval status - show "Approved" or "Not Approved" clearly
-            let approvalStatus = '';
-            if (status === 'pending-verification') {
-                approvalStatus = '<span class="status-badge pending" style="background: #fff3cd; color: #856404; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-clock"></i> Not Approved - Awaiting Tenant</span>';
-            } else if (status === 'checked-in' && !request.checkedInAt) {
-                approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-check-circle"></i> Approved - Ready for Check-In</span>';
-            } else if (status === 'checked-in' && request.checkedInAt) {
-                approvalStatus = '<span class="status-badge approved" style="background: #d4edda; color: #155724; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-check-circle"></i> Approved & Checked In</span>';
-            } else if (status === 'rejected') {
-                approvalStatus = '<span class="status-badge rejected" style="background: #f8d7da; color: #721c24; font-weight: 600; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-times-circle"></i> Not Approved - Rejected by Tenant</span>';
-            } else if (status === 'registered') {
-                approvalStatus = '<span class="status-badge registered" style="background: #d1ecf1; color: #0c5460; padding: 6px 12px; border-radius: 6px; display: inline-block;"><i class="fa-solid fa-user-check"></i> Registered</span>';
+            let statusDisplay = '';
+            if (status === 'checked-in' && request.checkedInAt && !request.checkedOutAt) {
+                statusDisplay = '<span class="status-badge checked-in">Checked In</span>';
+            } else if (status === 'checked-out') {
+                statusDisplay = '<span class="status-badge checked-out">Checked Out</span>';
+            } else if (status === 'registered' || status === 'pending-verification') {
+                statusDisplay = '<span class="status-badge registered">Registered</span>';
             } else {
-                approvalStatus = `<span class="${statusClass}" style="padding: 6px 12px; border-radius: 6px; display: inline-block;">${status.replace('-', ' ')}</span>`;
+                statusDisplay = `<span class="${statusClass}">${status.replace('-', ' ')}</span>`;
             }
 
+            const requestId = request.id || request.requestId;
             return `
-                <div class="visitor-row">
+                <div class="visitor-row" onclick="showVisitorDetails('${requestId}')" data-request-id="${requestId}">
                     <div>
                         <strong>${request.visitorName || 'N/A'}</strong>
                         <div style="color:#777; font-size:12px;">${request.visitorContact || ''}</div>
@@ -995,139 +1068,209 @@
                         ${request.roomNumber ? `<div style="color:#999; font-size:12px;">Room: ${request.roomNumber}</div>` : ''}
                     </div>
                     <div>${visitInfo}</div>
-                    <div>${approvalStatus}</div>
-                    <div>
+                    <div>${statusDisplay}</div>
+                    <div onclick="event.stopPropagation();">
                         ${renderActionButtons(request)}
                     </div>
                 </div>
             `;
         }
 
-        function showIdImage(frontImage, backImage) {
-            const modal = document.createElement('div');
-            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;';
-            modal.innerHTML = `
-                <div style="background: white; padding: 20px; border-radius: 10px; max-width: 90%; max-height: 90%; overflow: auto; position: relative;">
-                    <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px;">&times;</button>
-                    <h3 style="margin-bottom: 15px;">ID Photos</h3>
-                    <div style="display: grid; grid-template-columns: ${backImage ? '1fr 1fr' : '1fr'}; gap: 15px;">
+        window.showVisitorDetails = function(requestId) {
+            const request = allVisitorsData.find(r => (r.id || r.requestId) === requestId);
+            if (!request) {
+                alert('Visitor details not found');
+                return;
+            }
+
+            const modal = document.getElementById('visitor-details-modal');
+            const content = document.getElementById('visitor-details-content');
+            
+            const checkInTime = request.checkedInAt ? new Date(request.checkedInAt).toLocaleString() : 'Not checked in';
+            const checkOutTime = request.checkedOutAt ? new Date(request.checkedOutAt).toLocaleString() : 'Not checked out';
+            
+            content.innerHTML = `
+                <div style="display: grid; gap: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                         <div>
-                            <p style="font-weight: 600; margin-bottom: 10px;">Front</p>
-                            <img src="${frontImage}" style="max-width: 100%; border-radius: 8px; border: 2px solid #667eea;">
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Visitor Name</label>
+                            <p style="margin: 0; color: #333;">${request.visitorName || 'N/A'}</p>
                         </div>
-                        ${backImage ? `
-                            <div>
-                                <p style="font-weight: 600; margin-bottom: 10px;">Back</p>
-                                <img src="${backImage}" style="max-width: 100%; border-radius: 8px; border: 2px solid #667eea;">
-                            </div>
-                        ` : ''}
+                        <div>
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Phone Number</label>
+                            <p style="margin: 0; color: #333;">${request.visitorContact || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Number of Visitors</label>
+                            <p style="margin: 0; color: #333;">${request.numberOfVisitors || 1}</p>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Security Code</label>
+                            <p style="margin: 0; color: #333; font-weight: 700; font-size: 18px;">${request.securityCode || 'N/A'}</p>
+                        </div>
                     </div>
+                    <div style="border-top: 2px solid #e9ecef; padding-top: 15px;">
+                        <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 10px;">Host Information</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Host Name</label>
+                                <p style="margin: 0; color: #333;">${request.tenantName || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Email</label>
+                                <p style="margin: 0; color: #333;">${request.tenantEmail || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">House/Room Number</label>
+                                <p style="margin: 0; color: #333;">${request.roomNumber || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="border-top: 2px solid #e9ecef; padding-top: 15px;">
+                        <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 10px;">Visit Information</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Visit Date</label>
+                                <p style="margin: 0; color: #333;">${request.visitDate || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Visit Time</label>
+                                <p style="margin: 0; color: #333;">${request.visitTime || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Status</label>
+                                <p style="margin: 0;">${request.status ? `<span class="status-badge ${request.status}">${request.status.replace('-', ' ')}</span>` : 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    ${request.carPlate ? `
+                    <div style="border-top: 2px solid #e9ecef; padding-top: 15px;">
+                        <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 10px;">Vehicle Information</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Car Registration</label>
+                                <p style="margin: 0; color: #333;">${request.carPlate}</p>
+                            </div>
+                            ${request.parkingSlot ? `
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Parking Slot</label>
+                                <p style="margin: 0; color: #333;">${request.parkingSlot}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    <div style="border-top: 2px solid #e9ecef; padding-top: 15px;">
+                        <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 10px;">Check-In/Out Information</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Checked In</label>
+                                <p style="margin: 0; color: #333;">${checkInTime}</p>
+                                ${request.checkedInBy ? `<p style="margin: 5px 0 0 0; color: #999; font-size: 12px;">By: ${request.checkedInBy}</p>` : ''}
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Checked Out</label>
+                                <p style="margin: 0; color: #333;">${checkOutTime}</p>
+                                ${request.checkedOutBy ? `<p style="margin: 5px 0 0 0; color: #999; font-size: 12px;">By: ${request.checkedOutBy}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    ${request.idPhoto ? `
+                    <div style="border-top: 2px solid #e9ecef; padding-top: 15px;">
+                        <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 10px;">ID Photos</label>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Front</label>
+                                <img src="${request.idPhoto}" style="max-width: 200px; border-radius: 8px; border: 2px solid #667eea;">
+                            </div>
+                            ${request.idPhotoBack ? `
+                            <div>
+                                <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px; font-size: 14px;">Back</label>
+                                <img src="${request.idPhotoBack}" style="max-width: 200px; border-radius: 8px; border: 2px solid #667eea;">
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${request.reason ? `
+                    <div style="border-top: 2px solid #e9ecef; padding-top: 15px;">
+                        <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Visit Reason</label>
+                        <p style="margin: 0; color: #333;">${request.reason}</p>
+                    </div>
+                    ` : ''}
                 </div>
             `;
-            document.body.appendChild(modal);
-            modal.onclick = function(e) {
-                if (e.target === modal) modal.remove();
-            };
-        }
+            
+            modal.style.display = 'flex';
+        };
+
+        window.closeVisitorDetailsModal = function() {
+            document.getElementById('visitor-details-modal').style.display = 'none';
+        };
 
         function renderActionButtons(request) {
             const buttons = [];
             const requestKey = request.id || request.requestId;
             if (!requestKey) return '<span style="color:#999; font-size:12px;">No actions</span>';
 
-            // Normalize status
-            const status = request.status || 'pending';
+            const status = request.status || 'registered';
 
-            // Show check-in button only if tenant has approved (status is checked-in means tenant verified)
-            if (status === 'checked-in' && !request.checkedInAt) {
-                // Tenant approved, now security can check in
-                buttons.push(`<button class="btn btn-sm btn-success" onclick="securityCheckInVisitor('${requestKey}')" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i class="fa-solid fa-door-open"></i> Check-In</button>`);
-            } else if (status === 'checked-in' && request.checkedInAt) {
-                // Already checked in, show check-out
-                buttons.push(`<button class="btn btn-sm btn-secondary" onclick="checkOutVisitor('${requestKey}')" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i class="fa-solid fa-door-closed"></i> Check-Out</button>`);
-                if (request.checkedInAt) {
-                    buttons.push(`<div style="color:#28a745; font-size:11px; margin-top:5px; font-weight: 600;"><i class="fa-solid fa-clock"></i> Checked in: ${formatDateTime(request.checkedInAt)}</div>`);
-                }
-            } else if (status === 'pending-verification') {
-                buttons.push(`<span style="color:#ffc107; font-size:12px; font-weight: 600;"><i class="fa-solid fa-hourglass-half"></i> Waiting for tenant approval</span>`);
-            } else if (status === 'rejected') {
-                buttons.push(`<span style="color:#dc3545; font-size:12px; font-weight: 600;"><i class="fa-solid fa-ban"></i> Rejected by tenant</span>`);
+            if (status === 'registered' || status === 'pending-verification' || (status === 'checked-in' && !request.checkedInAt)) {
+                buttons.push(`<button class="btn btn-sm btn-success" onclick="securityCheckInVisitor('${requestKey}')" style="margin: 2px;"><i class="fa-solid fa-door-open"></i> Check-In</button>`);
+            } else if (status === 'checked-in' && request.checkedInAt && !request.checkedOutAt) {
+                buttons.push(`<button class="btn btn-sm btn-secondary" onclick="checkOutVisitor('${requestKey}')" style="margin: 2px;"><i class="fa-solid fa-door-closed"></i> Check-Out</button>`);
             }
+            
+            buttons.push(`<button class="btn btn-sm btn-danger" onclick="deleteVisitor('${requestKey}')" style="margin: 2px;"><i class="fa-solid fa-trash"></i> Delete</button>`);
 
             if (buttons.length === 0) {
                 return '<span style="color:#999; font-size:12px;">No actions</span>';
             }
 
-            return buttons.join('&nbsp;');
+            return buttons.join(' ');
         }
 
-        function formatDateTime(dateTimeString) {
-            if (!dateTimeString) return 'N/A';
-            const date = new Date(dateTimeString);
-            return date.toLocaleString('en-KE', {
-                day: 'numeric',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        let currentCheckInRequestId = null;
-        let idCaptureStream = null;
-
-        // Security check-in after tenant approval
         window.securityCheckInVisitor = function(requestId) {
-            if (!confirm('Check in this visitor? They have been approved by the tenant.')) return;
+            if (!confirm('Check in this visitor?')) return;
             
             database.ref(`visitorRequests/${requestId}`).once('value')
                 .then((snapshot) => {
                     if (!snapshot.exists()) throw new Error('Visitor request not found');
                     const request = snapshot.val();
                     
-                    // Check if tenant has approved (status should be 'checked-in' which means tenant verified)
-                    if (request.status !== 'checked-in') {
-                        alert('Visitor must be approved by tenant first. Current status: ' + (request.status || 'pending'));
-                        return;
-                    }
-                    
-                    // Check if already checked in
-                    if (request.checkedInAt) {
+                    if (request.checkedInAt && !request.checkedOutAt) {
                         alert('Visitor is already checked in.');
                         return;
                     }
                     
-                    const now = new Date();
-                    const checkInTime = now.toTimeString().split(' ')[0].substring(0, 5);
-                    const checkInDate = now.toISOString().split('T')[0];
                     const updates = {
-                        checkedInAt: now.toISOString(),
+                        status: 'checked-in',
+                        checkedInAt: new Date().toISOString(),
                         checkedInBy: auth.currentUser ? auth.currentUser.email : 'Security',
-                        checkInTime: checkInTime,
-                        checkInDate: checkInDate,
-                        updatedAt: now.toISOString()
+                        checkInTime: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                        checkInDate: new Date().toISOString().split('T')[0],
+                        updatedAt: new Date().toISOString()
                     };
                     
                     return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
-                        // Notify tenant
                         if (window.createNotification && request.tenantId) {
                             window.createNotification(database, request.tenantId, {
                                 type: 'visitor',
                                 title: 'Visitor Checked In',
-                                message: `${request.visitorName || 'Visitor'} has been checked in at ${checkInTime} on ${checkInDate}.`,
+                                message: `${request.visitorName || 'Visitor'} has been checked in at ${updates.checkInTime} on ${updates.checkInDate}.`,
                                 link: '#visitors'
                             });
                         }
-                        alert(`Visitor checked in successfully!\nTime: ${checkInTime}\nDate: ${checkInDate}`);
+                        alert(`Visitor checked in successfully!\nTime: ${updates.checkInTime}\nDate: ${updates.checkInDate}`);
                     });
                 })
                 .catch((error) => {
                     alert('Error checking in visitor: ' + error.message);
                 });
         };
-        
-        // Check-out visitor
+
         window.checkOutVisitor = function(requestId) {
-            if (!confirm('Check out this visitor?')) return;
+            if (!confirm('Check out this visitor? They will be moved to history.')) return;
             
             database.ref(`visitorRequests/${requestId}`).once('value')
                 .then((snapshot) => {
@@ -1146,50 +1289,16 @@
                         updatedAt: now.toISOString()
                     };
                     
-                    // Free up parking if assigned
-                    if (request.carPlate) {
-                        database.ref('parkingSpaces').once('value').then(parkingSnapshot => {
-                            parkingSnapshot.forEach((child) => {
-                                const space = child.val();
-                                if (space.visitorId === requestId || (space.vehicle === request.carPlate && space.status === 'visitor')) {
-                                    database.ref(`parkingSpaces/${child.key}`).update({
-                                        status: 'available',
-                                        vehicle: null,
-                                        owner: null,
-                                        tenant: null,
-                                        visitorId: null
-                                    });
-                                }
-                            });
-                        });
-                    }
-                    
                     return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
-                        // Notify tenant
                         if (window.createNotification && request.tenantId) {
                             window.createNotification(database, request.tenantId, {
                                 type: 'visitor',
                                 title: 'Visitor Checked Out',
-                                message: `${request.visitorName || 'Visitor'} has checked out at ${checkOutTime} on ${checkOutDate}.`,
+                                message: `${request.visitorName || 'Visitor'} has checked out.`,
                                 link: '#visitors'
                             });
                         }
-                        alert(`Visitor checked out successfully!\nTime: ${checkOutTime}\nDate: ${checkOutDate}`);
-                        // The listener will automatically update the UI, but force a refresh to be sure
-                        setTimeout(() => {
-                            database.ref('visitorRequests').once('value').then(snapshot => {
-                                const requests = [];
-                                if (snapshot.exists()) {
-                                    snapshot.forEach((child) => {
-                                        const data = child.val();
-                                        if (data) {
-                                            requests.push({ id: child.key, ...data });
-                                        }
-                                    });
-                                }
-                                renderVisitorData(requests);
-                            });
-                        }, 300);
+                        alert(`Visitor checked out successfully!\nTime: ${checkOutTime}\nDate: ${checkOutDate}\nVisitor has been moved to history.`);
                     });
                 })
                 .catch((error) => {
@@ -1197,885 +1306,18 @@
                 });
         };
 
-        function showIdCaptureModal(request) {
-            const modal = document.getElementById('id-capture-modal');
-            const modalContent = modal.querySelector('.modal-content-capture');
-            modalContent.innerHTML = `
-                <h3><i class="fa-solid fa-camera"></i> Check-In Visitor: ${request.visitorName || 'N/A'}</h3>
-                <p><strong>Number of Visitors:</strong> ${request.numberOfVisitors || 1}</p>
-                <p><strong>Tenant:</strong> ${request.tenantName || 'N/A'} (Room: ${request.roomNumber || 'N/A'})</p>
-                <p style="color: #666; margin-bottom: 20px;">Please capture or upload the visitor's ID photo for records.</p>
-                
-                <div id="camera-section">
-                    <video id="id-capture-video" autoplay playsinline style="display: none;"></video>
-                    <div id="camera-error" style="display: none; padding: 20px; background: #fff3cd; border-radius: 8px; margin-bottom: 15px;">
-                        <p style="color: #856404; margin: 0;"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Camera access denied.</strong> Please use the file upload option below or grant camera permissions in your browser settings.</p>
-                    </div>
-                </div>
-                
-                <div id="upload-section" style="margin-top: 15px;">
-                    <label for="id-upload-input" style="display: block; margin-bottom: 10px; font-weight: 600;">
-                        <i class="fa-solid fa-upload"></i> Or Upload ID Photo:
-                    </label>
-                    <input type="file" id="id-upload-input" accept="image/*" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 15px;">
-                </div>
-                
-                <canvas id="id-capture-canvas" style="display: none;"></canvas>
-                <div id="id-capture-preview" style="display: none; text-align: center; margin: 15px 0;">
-                    <img id="id-preview-img" style="max-width: 100%; border-radius: 8px; border: 2px solid #667eea;">
-                    <p style="color: #28a745; margin-top: 10px;"><i class="fa-solid fa-check-circle"></i> ID photo ready</p>
-                </div>
-                
-                <div class="capture-buttons">
-                    <button class="btn btn-primary" id="capture-id-btn" onclick="captureIdPhoto()" style="display: none;">
-                        <i class="fa-solid fa-camera"></i> Capture from Camera
-                    </button>
-                    <button class="btn btn-success" id="confirm-checkin-btn" onclick="confirmCheckIn()" style="display: none;">
-                        <i class="fa-solid fa-check"></i> Confirm Check-In
-                    </button>
-                    <button class="btn btn-secondary" onclick="cancelIdCapture()">
-                        <i class="fa-solid fa-times"></i> Cancel
-                    </button>
-                </div>
-            `;
-            modal.style.display = 'block';
+        window.deleteVisitor = function(requestId) {
+            if (!confirm('Are you sure you want to delete this visitor record? This action cannot be undone.')) return;
             
-            // Setup file upload handler
-            const uploadInput = document.getElementById('id-upload-input');
-            if (uploadInput) {
-                uploadInput.addEventListener('change', handleIdUpload);
-            }
-            
-            // Try to start camera
-            startIdCapture();
-        }
-
-        function startIdCapture() {
-            const video = document.getElementById('id-capture-video');
-            const cameraError = document.getElementById('camera-error');
-            const captureBtn = document.getElementById('capture-id-btn');
-            
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (cameraError) cameraError.style.display = 'block';
-                if (captureBtn) captureBtn.style.display = 'none';
-                return;
-            }
-
-            // Try rear camera first (environment), then fallback to any camera
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then((stream) => {
-                    idCaptureStream = stream;
-                    if (video) {
-                        video.srcObject = stream;
-                        video.style.display = 'block';
-                    }
-                    if (cameraError) cameraError.style.display = 'none';
-                    if (captureBtn) captureBtn.style.display = 'inline-block';
-                })
-                .catch(() => {
-                    // Try any available camera as fallback
-                    navigator.mediaDevices.getUserMedia({ video: true })
-                        .then((stream) => {
-                            idCaptureStream = stream;
-                            if (video) {
-                                video.srcObject = stream;
-                                video.style.display = 'block';
-                            }
-                            if (cameraError) cameraError.style.display = 'none';
-                            if (captureBtn) captureBtn.style.display = 'inline-block';
-                        })
-                        .catch((error) => {
-                            // Camera access failed - show error and hide camera button
-                            if (cameraError) {
-                                cameraError.style.display = 'block';
-                                let errorMsg = 'Camera access denied. ';
-                                if (error.name === 'NotAllowedError') {
-                                    errorMsg += 'Please allow camera access in your browser settings and refresh.';
-                                } else if (error.name === 'NotFoundError') {
-                                    errorMsg += 'No camera found. Please use the file upload option.';
-                                } else if (error.name === 'NotReadableError') {
-                                    errorMsg += 'Camera is being used by another application. Please close other apps and try again, or use file upload.';
-                                } else {
-                                    errorMsg += 'Please use the file upload option below.';
-                                }
-                                cameraError.querySelector('p').innerHTML = `<i class="fa-solid fa-exclamation-triangle"></i> <strong>${error.name}:</strong> ${errorMsg}`;
-                            }
-                            if (captureBtn) captureBtn.style.display = 'none';
-                            if (video) video.style.display = 'none';
-                        });
-                });
-        }
-        
-        function handleIdUpload(event) {
-            const file = event.target.files && event.target.files[0];
-            if (!file) return;
-            
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file.');
-                event.target.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const canvas = document.getElementById('id-capture-canvas');
-                const preview = document.getElementById('id-capture-preview');
-                const previewImg = document.getElementById('id-preview-img');
-                const confirmBtn = document.getElementById('confirm-checkin-btn');
-                const video = document.getElementById('id-capture-video');
-                
-                if (canvas && preview && previewImg) {
-                    const img = new Image();
-                    img.onload = function() {
-                        // Set canvas size
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        
-                        // Show preview
-                        previewImg.src = e.target.result;
-                        preview.style.display = 'block';
-                        if (video) video.style.display = 'none';
-                        if (confirmBtn) confirmBtn.style.display = 'inline-block';
-                        
-                        // Stop camera if running
-                        if (idCaptureStream) {
-                            idCaptureStream.getTracks().forEach(track => track.stop());
-                            idCaptureStream = null;
-                        }
-                    };
-                    img.src = e.target.result;
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        window.captureIdPhoto = function() {
-            const video = document.getElementById('id-capture-video');
-            const canvas = document.getElementById('id-capture-canvas');
-            const preview = document.getElementById('id-capture-preview');
-            const previewImg = document.getElementById('id-preview-img');
-            const captureBtn = document.getElementById('capture-id-btn');
-            const confirmBtn = document.getElementById('confirm-checkin-btn');
-
-            if (!video || !canvas || !preview || !previewImg) {
-                alert('Camera elements not found. Please refresh and try again.');
-                return;
-            }
-
-            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-                alert('Camera not ready. Please wait a moment and try again.');
-                return;
-            }
-
-            try {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
-
-                const imageData = canvas.toDataURL('image/jpeg', 0.8);
-                previewImg.src = imageData;
-                preview.style.display = 'block';
-                video.style.display = 'none';
-                if (captureBtn) captureBtn.style.display = 'none';
-                if (confirmBtn) confirmBtn.style.display = 'inline-block';
-
-                if (idCaptureStream) {
-                    idCaptureStream.getTracks().forEach(track => track.stop());
-                    idCaptureStream = null;
-                }
-            } catch (error) {
-                console.error('Error capturing photo:', error);
-                alert('Error capturing photo: ' + error.message);
-            }
-        };
-
-        window.confirmCheckIn = function() {
-            const canvas = document.getElementById('id-capture-canvas');
-            const previewImg = document.getElementById('id-preview-img');
-            
-            if (!currentCheckInRequestId) {
-                alert('Error: No visitor selected. Please try again.');
-                return;
-            }
-
-            let idPhotoData = null;
-            
-            // Get image data from canvas or preview image
-            if (canvas && canvas.width > 0 && canvas.height > 0) {
-                idPhotoData = canvas.toDataURL('image/jpeg', 0.8);
-            } else if (previewImg && previewImg.src) {
-                idPhotoData = previewImg.src;
-            } else {
-                alert('Please capture or upload an ID photo before checking in.');
-                return;
-            }
-
-            const requestId = currentCheckInRequestId;
-
-            database.ref(`visitorRequests/${requestId}`).once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) throw new Error('Visitor request not found');
-                    const request = snapshot.val();
-                    const now = new Date();
-
-                    const updates = {
-                        [`visitorRequests/${requestId}/status`]: 'checked-in',
-                        [`visitorRequests/${requestId}/idPhoto`]: idPhotoData,
-                        [`visitorRequests/${requestId}/checkInTime`]: now.toISOString(),
-                        [`visitorRequests/${requestId}/checkInYear`]: now.getFullYear(),
-                        [`visitorRequests/${requestId}/checkInMonth`]: now.getMonth() + 1,
-                        [`visitorRequests/${requestId}/checkInDay`]: now.getDate(),
-                        [`visitorRequests/${requestId}/checkInHour`]: now.getHours(),
-                        [`visitorRequests/${requestId}/checkInMinute`]: now.getMinutes(),
-                        [`visitorRequests/${requestId}/checkedInBy`]: auth.currentUser ? auth.currentUser.email : 'Security',
-                        [`visitorRequests/${requestId}/updatedAt`]: now.toISOString()
-                    };
-
-                    return database.ref().update(updates).then(() => {
-                        createVisitorNotification(database, request.tenantId, request, 'checked-in');
-                        cancelIdCapture();
-                        alert(`Visitor checked in successfully! Count: ${request.numberOfVisitors || 1}`);
-                    });
-                })
-                .catch((error) => {
-                    alert('Error checking in visitor: ' + error.message);
-                });
-        };
-
-        window.cancelIdCapture = function() {
-            // Stop camera stream
-            if (idCaptureStream) {
-                idCaptureStream.getTracks().forEach(track => track.stop());
-                idCaptureStream = null;
-            }
-            
-            // Reset file input
-            const uploadInput = document.getElementById('id-upload-input');
-            if (uploadInput) {
-                uploadInput.value = '';
-            }
-            
-            // Hide modal
-            const modal = document.getElementById('id-capture-modal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-            
-            currentCheckInRequestId = null;
-        };
-
-        window.updateVisitorStatus = function(requestId, newStatus) {
-            database.ref(`visitorRequests/${requestId}`).once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) throw new Error('Visitor request not found');
-                    const request = snapshot.val();
-                    const now = new Date();
-                    const updates = {
-                        [`visitorRequests/${requestId}/status`]: newStatus,
-                        [`visitorRequests/${requestId}/updatedAt`]: now.toISOString()
-                    };
-
-                    if (newStatus === 'checked-out') {
-                        updates[`visitorRequests/${requestId}/checkOutTime`] = now.toISOString();
-                        updates[`visitorRequests/${requestId}/checkOutYear`] = now.getFullYear();
-                        updates[`visitorRequests/${requestId}/checkOutMonth`] = now.getMonth() + 1;
-                        updates[`visitorRequests/${requestId}/checkOutDay`] = now.getDate();
-                        updates[`visitorRequests/${requestId}/checkOutHour`] = now.getHours();
-                        updates[`visitorRequests/${requestId}/checkOutMinute`] = now.getMinutes();
-                        updates[`visitorRequests/${requestId}/checkedOutBy`] = auth.currentUser ? auth.currentUser.email : 'Security';
-                    }
-
-                    return database.ref().update(updates).then(() => {
-                        createVisitorNotification(database, request.tenantId, request, newStatus);
-                    });
-                })
-                .catch((error) => {
-                    alert('Error updating visitor request: ' + error.message);
-                });
-        };
-
-        function createVisitorNotification(database, tenantId, request, status) {
-            if (!window.createNotification) return;
-
-            let title = 'Visitor Update';
-            let message = '';
-
-            if (status === 'checked-in') {
-                title = 'Visitor Checked In';
-                message = `Your visitor ${request.visitorName || ''} (${request.numberOfVisitors || 1} person(s)) has arrived and checked in.`;
-            } else if (status === 'checked-out') {
-                title = 'Visitor Checked Out';
-                message = `Your visitor ${request.visitorName || ''} has checked out.`;
-            } else {
-                return;
-            }
-
-            window.createNotification(database, tenantId, {
-                type: 'visitor',
-                title,
-                message,
-                link: '#visitors'
-            });
-        }
-
-        // Load Expected Visitors
-        function loadExpectedVisitors() {
-            const expectedContainer = document.getElementById('expected-visitors');
-            if (!expectedContainer) return;
-
-            const today = new Date().toISOString().split('T')[0];
-            database.ref('visitorRequests')
-                .orderByChild('visitDate')
-                .equalTo(today)
-                .on('value', (snapshot) => {
-                    const visitors = [];
-                    snapshot.forEach((child) => {
-                        const request = { id: child.key, ...child.val() };
-                        if (request.status === 'registered' || request.status === 'pending') {
-                            visitors.push(request);
-                        }
-                    });
-
-                    if (visitors.length === 0) {
-                        expectedContainer.innerHTML = '<p class="text-muted" style="padding: 15px; text-align: center;">No expected visitors for today.</p>';
-                        return;
-                    }
-
-                    expectedContainer.innerHTML = visitors.map(request => {
-                        const idStatus = request.idPhoto ? 
-                            '<span class="status-badge approved"><i class="fa-solid fa-check"></i> ID Uploaded</span>' : 
-                            '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Awaiting ID</span>';
-                        
-                        return `
-                            <div class="visitor-row">
-                                <div>
-                                    <strong>${request.visitorName || 'N/A'}</strong>
-                                    <div style="color:#777; font-size:12px;">${request.visitorContact || ''}</div>
-                                    ${request.carPlate ? `<div style="color:#777; font-size:12px;"><i class="fa-solid fa-car-side"></i> ${request.carPlate}</div>` : ''}
-                                </div>
-                                <div>
-                                    <strong>${request.tenantName || 'Tenant'}</strong>
-                                    <div style="color:#777; font-size:12px;">${request.roomNumber || request.apartment || 'N/A'}</div>
-                                </div>
-                                <div>${request.visitTime || 'N/A'}</div>
-                                <div>${idStatus}</div>
-                                <div>
-                                    ${request.idPhoto ? 
-                                        `<button class="btn btn-sm btn-primary" onclick="checkInVisitor('${request.id}')"><i class="fa-solid fa-door-open"></i> Check-In</button>` :
-                                        '<span style="color:#999; font-size:12px;">Waiting for ID upload</span>'
-                                    }
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                });
-        }
-
-        // Load Package Requests
-        function loadPackageRequests() {
-            const packageContainer = document.getElementById('package-requests-list');
-            if (!packageContainer) return;
-
-            database.ref('packageRequests')
-                .orderByChild('createdAt')
-                .on('value', (snapshot) => {
-                    const packages = [];
-                    snapshot.forEach((child) => {
-                        packages.push({ id: child.key, ...child.val() });
-                    });
-
-                    if (packages.length === 0) {
-                        packageContainer.innerHTML = '<p class="text-muted" style="padding: 15px; text-align: center;">No package requests.</p>';
-                        return;
-                    }
-
-                    packageContainer.innerHTML = packages.map(pkg => {
-                        const statusBadge = pkg.status === 'pending' ? 
-                            '<span class="status-badge pending">Pending</span>' :
-                            pkg.status === 'arrived' ?
-                            '<span class="status-badge approved">Arrived</span>' :
-                            '<span class="status-badge checked-out">Collected</span>';
-
-                        return `
-                            <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid ${pkg.status === 'pending' ? '#ffc107' : pkg.status === 'arrived' ? '#28a745' : '#6c757d'};">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                                    <div style="flex: 1;">
-                                        <h4 style="color: #333; margin-bottom: 5px;"><i class="fa-solid fa-box"></i> ${pkg.description || 'Package'}</h4>
-                                        <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Tenant:</strong> ${pkg.tenantName || 'N/A'} (${pkg.apartment || 'N/A'})</p>
-                                        <p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Expected:</strong> ${pkg.expectedDate || 'N/A'}</p>
-                                        ${pkg.trackingNumber ? `<p style="color: #666; font-size: 14px; margin: 5px 0;"><strong>Tracking:</strong> ${pkg.trackingNumber}</p>` : ''}
-                                    </div>
-                                    <div style="margin-left: 15px;">
-                                        ${statusBadge}
-                                    </div>
-                                </div>
-                                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                    ${pkg.status === 'pending' ? 
-                                        `<button class="btn btn-sm btn-success" onclick="markPackageArrived('${pkg.id}')"><i class="fa-solid fa-check"></i> Mark as Arrived</button>` :
-                                        pkg.status === 'arrived' ?
-                                        `<button class="btn btn-sm btn-secondary" onclick="notifyTenantPackage('${pkg.id}')"><i class="fa-solid fa-bell"></i> Notify Tenant</button>` :
-                                        ''
-                                    }
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                });
-        }
-
-        // Mark package as arrived
-        window.markPackageArrived = function(packageId) {
-            database.ref(`packageRequests/${packageId}`).update({
-                status: 'arrived',
-                arrivedAt: new Date().toISOString()
-            }).then(() => {
-                alert('Package marked as arrived!');
-            }).catch(error => {
-                alert('Error updating package: ' + error.message);
-            });
-        };
-
-        // Notify tenant about package
-        window.notifyTenantPackage = function(packageId) {
-            database.ref(`packageRequests/${packageId}`).once('value').then(snapshot => {
-                const pkg = snapshot.val();
-                if (window.createNotification) {
-                    window.createNotification(database, pkg.tenantId, {
-                        type: 'package',
-                        title: 'Package Arrived',
-                        message: `Your package "${pkg.description || 'Package'}" has arrived and is ready for pickup at the security office.`,
-                        link: '#packages'
-                    });
-                }
-                alert('Tenant has been notified about the package!');
-            }).catch(error => {
-                alert('Error notifying tenant: ' + error.message);
-            });
-        };
-
-        // Parking Management
-        let currentParkingBlock = 'A';
-        let parkingData = {};
-
-        function loadParkingData() {
-            database.ref('parkingSpaces').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    parkingData = snapshot.val();
-                } else {
-                    // Initialize with default data
-                    initializeParkingData();
-                }
-                renderParkingMap(currentParkingBlock);
-            });
-        }
-
-        function initializeParkingData() {
-            const defaultData = {};
-            ['A', 'B', 'C'].forEach(block => {
-                for (let i = 1; i <= 8; i++) {
-                    const spaceId = `${block}-${String(i).padStart(2, '0')}`;
-                    defaultData[spaceId] = {
-                        id: spaceId,
-                        block: block,
-                        floor: 'Ground',
-                        status: 'available',
-                        vehicle: null,
-                        tenant: null,
-                        owner: null
-                    };
-                }
-            });
-            database.ref('parkingSpaces').set(defaultData);
-            parkingData = defaultData;
-        }
-
-        window.showParkingBlock = function(block) {
-            currentParkingBlock = block;
-            ['A', 'B', 'C'].forEach(b => {
-                const btn = document.getElementById(`parking-block-${b}`);
-                if (btn) {
-                    if (b === block) {
-                        btn.classList.remove('btn-outline-primary');
-                        btn.classList.add('btn-primary');
-                    } else {
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-outline-primary');
-                    }
-                }
-            });
-            renderParkingMap(block);
-        };
-
-        function renderParkingMap(block) {
-            const grid = document.getElementById('parking-spaces-grid');
-            if (!grid) return;
-
-            const spaces = Object.values(parkingData).filter(s => s && s.block === block);
-            if (spaces.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No parking spaces found for this block.</p>';
-                return;
-            }
-
-            // Sort spaces by ID
-            spaces.sort((a, b) => {
-                const numA = parseInt(a.id?.split('-')[1]) || 0;
-                const numB = parseInt(b.id?.split('-')[1]) || 0;
-                return numA - numB;
-            });
-
-            const isMobile = window.innerWidth < 768;
-            const gridColumns = isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)';
-            grid.style.gridTemplateColumns = gridColumns;
-
-            grid.innerHTML = spaces.map(space => {
-                let bgColor = '#28a745'; // Available - Green
-                let textColor = 'white';
-                
-                if (space.status === 'occupied') {
-                    bgColor = '#dc3545'; // Occupied - Red
-                } else if (space.status === 'visitor') {
-                    bgColor = '#17a2b8'; // Visitor - Blue
-                }
-
-                return `
-                    <div onclick="editParkingSpace('${space.id}')" 
-                         style="
-                             background: ${bgColor};
-                             color: ${textColor};
-                             padding: ${isMobile ? '12px 8px' : '15px 10px'};
-                             border-radius: 10px;
-                             text-align: center;
-                             cursor: pointer;
-                             transition: all 0.3s ease;
-                             min-height: ${isMobile ? '75px' : '90px'};
-                             display: flex;
-                             flex-direction: column;
-                             justify-content: center;
-                             align-items: center;
-                             touch-action: manipulation;
-                         " 
-                         ${!isMobile ? `onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.2)'"
-                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"` : ''}>
-                        <div style="font-size: ${isMobile ? '13px' : '16px'}; font-weight: 700; margin-bottom: 5px;">${space.id}</div>
-                        ${space.vehicle ? `<div style="font-size: ${isMobile ? '9px' : '11px'}; opacity: 0.9; margin-bottom: 3px;">${space.vehicle}</div>` : ''}
-                        ${space.owner ? `<div style="font-size: ${isMobile ? '8px' : '10px'}; opacity: 0.8;">${space.owner}</div>` : '<div style="font-size: 8px; opacity: 0.8;">Available</div>'}
-                        ${space.tenant ? `<div style="font-size: ${isMobile ? '8px' : '9px'}; opacity: 0.7; margin-top: 2px;">${space.tenant}</div>` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        window.editParkingSpace = function(spaceId) {
-            const space = parkingData[spaceId] || {
-                id: spaceId,
-                block: spaceId.split('-')[0],
-                floor: 'Ground',
-                status: 'available',
-                vehicle: null,
-                tenant: null,
-                owner: null
-            };
-
-            const modal = document.getElementById('parking-edit-modal');
-            const form = document.getElementById('parking-edit-form');
-            if (!modal || !form) return;
-
-            form.innerHTML = `
-                <div style="display: grid; gap: 15px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Parking Space</label>
-                        <input type="text" value="${space.id}" disabled style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; background: #f5f5f5;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Status</label>
-                        <select id="parking-status" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                            <option value="available" ${space.status === 'available' ? 'selected' : ''}>Available</option>
-                            <option value="occupied" ${space.status === 'occupied' ? 'selected' : ''}>Occupied</option>
-                            <option value="visitor" ${space.status === 'visitor' ? 'selected' : ''}>Visitor</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Vehicle Number</label>
-                        <input type="text" id="parking-vehicle" value="${space.vehicle || ''}" placeholder="e.g., KCA 123A" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Apartment/Tenant</label>
-                        <input type="text" id="parking-tenant" value="${space.tenant || ''}" placeholder="e.g., A101" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Owner Name</label>
-                        <input type="text" id="parking-owner" value="${space.owner || ''}" placeholder="e.g., John Doe" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button onclick="saveParkingSpace('${spaceId}')" style="flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                            <i class="fa-solid fa-save"></i> Save
-                        </button>
-                        <button onclick="closeParkingEditModal()" style="flex: 1; background: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            modal.style.display = 'flex';
-        };
-
-        window.saveParkingSpace = function(spaceId) {
-            const status = document.getElementById('parking-status').value;
-            const vehicle = document.getElementById('parking-vehicle').value.trim();
-            const tenant = document.getElementById('parking-tenant').value.trim();
-            const owner = document.getElementById('parking-owner').value.trim();
-
-            const update = {
-                status: status,
-                vehicle: vehicle || null,
-                tenant: tenant || null,
-                owner: owner || null,
-                updatedAt: new Date().toISOString(),
-                updatedBy: auth.currentUser ? auth.currentUser.email : 'Security'
-            };
-
-            database.ref(`parkingSpaces/${spaceId}`).update(update)
+            database.ref(`visitorRequests/${requestId}`).remove()
                 .then(() => {
-                    parkingData[spaceId] = { ...parkingData[spaceId], ...update };
-                    closeParkingEditModal();
-                    renderParkingMap(currentParkingBlock);
-                    alert('Parking space updated successfully!');
+                    alert('Visitor record deleted successfully!');
                 })
-                .catch(error => {
-                    alert('Error updating parking space: ' + error.message);
+                .catch((error) => {
+                    alert('Error deleting visitor: ' + error.message);
                 });
         };
 
-        window.closeParkingEditModal = function() {
-            const modal = document.getElementById('parking-edit-modal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        };
-
-        // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
-            const modal = document.getElementById('parking-edit-modal');
-            if (modal && e.target === modal) {
-                closeParkingEditModal();
-            }
-        });
-
-        // Gate Visitor Form
-        function initializeGateVisitorForm() {
-            const form = document.getElementById('gate-visitor-form');
-            const carRegInput = document.getElementById('gate-car-reg');
-            const parkingAssignment = document.getElementById('gate-parking-assignment');
-            const parkingSlotSelect = document.getElementById('gate-parking-slot');
-            const idFrontInput = document.getElementById('gate-id-front');
-            const idBackInput = document.getElementById('gate-id-back');
-            const idFrontPreview = document.getElementById('gate-id-front-preview');
-            const idBackPreview = document.getElementById('gate-id-back-preview');
-            const idFrontImg = document.getElementById('gate-id-front-img');
-            const idBackImg = document.getElementById('gate-id-back-img');
-
-            // Show parking assignment if car reg is provided
-            if (carRegInput) {
-                carRegInput.addEventListener('input', function() {
-                    if (this.value.trim()) {
-                        parkingAssignment.style.display = 'block';
-                        loadAvailableParkingSlots();
-                    } else {
-                        parkingAssignment.style.display = 'none';
-                        parkingSlotSelect.value = '';
-                    }
-                });
-            }
-
-            // Preview ID images
-            if (idFrontInput) {
-                idFrontInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            idFrontImg.src = e.target.result;
-                            idFrontPreview.style.display = 'block';
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-
-            if (idBackInput) {
-                idBackInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            idBackImg.src = e.target.result;
-                            idBackPreview.style.display = 'block';
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-
-            // Form submission
-            if (form) {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const visitorName = document.getElementById('gate-visitor-name').value.trim();
-                    const visitorPhone = document.getElementById('gate-visitor-phone').value.trim();
-                    const hostName = document.getElementById('gate-host-name').value.trim();
-                    const houseNumber = document.getElementById('gate-house-number').value.trim();
-                    const carReg = document.getElementById('gate-car-reg').value.trim();
-                    const parkingSlot = document.getElementById('gate-parking-slot').value;
-                    const idFrontFile = idFrontInput.files[0];
-                    const idBackFile = idBackInput.files[0];
-
-                    if (!visitorName || !visitorPhone || !hostName || !houseNumber || !idFrontFile || !idBackFile) {
-                        alert('Please fill in all required fields and upload both ID photos.');
-                        return;
-                    }
-
-                    // Convert images to base64
-                    const convertToBase64 = (file) => {
-                        return new Promise((resolve, reject) => {
-                            const reader = new FileReader();
-                            reader.onload = () => resolve(reader.result);
-                            reader.onerror = reject;
-                            reader.readAsDataURL(file);
-                        });
-                    };
-
-                    try {
-                        const idFrontBase64 = await convertToBase64(idFrontFile);
-                        const idBackBase64 = await convertToBase64(idBackFile);
-
-                        // Find tenant by house number
-                        const tenantsRef = database.ref('tenants');
-                        const tenantsSnapshot = await tenantsRef.once('value');
-                        let tenantId = null;
-                        let tenantEmail = null;
-                        let tenantName = null;
-
-                        tenantsSnapshot.forEach((child) => {
-                            const tenant = child.val();
-                            const tenantHouseNumber = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
-                            if (tenantHouseNumber === houseNumber) {
-                                tenantId = child.key;
-                                tenantEmail = tenant.email || tenant.info?.email || tenant.auth?.email || '';
-                                tenantName = tenant.name || tenant.info?.fullName || tenant.info?.name || hostName;
-                            }
-                        });
-
-                        if (!tenantId) {
-                            alert('House number not found. Please select a valid house number from the list.');
-                            return;
-                        }
-
-                        // Ensure tenantEmail is not undefined
-                        if (!tenantEmail) {
-                            console.warn('Tenant email not found for house number:', houseNumber);
-                            tenantEmail = ''; // Use empty string instead of undefined
-                        }
-
-                        // Create visitor request - status is 'pending-verification' until tenant verifies
-                        const visitorRequest = {
-                            visitorName: visitorName,
-                            visitorContact: visitorPhone,
-                            tenantName: tenantName || hostName,
-                            tenantId: tenantId,
-                            roomNumber: houseNumber,
-                            apartment: houseNumber,
-                            carPlate: carReg || null,
-                            idPhoto: idFrontBase64,
-                            idPhotoBack: idBackBase64,
-                            status: 'pending-verification',
-                            visitDate: new Date().toISOString().split('T')[0],
-                            visitTime: new Date().toTimeString().split(' ')[0].substring(0, 5),
-                            registeredAt: new Date().toISOString(),
-                            registeredBy: auth.currentUser ? auth.currentUser.email : 'Security',
-                            numberOfVisitors: 1
-                        };
-
-                        // Only add tenantEmail if it exists (Firebase doesn't allow undefined values)
-                        if (tenantEmail) {
-                            visitorRequest.tenantEmail = tenantEmail;
-                        }
-
-                        // Save visitor request
-                        const visitorRef = database.ref('visitorRequests').push(visitorRequest);
-                        const visitorId = visitorRef.key;
-
-                        // Assign parking if car is provided
-                        if (carReg && parkingSlot) {
-                            const parkingUpdate = {
-                                status: 'visitor',
-                                vehicle: carReg,
-                                owner: visitorName,
-                                tenant: houseNumber,
-                                visitorId: visitorId,
-                                assignedAt: new Date().toISOString(),
-                                assignedBy: auth.currentUser ? auth.currentUser.email : 'Security'
-                            };
-                            await database.ref(`parkingSpaces/${parkingSlot}`).update(parkingUpdate);
-                        }
-
-                        // Notify tenant to verify visitor
-                        if (window.createNotification && tenantId) {
-                            window.createNotification(database, tenantId, {
-                                type: 'visitor',
-                                title: 'Visitor Arrived - Verification Required',
-                                message: `${visitorName} has arrived at the gate. Please verify this visitor in your portal.`,
-                                link: '#visitors'
-                            }).catch(err => console.error('Notification error:', err));
-                        }
-
-                        // Also create a direct notification entry in notifications node
-                        if (tenantId) {
-                            database.ref(`notifications/${tenantId}`).push({
-                                type: 'visitor',
-                                title: 'Visitor Arrived - Verification Required',
-                                message: `${visitorName} has arrived at the gate. Please verify this visitor.`,
-                                link: '#visitors',
-                                read: false,
-                                createdAt: new Date().toISOString()
-                            }).catch(err => console.error('Direct notification error:', err));
-                        }
-
-                        alert('Visitor registered successfully! Notification sent to tenant. Waiting for tenant verification before check-in.');
-                        form.reset();
-                        idFrontPreview.style.display = 'none';
-                        idBackPreview.style.display = 'none';
-                        parkingAssignment.style.display = 'none';
-                        
-                        // Force refresh visitor list
-                        setTimeout(() => {
-                            database.ref('visitorRequests').once('value').then(snapshot => {
-                                const requests = [];
-                                if (snapshot.exists()) {
-                                    snapshot.forEach((child) => {
-                                        const data = child.val();
-                                        if (data) {
-                                            requests.push({ id: child.key, ...data });
-                                        }
-                                    });
-                                }
-                                renderVisitorData(requests);
-                            });
-                        }, 500);
-
-                    } catch (error) {
-                        console.error('Error checking in visitor:', error);
-                        alert('Error checking in visitor: ' + error.message);
-                    }
-                });
-            }
-        }
-
-        // Load visitor requests for management table
         function loadVisitorRequestsTable() {
             const container = document.getElementById('visitorRequestsList');
             if (!container) return;
@@ -2090,24 +1332,17 @@
                 let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; margin-top: 10px;"><thead><tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;"><th style="padding: 12px; text-align: left; font-weight: 600;">Visitor</th><th style="padding: 12px; text-align: left; font-weight: 600;">Tenant</th><th style="padding: 12px; text-align: left; font-weight: 600;">Visit Date</th><th style="padding: 12px; text-align: left; font-weight: 600;">Time</th><th style="padding: 12px; text-align: left; font-weight: 600;">Status</th><th style="padding: 12px; text-align: left; font-weight: 600;">Security Code</th><th style="padding: 12px; text-align: left; font-weight: 600;">Actions</th></tr></thead><tbody>';
                 
                 Object.entries(requests).reverse().forEach(([key, request]) => {
-                    const status = request.status || 'pending';
+                    const status = request.status || 'registered';
                     const visitDate = request.visitDate || '-';
                     const visitTime = request.visitTime || '-';
                     
-                    // Determine status badge color
                     let statusBadge = '';
-                    if (status === 'pending-verification') {
-                        statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Pending Verification</span>';
-                    } else if (status === 'checked-in' && !request.checkedInAt) {
-                        statusBadge = '<span style="background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Approved</span>';
-                    } else if (status === 'checked-in' && request.checkedInAt) {
+                    if (status === 'checked-in' && request.checkedInAt && !request.checkedOutAt) {
                         statusBadge = '<span style="background: #cce5ff; color: #004085; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Checked In</span>';
-                    } else if (status === 'rejected') {
-                        statusBadge = '<span style="background: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Rejected</span>';
-                    } else if (status === 'registered') {
-                        statusBadge = '<span style="background: #d1ecf1; color: #0c5460; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Registered</span>';
                     } else if (status === 'checked-out') {
                         statusBadge = '<span style="background: #e2e3e5; color: #383d41; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Checked Out</span>';
+                    } else if (status === 'registered' || status === 'pending-verification') {
+                        statusBadge = '<span style="background: #d1ecf1; color: #0c5460; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">Registered</span>';
                     } else {
                         statusBadge = `<span style="background: #e9ecef; color: #495057; padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: 600;">${status}</span>`;
                     }
@@ -2125,20 +1360,19 @@
                             <td style="padding: 12px;">${statusBadge}</td>
                             <td style="padding: 12px;"><strong>${request.securityCode || '-'}</strong></td>
                             <td style="padding: 12px;">
-                                ${status === 'pending-verification' ? `
-                                    <button class="btn btn-sm" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 2px; font-weight: 600;" onclick="securityApproveVisitor('${key}')">
-                                        <i class="fa-solid fa-check"></i> Approve
-                                    </button>
-                                    <button class="btn btn-sm" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 2px; font-weight: 600;" onclick="securityRejectVisitor('${key}')">
-                                        <i class="fa-solid fa-times"></i> Reject
+                                ${(status === 'registered' || status === 'pending-verification' || (status === 'checked-in' && !request.checkedInAt)) ? `
+                                    <button class="btn btn-sm" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 2px; font-weight: 600;" onclick="securityCheckInVisitor('${key}')">
+                                        <i class="fa-solid fa-door-open"></i> Check-In
                                     </button>
                                 ` : ''}
-                                ${status === 'checked-in' && !request.checkedInAt ? `
-                                    <span style="color: #28a745; font-size: 12px; font-weight: 600;"><i class="fa-solid fa-check-circle"></i> Approved</span>
+                                ${status === 'checked-in' && request.checkedInAt && !request.checkedOutAt ? `
+                                    <button class="btn btn-sm" style="background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 2px; font-weight: 600;" onclick="checkOutVisitor('${key}')">
+                                        <i class="fa-solid fa-door-closed"></i> Check-Out
+                                    </button>
                                 ` : ''}
-                                ${status === 'rejected' ? `
-                                    <span style="color: #dc3545; font-size: 12px; font-weight: 600;"><i class="fa-solid fa-times-circle"></i> Rejected</span>
-                                ` : ''}
+                                <button class="btn btn-sm" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin: 2px; font-weight: 600;" onclick="deleteVisitor('${key}')">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
                             </td>
                         </tr>
                     `;
@@ -2150,86 +1384,13 @@
             });
         }
 
-        // Security approve visitor (overrides tenant verification if needed)
-        window.securityApproveVisitor = function(requestId) {
-            if (!confirm('Approve this visitor? They will be allowed entry.')) return;
-            
-            database.ref(`visitorRequests/${requestId}`).once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) throw new Error('Visitor request not found');
-                    const request = snapshot.val();
-                    
-                    const updates = {
-                        status: 'checked-in', // Approved - ready for check-in
-                        approvedBy: auth.currentUser ? auth.currentUser.email : 'Security',
-                        approvedAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    };
-                    
-                    return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
-                        // Notify tenant
-                        if (window.createNotification && request.tenantId) {
-                            window.createNotification(database, request.tenantId, {
-                                type: 'visitor',
-                                title: 'Visitor Approved',
-                                message: `${request.visitorName || 'Visitor'} has been approved by security.`,
-                                link: '#visitors'
-                            });
-                        }
-                    });
-                })
-                .then(() => {
-                    alert('Visitor approved successfully!');
-                })
-                .catch((error) => {
-                    alert('Error approving visitor: ' + error.message);
-                });
-        };
-
-        // Security reject visitor
-        window.securityRejectVisitor = function(requestId) {
-            if (!confirm('Reject this visitor? They will not be allowed entry.')) return;
-            
-            database.ref(`visitorRequests/${requestId}`).once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) throw new Error('Visitor request not found');
-                    const request = snapshot.val();
-                    
-                    const updates = {
-                        status: 'rejected',
-                        rejectedBy: auth.currentUser ? auth.currentUser.email : 'Security',
-                        rejectedAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    };
-                    
-                    return database.ref(`visitorRequests/${requestId}`).update(updates).then(() => {
-                        // Notify tenant
-                        if (window.createNotification && request.tenantId) {
-                            window.createNotification(database, request.tenantId, {
-                                type: 'visitor',
-                                title: 'Visitor Rejected',
-                                message: `${request.visitorName || 'Visitor'} was rejected by security.`,
-                                link: '#visitors'
-                            });
-                        }
-                    });
-                })
-                .then(() => {
-                    alert('Visitor rejected successfully!');
-                })
-                .catch((error) => {
-                    alert('Error rejecting visitor: ' + error.message);
-                });
-        };
-
         function loadHouseNumbers() {
             const houseNumberSelect = document.getElementById('gate-house-number');
-            const hostNameSelect = document.getElementById('gate-host-name');
+            const hostNameInput = document.getElementById('gate-host-name');
             if (!houseNumberSelect) return;
 
             database.ref('tenants').once('value').then(snapshot => {
                 const houseNumbers = [];
-                const hostNames = [];
                 snapshot.forEach((child) => {
                     const tenant = child.val();
                     const houseNumber = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
@@ -2241,19 +1402,9 @@
                             name: tenantName
                         });
                     }
-                    
-                    // Add to host names list
-                    if (tenantName && tenantName !== 'Unknown') {
-                        hostNames.push({
-                            name: tenantName,
-                            houseNumber: houseNumber
-                        });
-                    }
                 });
 
-                // Sort house numbers
                 houseNumbers.sort((a, b) => {
-                    // Sort by block first (A, B, C), then by number
                     const blockA = a.number.charAt(0);
                     const blockB = b.number.charAt(0);
                     if (blockA !== blockB) {
@@ -2264,7 +1415,6 @@
                     return numA - numB;
                 });
 
-                // Populate house number dropdown
                 houseNumberSelect.innerHTML = '<option value="">Select house number...</option>';
                 houseNumbers.forEach(house => {
                     const option = document.createElement('option');
@@ -2273,23 +1423,14 @@
                     houseNumberSelect.appendChild(option);
                 });
 
-                // Populate host name dropdown
-                if (hostNameSelect) {
-                    hostNames.sort((a, b) => a.name.localeCompare(b.name));
-                    hostNameSelect.innerHTML = '<option value="">Select host name...</option>';
-                    hostNames.forEach(host => {
-                        const option = document.createElement('option');
-                        option.value = host.name;
-                        option.textContent = `${host.name} (${host.houseNumber || 'N/A'})`;
-                        option.dataset.houseNumber = host.houseNumber || '';
-                        hostNameSelect.appendChild(option);
-                    });
-                    
-                    // Auto-fill house number when host is selected
-                    hostNameSelect.addEventListener('change', function() {
+                if (houseNumberSelect && hostNameInput) {
+                    houseNumberSelect.addEventListener('change', function() {
                         const selectedOption = this.options[this.selectedIndex];
-                        if (selectedOption.dataset.houseNumber && houseNumberSelect) {
-                            houseNumberSelect.value = selectedOption.dataset.houseNumber;
+                        if (selectedOption.value && selectedOption.textContent) {
+                            const nameMatch = selectedOption.textContent.match(/-\s*(.+)$/);
+                            if (nameMatch && hostNameInput) {
+                                hostNameInput.value = nameMatch[1].trim();
+                            }
                         }
                     });
                 }
@@ -2322,9 +1463,381 @@
             });
         }
 
-        // QR Scanner code removed - using manual visitor check-in instead
+        function initializeGateVisitorForm() {
+            const form = document.getElementById('gate-visitor-form');
+            const carRegInput = document.getElementById('gate-car-reg');
+            const parkingSlotSelect = document.getElementById('gate-parking-slot');
+
+            if (carRegInput && parkingSlotSelect) {
+                carRegInput.addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        parkingSlotSelect.style.display = 'block';
+                        loadAvailableParkingSlots();
+                    } else {
+                        parkingSlotSelect.style.display = 'none';
+                        parkingSlotSelect.value = '';
+                    }
+                });
+            }
+
+            const idFrontInput = document.getElementById('gate-id-front');
+            const idBackInput = document.getElementById('gate-id-back');
+            const idFrontPreview = document.getElementById('gate-id-front-preview');
+            const idBackPreview = document.getElementById('gate-id-back-preview');
+
+            if (idFrontInput && idFrontPreview) {
+                idFrontInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            idFrontPreview.innerHTML = `<img src="${e.target.result}" style="max-width: 200px; border-radius: 8px; border: 2px solid #667eea;">`;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if (idBackInput && idBackPreview) {
+                idBackInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            idBackPreview.innerHTML = `<img src="${e.target.result}" style="max-width: 200px; border-radius: 8px; border: 2px solid #667eea;">`;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const visitorName = document.getElementById('gate-visitor-name').value.trim();
+                    const visitorPhone = document.getElementById('gate-visitor-phone').value.trim();
+                    const hostName = document.getElementById('gate-host-name').value.trim();
+                    const houseNumber = document.getElementById('gate-house-number').value.trim();
+                    const carReg = document.getElementById('gate-car-reg').value.trim();
+                    const parkingSlot = document.getElementById('gate-parking-slot').value.trim();
+                    const idFrontFile = document.getElementById('gate-id-front').files[0];
+                    const idBackFile = document.getElementById('gate-id-back').files[0];
+
+                    if (!visitorName || !visitorPhone || !hostName || !houseNumber || !idFrontFile || !idBackFile) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+
+                    const reader1 = new FileReader();
+                    const reader2 = new FileReader();
+                    let idFrontBase64 = null;
+                    let idBackBase64 = null;
+                    let filesRead = 0;
+
+                    reader1.onload = function(e) {
+                        idFrontBase64 = e.target.result;
+                        filesRead++;
+                        if (filesRead === 2) submitVisitorRegistration();
+                    };
+                    reader2.onload = function(e) {
+                        idBackBase64 = e.target.result;
+                        filesRead++;
+                        if (filesRead === 2) submitVisitorRegistration();
+                    };
+
+                    reader1.readAsDataURL(idFrontFile);
+                    reader2.readAsDataURL(idBackFile);
+
+                    function submitVisitorRegistration() {
+                        database.ref('tenants').once('value').then(tenantSnapshot => {
+                            let tenantId = null;
+                            let tenantEmail = '';
+                            let tenantName = hostName;
+
+                            tenantSnapshot.forEach((child) => {
+                                const tenant = child.val();
+                                const tenantHouseNumber = tenant.houseNumber || tenant.info?.houseNumber || tenant.info?.house;
+                                if (tenantHouseNumber === houseNumber) {
+                                    tenantId = child.key;
+                                    tenantEmail = tenant.email || tenant.info?.email || tenant.auth?.email || '';
+                                    tenantName = tenant.name || tenant.info?.fullName || tenant.info?.name || hostName;
+                                }
+                            });
+
+                            const securityCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                            const visitorData = {
+                                visitorName: visitorName,
+                                visitorContact: visitorPhone,
+                                tenantName: tenantName,
+                                tenantEmail: tenantEmail || '',
+                                tenantId: tenantId || '',
+                                roomNumber: houseNumber,
+                                apartment: houseNumber,
+                                carPlate: carReg || null,
+                                idPhoto: idFrontBase64,
+                                idPhotoBack: idBackBase64,
+                                status: 'registered',
+                                visitDate: new Date().toISOString().split('T')[0],
+                                visitTime: new Date().toTimeString().split(' ')[0].substring(0, 5),
+                                registeredAt: new Date().toISOString(),
+                                registeredBy: auth.currentUser ? auth.currentUser.email : 'Security',
+                                numberOfVisitors: 1,
+                                securityCode: securityCode,
+                                createdAt: new Date().toISOString()
+                            };
+
+                            if (parkingSlot && carReg) {
+                                visitorData.parkingSlot = parkingSlot;
+                                database.ref(`parkingSpaces/${parkingSlot}`).update({
+                                    status: 'visitor',
+                                    vehicle: carReg,
+                                    visitorId: null,
+                                    updatedAt: new Date().toISOString()
+                                });
+                            }
+
+                            database.ref('visitorRequests').push(visitorData)
+                                .then(() => {
+                                    alert('Visitor registered successfully!');
+                                    form.reset();
+                                    if (idFrontPreview) idFrontPreview.innerHTML = '';
+                                    if (idBackPreview) idBackPreview.innerHTML = '';
+                                    if (parkingSlotSelect) parkingSlotSelect.style.display = 'none';
+                                })
+                                .catch((error) => {
+                                    alert('Error registering visitor: ' + error.message);
+                                });
+                        });
+                    }
+                });
+            }
+        }
+
+        // Parking Map Functions
+        let parkingData = {};
+        let currentParkingBlock = 'A';
+
+        function loadParkingMap() {
+            const container = document.getElementById('parking-map-section');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="parking-map-container">
+                    <div class="parking-legend">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                            <span style="color: white; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Available</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                            <span style="color: white; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Occupied</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"></div>
+                            <span style="color: white; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Visitor</span>
+                        </div>
+                    </div>
+                    <div class="parking-block-selector">
+                        <h4 style="color: white; margin-bottom: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);"><i class="fa-solid fa-building"></i> Select Block</h4>
+                        <button class="parking-block-btn active" id="parking-block-btn-A" onclick="showParkingBlock('A')" style="background: white; color: #667eea;">Block A</button>
+                        <button class="parking-block-btn" id="parking-block-btn-B" onclick="showParkingBlock('B')" style="background: rgba(255,255,255,0.3); color: white;">Block B</button>
+                        <button class="parking-block-btn" id="parking-block-btn-C" onclick="showParkingBlock('C')" style="background: rgba(255,255,255,0.3); color: white;">Block C</button>
+                    </div>
+                    <div id="parking-map-grid" class="parking-grid"></div>
+                </div>
+            `;
+
+            loadParkingDataFromFirebase();
+        }
+
+        function loadParkingDataFromFirebase() {
+            database.ref('parkingSpaces').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    parkingData = snapshot.val();
+                } else {
+                    initializeDefaultParkingData();
+                }
+                renderParkingMap(currentParkingBlock);
+            });
+        }
+
+        function initializeDefaultParkingData() {
+            const defaultData = {};
+            ['A', 'B', 'C'].forEach(block => {
+                for (let i = 1; i <= 8; i++) {
+                    const spaceId = `${block}-${String(i).padStart(2, '0')}`;
+                    defaultData[spaceId] = {
+                        id: spaceId,
+                        block: block,
+                        status: 'available',
+                        vehicle: null,
+                        tenant: null,
+                        owner: null
+                    };
+                }
+            });
+            database.ref('parkingSpaces').set(defaultData);
+            parkingData = defaultData;
+        }
+
+        function normalizeBlockValue(value, fallbackId) {
+            if (value) {
+                let normalized = value.toString().trim().toUpperCase();
+                if (normalized.startsWith('BLOCK')) {
+                    normalized = normalized.replace('BLOCK', '').trim();
+                }
+                if (normalized.length > 1) {
+                    normalized = normalized.split('-')[0].trim();
+                }
+                return normalized.charAt(0) || '';
+            }
+            if (fallbackId && fallbackId.includes('-')) {
+                return fallbackId.split('-')[0].trim().toUpperCase();
+            }
+            return '';
+        }
+
+        window.showParkingBlock = function(block) {
+            if (!block) return;
+            const normalizedTarget = block.toString().trim().toUpperCase();
+            currentParkingBlock = normalizedTarget;
+            ['A', 'B', 'C'].forEach(b => {
+                const btn = document.getElementById(`parking-block-btn-${b}`);
+                if (btn) {
+                    if (b === normalizedTarget) {
+                        btn.classList.add('active');
+                        btn.style.background = 'white';
+                        btn.style.color = '#667eea';
+                        btn.style.transform = 'scale(1.05)';
+                    } else {
+                        btn.classList.remove('active');
+                        btn.style.background = 'rgba(255,255,255,0.3)';
+                        btn.style.color = 'white';
+                        btn.style.transform = 'scale(1)';
+                    }
+                }
+            });
+            renderParkingMap(block);
+        }
+
+        function renderParkingMap(block) {
+            const normalizedBlock = (block || '').toString().trim().toUpperCase();
+            const grid = document.getElementById('parking-map-grid');
+            if (!grid) {
+                console.error('Parking map grid not found');
+                return;
+            }
+
+            const blockSpaces = Object.entries(parkingData || {})
+                .filter(([id, space]) => {
+                    const derivedBlock = normalizeBlockValue(space && space.block, id);
+                    return derivedBlock === normalizedBlock;
+                })
+                .sort((a, b) => {
+                    const numA = parseInt(a[0].split('-')[1]) || 0;
+                    const numB = parseInt(b[0].split('-')[1]) || 0;
+                    return numA - numB;
+                });
+
+            if (blockSpaces.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: white; padding: 40px; grid-column: 1 / -1; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">No parking spaces found for Block ' + block + '.</p>';
+                return;
+            }
+
+            grid.innerHTML = blockSpaces.map(([id, space]) => {
+                const statusClass = space.status || 'available';
+                const vehicleInfo = space.vehicle ? `<div style="font-size: 10px; margin-top: 3px; opacity: 0.9;">${space.vehicle}</div>` : '';
+                return `
+                    <div class="parking-space ${statusClass}" onclick="showParkingDetails('${id}')" data-space-id="${id}">
+                        <div class="parking-space-number">${id}</div>
+                        <div class="parking-space-status">${statusClass}</div>
+                        ${vehicleInfo}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.showParkingDetails = function(spaceId) {
+            const space = parkingData[spaceId];
+            if (!space) {
+                alert('Parking space not found');
+                return;
+            }
+
+            const modal = document.getElementById('parking-details-modal');
+            const content = document.getElementById('parking-details-content');
+            
+            content.innerHTML = `
+                <div style="display: grid; gap: 20px;">
+                    <div>
+                        <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Parking Space ID</label>
+                        <p style="margin: 0; color: #333; font-size: 24px; font-weight: 700;">${space.id}</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Status</label>
+                            <select id="parking-status-edit" class="form-control">
+                                <option value="available" ${space.status === 'available' ? 'selected' : ''}>Available</option>
+                                <option value="occupied" ${space.status === 'occupied' ? 'selected' : ''}>Occupied</option>
+                                <option value="visitor" ${space.status === 'visitor' ? 'selected' : ''}>Visitor</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Vehicle Registration</label>
+                            <input type="text" id="parking-vehicle-edit" class="form-control" value="${space.vehicle || ''}" placeholder="Enter vehicle registration">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Tenant Name</label>
+                            <input type="text" id="parking-tenant-edit" class="form-control" value="${space.tenant || ''}" placeholder="Enter tenant name">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #667eea; display: block; margin-bottom: 5px;">Owner</label>
+                            <input type="text" id="parking-owner-edit" class="form-control" value="${space.owner || ''}" placeholder="Enter owner name">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="saveParkingDetails('${spaceId}')">
+                            <i class="fa-solid fa-save"></i> Save Changes
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeParkingModal()">
+                            <i class="fa-solid fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        };
+
+        window.saveParkingDetails = function(spaceId) {
+            const status = document.getElementById('parking-status-edit').value;
+            const vehicle = document.getElementById('parking-vehicle-edit').value.trim();
+            const tenant = document.getElementById('parking-tenant-edit').value.trim();
+            const owner = document.getElementById('parking-owner-edit').value.trim();
+
+            const updates = {
+                status: status,
+                vehicle: vehicle || null,
+                tenant: tenant || null,
+                owner: owner || null,
+                updatedAt: new Date().toISOString(),
+                updatedBy: auth.currentUser ? auth.currentUser.email : 'Security'
+            };
+
+            database.ref(`parkingSpaces/${spaceId}`).update(updates)
+                .then(() => {
+                    alert('Parking space updated successfully!');
+                    closeParkingModal();
+                })
+                .catch((error) => {
+                    alert('Error updating parking space: ' + error.message);
+                });
+        };
+
+        window.closeParkingModal = function() {
+            document.getElementById('parking-details-modal').style.display = 'none';
+        };
     </script>
 </body>
-
 </html>
-
